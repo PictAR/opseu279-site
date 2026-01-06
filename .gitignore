@@ -1,0 +1,8 @@
+# macOS junk
+._*
+.DS_Store
+
+# deps/build
+node_modules/
+dist/
+.open-next/
