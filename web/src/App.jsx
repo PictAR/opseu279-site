@@ -3,7 +3,7 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-reac
 export default function App() {
   return (
     <main style={{ padding: 24 }}>
-      <h1>OPSEU Local 279</h1>
+      <h1>OPSEU Local 279 - TEST</h1>
 
       <SignedOut>
         <SignInButton mode="modal">
