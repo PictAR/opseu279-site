@@ -72,7 +72,7 @@ function Home() {
           </div>
 
           <div style={{ display: "grid", gap: 10 }}>
-            <a href="/collective-agreement.pdf" style={linkButtonStyle}>
+            <a href="/cas/ca-norfolk-279-2326.pdf" style={linkButtonStyle}>
               Open Collective Agreement
             </a>
             <Link to="/contact" style={linkButtonStyle}>
