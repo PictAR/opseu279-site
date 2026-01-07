@@ -13,7 +13,7 @@ export default function App() {
     >
       <div style={{ width: "100%", maxWidth: 420, textAlign: "center", color: "#fff" }}>
         <img
-          src="/public/l279Logo(wht).png"
+          src="/public/l279-logo-wht.png"
           alt="OPSEU Local 279"
           style={{ width: 180, height: "auto", margin: "0 auto 18px", display: "block" }}
         />
