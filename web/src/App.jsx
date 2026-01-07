@@ -190,73 +190,64 @@ function NavBar() {
           />
         </button>
 
-        {menuOpen && (
-          <div style={dropdownStyle} role="menu" aria-label="Site menu">
-            <Link to="/" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
-              <FontAwesomeIcon icon={faNewspaper} style={dropdownIconStyle} />
-              Union News
-            </Link>
+{menuOpen && (
+  <div style={dropdownStyle} role="menu" aria-label="Site menu">
+    {/* 1) News */}
+    <Link to="/" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
+      <FontAwesomeIcon icon={faNewspaper} style={dropdownIconStyle} />
+      News
+    </Link>
 
-            <button
-              type="button"
-              style={dropdownButtonStyle}
-              role="menuitem"
-              onClick={() => goHomeAndScroll("about")}
-            >
-              <FontAwesomeIcon icon={faCircleInfo} style={dropdownIconStyle} />
-              About Local 279
-            </button>
+    {/* 2) About */}
+    <button
+      type="button"
+      style={dropdownButtonStyle}
+      role="menuitem"
+      onClick={() => goHomeAndScroll("about")}
+    >
+      <FontAwesomeIcon icon={faCircleInfo} style={dropdownIconStyle} />
+      About
+    </button>
 
-            <button
-              type="button"
-              style={dropdownButtonStyle}
-              role="menuitem"
-              onClick={() => goHomeAndScroll("contact")}
-            >
-              <FontAwesomeIcon icon={faEnvelope} style={dropdownIconStyle} />
-              Contact
-            </button>
+    {/* 3) Members Area */}
+    <SignedIn>
+      <Link to="/member" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
+        <FontAwesomeIcon icon={faFileLines} style={dropdownIconStyle} />
+        Members Area
+      </Link>
+    </SignedIn>
 
-            <SignedOut>
-              <SignInButton mode="modal" afterSignInUrl="/member" afterSignUpUrl="/member">
-                <button type="button" style={dropdownButtonStyle} role="menuitem">
-                  <FontAwesomeIcon icon={faRightToBracket} style={dropdownIconStyle} />
-                  Member Login
-                </button>
-              </SignInButton>
-            </SignedOut>
+    <SignedOut>
+      <SignInButton mode="modal" afterSignInUrl="/member" afterSignUpUrl="/member">
+        <button type="button" style={dropdownButtonStyle} role="menuitem">
+          <FontAwesomeIcon icon={faRightToBracket} style={dropdownIconStyle} />
+          Members Area
+        </button>
+      </SignInButton>
+    </SignedOut>
 
-            <SignedIn>
-              <Link to="/member" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
-                <FontAwesomeIcon icon={faFileLines} style={dropdownIconStyle} />
-                Members Area
-              </Link>
-              <Link to="/member/documents" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
-                <FontAwesomeIcon icon={faFileLines} style={dropdownIconStyle} />
-                Documents and Standards
-              </Link>
-              <Link to="/member/agreement" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
-                <FontAwesomeIcon icon={faFileLines} style={dropdownIconStyle} />
-                Collective Agreement
-              </Link>
-              <Link to="/member/faq" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
-                <FontAwesomeIcon icon={faFileLines} style={dropdownIconStyle} />
-                FAQ
-              </Link>
-              <Link to="/member/contact" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
-                <FontAwesomeIcon icon={faEnvelope} style={dropdownIconStyle} />
-                Members Contact
-              </Link>
-            </SignedIn>
-          </div>
-        )}
+    {/* 4) OPSEU.org */}
+    <a
+      href="https://opseu.org"
+      target="_blank"
+      rel="noreferrer"
+      style={dropdownItemStyle}
+      role="menuitem"
+      onClick={closeMenu}
+    >
+      <FontAwesomeIcon icon={faEnvelope} style={dropdownIconStyle} />
+      OPSEU.org
+    </a>
+  </div>
+)}
+
       </div>
 
       {/* Center */}
       <Link to="/" style={logoLinkStyle} aria-label="OPSEU Local 279 Home">
         {/* Put your blue logo file in web/public */}
         <img
-          src="/l279-logo-blue.png"
+          src="/l279-logo-blue.svg"
           alt="OPSEU Local 279"
           style={logoStyle}
         />
