@@ -112,7 +112,7 @@ function MemberGate({ children }) {
 
       <SignedOut>
         <section style={cardStyle}>
-          <h2 style={h2Style}>Members Area</h2>
+          <h2 style={h2Style}>Members</h2>
           <p style={pStyle}>
             This section is for OPSEU Local 279 members. Please sign in to continue.
           </p>
@@ -186,7 +186,8 @@ function NavBar() {
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((v) => !v)}
         >
-          <FontAwesomeIcon icon={menuOpen ? faXmark : faBars} />
+          <FontAwesomeIcon icon={menuOpen ? faXmark : faBars} style={iconStyle} />
+
         </button>
 
         {menuOpen && (
@@ -259,13 +260,6 @@ function NavBar() {
         </SignedOut>
 
         <SignedIn>
-          <div style={signedInGroupStyle}>
-            <Link to="/member" style={navLinkStyle}>
-              Member Menu
-            </Link>
-            <UserButton />
-          </div>
-        </SignedIn>
       </div>
     </header>
   );
@@ -352,17 +346,24 @@ const navLeftStyle = {
   position: "relative",
 };
 
+const iconStyle = {
+  display: "block",
+};
+
 const iconButtonStyle = {
   width: 46,
   height: 46,
   borderRadius: 14,
   border: "1px solid rgba(0,0,0,0.10)",
   background: "#ffffff",
-  display: "grid",
-  placeItems: "center",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   cursor: "pointer",
   fontSize: 18,
   color: "#0e6ea6",
+  padding: 0,
+  lineHeight: 0,
 };
 
 const dropdownStyle = {
@@ -419,7 +420,7 @@ const logoLinkStyle = {
   justifySelf: "center",
   display: "inline-flex",
   alignItems: "center",
-  padding: 6,
+  padding: 4,
 };
 
 const logoStyle = {
@@ -523,4 +524,73 @@ const primaryButtonStyle = {
   fontSize: 14,
   fontWeight: 950,
   cursor: "pointer",
+};
+
+/* Footer */
+
+const footerOuterStyle = {
+  borderTop: "1px solid rgba(0,0,0,0.08)",
+  background: "#ffffff",
+  padding: "18px 0 26px",
+};
+
+const footerInnerStyle = {
+  width: "100%",
+  maxWidth: 760,
+  margin: "0 auto",
+  padding: "0 20px",
+  display: "grid",
+  gap: 12,
+};
+
+const footerLinksStyle = {
+  display: "flex",
+  gap: 14,
+  flexWrap: "wrap",
+  alignItems: "center",
+};
+
+const footerLinkStyle = {
+  color: "#0e6ea6",
+  fontWeight: 900,
+  textDecoration: "none",
+};
+
+const footerMetaStyle = {
+  display: "grid",
+  gap: 4,
+};
+
+const footerSmallStyle = {
+  fontSize: 13,
+  opacity: 0.75,
+};
+
+const footerCtaStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  gap: 12,
+};
+
+const footerButtonStyle = {
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(14,110,166,0.35)",
+  background: "rgba(14,110,166,0.10)",
+  color: "#0e6ea6",
+  fontSize: 14,
+  fontWeight: 950,
+  cursor: "pointer",
+};
+
+const footerMemberLinkStyle = {
+  textDecoration: "none",
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(14,110,166,0.25)",
+  background: "rgba(14,110,166,0.08)",
+  color: "#0e6ea6",
+  fontWeight: 950,
+  fontSize: 14,
 };
