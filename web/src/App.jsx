@@ -12,11 +12,11 @@ export default function App() {
     <BrowserRouter>
 <Routes>
   <Route path="/" element={<Home />} />
-  <Route path="/Contact.jsx" element={<Contact />} />
-  <Route path="/Faq.jsx" element={<Faq />} />
-  <Route path="/Documents.jsx" element={<Documents />} />
-  <Route path="/Agreement.jsx" element={<Agreement />} />
-  <Route path="/Member.jsx" element={<Member />} />
+  <Route path="/Contact" element={<Contact />} />
+  <Route path="/Faq" element={<Faq />} />
+  <Route path="/Documents" element={<Documents />} />
+  <Route path="/Agreement" element={<Agreement />} />
+  <Route path="/Member" element={<Member />} />
 </Routes>
     </BrowserRouter>
   );
@@ -68,17 +68,17 @@ function Home() {
 
             <SignedIn>
               <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <Link to="/Member.jsx" style={linkButtonStyle}>Member Menu</Link>
+                <Link to="/Member" style={linkButtonStyle}>Member Menu</Link>
                 <UserButton />
               </div>
             </SignedIn>
           </div>
 
           <div style={{ display: "grid", gap: 10 }}>
-            <Link to="/Agreement.jsx" style={linkButtonStyle}>Open Collective Agreement</Link>
-            <Link to="/Faq.jsx" style={linkButtonStyle}>FAQ</Link>
-            <Link to="/Documents.jsx" style={linkButtonStyle}>Documents and Standards</Link>
-            <Link to="/Contact.jsx" style={linkButtonStyle}>Contact Executive and Committees</Link>
+<Link to="/Agreement" style={linkButtonStyle}>Open Collective Agreement</Link>
+<Link to="/Faq" style={linkButtonStyle}>FAQ</Link>
+<Link to="/Documents" style={linkButtonStyle}>Documents and Standards</Link>
+<Link to="/Contact" style={linkButtonStyle}>Contact Executive and Committees</Link>
           </div>
         </div>
 
