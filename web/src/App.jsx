@@ -1,22 +1,23 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
-import contact from "./pages/contact";
-import faq from "./pages/faq";
-import documents from "./pages/documents";
-import agreement from "./pages/agreement";
 
+import Contact from "./pages/Contact";
+import Faq from "./pages/Faq";
+import Documents from "./pages/Documents";
+import Agreement from "./pages/Agreement";
+import Member from "./pages/Member";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/contact" element={<contact />} />
-        <Route path="/faq" element={<faq />} />
-        <Route path="/documents" element={<documents />} />
-        <Route path="/agreement" element={<agreement/>} />
-        <Route path="/member" element={<member />} />
-      </Routes>
+<Routes>
+  <Route path="/" element={<Home />} />
+  <Route path="/contact" element={<Contact />} />
+  <Route path="/faq" element={<Faq />} />
+  <Route path="/documents" element={<Documents />} />
+  <Route path="/agreement" element={<Agreement />} />
+  <Route path="/member" element={<Member />} />
+</Routes>
     </BrowserRouter>
   );
 }
@@ -40,9 +41,7 @@ function Home() {
         />
 
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>OPSEU Local 279</h1>
-        <p style={{ margin: "10px 0 18px", opacity: 0.9 }}>
-          Norfolk County Paramedics
-        </p>
+        <p style={{ margin: "10px 0 18px", opacity: 0.9 }}>Norfolk County Paramedics</p>
 
         <div
           style={{
@@ -62,41 +61,26 @@ function Home() {
             </div>
 
             <SignedOut>
-              <SignInButton mode="modal">
+              <SignInButton mode="modal" afterSignInUrl="/Member" afterSignUpUrl="/Member">
                 <button style={buttonStyle}>Member Login</button>
               </SignInButton>
             </SignedOut>
 
             <SignedIn>
               <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              <Link to="/member" style={linkButtonStyle}>Member Menu</Link>
-              <UserButton />
+                <Link to="/Member" style={linkButtonStyle}>Member Menu</Link>
+                <UserButton />
               </div>
             </SignedIn>
           </div>
 
           <div style={{ display: "grid", gap: 10 }}>
-            <a href="/cas/ca-norfolk-279-2326.pdf" style= {linkButtonStyle}>
-              Open Collective Agreement
-          </a>
-
-  <Link to="/agreement" style={linkButtonStyle}>
-  Open Collective Agreement
-  </Link>
-
-  <Link to="/faq" style={linkButtonStyle}>
-    FAQ
-  </Link>
-
-  <Link to="/documents" style={linkButtonStyle}>
-    Documents and Standards
-  </Link>
-
-  <Link to="/contact" style={linkButtonStyle}>
-    Contact Executive and Committees
-  </Link>
-</div>
-
+            <Link to="/Agreement" style={linkButtonStyle}>Open Collective Agreement</Link>
+            <Link to="/Faq" style={linkButtonStyle}>FAQ</Link>
+            <Link to="/Documents" style={linkButtonStyle}>Documents and Standards</Link>
+            <Link to="/Contact" style={linkButtonStyle}>Contact Executive and Committees</Link>
+          </div>
+        </div>
 
         <p style={{ marginTop: 18, opacity: 0.85, fontSize: 14 }}>
           Public info and updates coming next: Meet your Norfolk Paramedics, charitable initiatives, and Local 279 news.

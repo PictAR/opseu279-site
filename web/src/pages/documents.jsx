@@ -8,7 +8,7 @@ const DOCS = [
   { title: "Service SOPs and Policies", note: "Local process / links" },
 ];
 
-export default function documents() {
+export default function Documents() {
   return (
     <main style={{ minHeight: "100vh", background: "#0e6ea6", padding: 16, color: "#fff" }}>
       <div style={{ maxWidth: 900, margin: "0 auto" }}>

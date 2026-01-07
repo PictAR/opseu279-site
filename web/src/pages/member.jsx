@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { UserButton } from "@clerk/clerk-react";
 
-export default function member() {
+export default function Member() {
   return (
     <main style={{ minHeight: "100vh", background: "#0e6ea6", padding: 16, color: "#fff" }}>
       <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gap: 12 }}>

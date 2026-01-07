@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function agreement() {
+export default function Agreement() {
   return (
     <main style={{ minHeight: "100vh", background: "#0e6ea6", padding: 16, color: "#fff" }}>
       <div style={{ maxWidth: 900, margin: "0 auto" }}>

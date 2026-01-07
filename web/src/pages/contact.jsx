@@ -3,7 +3,7 @@ import { CONTACTS, GROUPS } from "../data/contacts";
 
 const UNION_INBOX = "tristanbritt@gmail.com"; // change to whatever you want as the catch-all
 
-export default function contact() {
+export default function Contact() {
   const [group, setGroup] = useState(GROUPS[0]);
   const [personEmail, setPersonEmail] = useState("");
   const [subject, setSubject] = useState("");

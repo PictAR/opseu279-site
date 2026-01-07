@@ -51,7 +51,7 @@ function Item({ q, a }) {
   );
 }
 
-export default function faq() {
+export default function Faq() {
   return (
     <main style={{ minHeight: "100vh", background: "#0e6ea6", padding: 16, color: "#fff" }}>
       <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gap: 12 }}>
