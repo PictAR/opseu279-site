@@ -405,4 +405,244 @@ const navStyle = {
 const navLeftStyle = {
   justifySelf: "start",
   display: "flex",
-  alignItems: "c
+  alignItems: "center",
+  position: "relative",
+};
+
+const iconButtonStyle = {
+  width: 46,
+  height: 46,
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.10)",
+  background: "#ffffff",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+  fontSize: 18,
+  color: "#0e6ea6",
+  padding: 0,
+  lineHeight: 0,
+};
+
+const iconStyle = {
+  display: "block",
+};
+
+const dropdownStyle = {
+  position: "absolute",
+  top: 56,
+  left: 0,
+  minWidth: 260,
+  background: "#ffffff",
+  border: "1px solid rgba(0,0,0,0.10)",
+  borderRadius: 14,
+  boxShadow: "0 12px 30px rgba(0,0,0,0.10)",
+  padding: 8,
+  display: "grid",
+  gap: 6,
+};
+
+const dropdownItemStyle = {
+  textDecoration: "none",
+  color: "#0b2b3a",
+  padding: "11px 10px",
+  borderRadius: 12,
+  border: "1px solid rgba(0,0,0,0.06)",
+  background: "rgba(14,110,166,0.04)",
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  fontWeight: 900,
+  fontSize: 14,
+  cursor: "pointer",
+};
+
+const dropdownButtonStyle = {
+  width: "100%",
+  textAlign: "left",
+  color: "#0b2b3a",
+  padding: "11px 10px",
+  borderRadius: 12,
+  border: "1px solid rgba(0,0,0,0.06)",
+  background: "rgba(14,110,166,0.04)",
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  fontWeight: 900,
+  fontSize: 14,
+  cursor: "pointer",
+};
+
+const dropdownIconStyle = {
+  color: "#0e6ea6",
+};
+
+const logoLinkStyle = {
+  justifySelf: "center",
+  display: "inline-flex",
+  alignItems: "center",
+  padding: 6,
+};
+
+const logoStyle = {
+  height: 70,
+  width: "auto",
+  display: "block",
+};
+
+const navRightStyle = {
+  justifySelf: "end",
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+};
+
+const mainStyle = {
+  width: "100%",
+  maxWidth: 760, // narrower column = wider margins
+  margin: "0 auto",
+  padding: "26px 20px 56px",
+  display: "grid",
+  gap: 16,
+};
+
+const cardStyle = {
+  background: "#ffffff",
+  border: "1px solid rgba(0,0,0,0.08)",
+  borderRadius: 16,
+  padding: 18,
+  boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
+};
+
+const h1Style = {
+  margin: 0,
+  fontSize: 22,
+  fontWeight: 950,
+  color: "#0e6ea6",
+};
+
+const h2Style = {
+  margin: "0 0 8px",
+  fontSize: 18,
+  fontWeight: 950,
+  color: "#0e6ea6",
+};
+
+const pStyle = {
+  margin: "10px 0 0",
+  lineHeight: 1.5,
+  fontSize: 15,
+};
+
+const mutedStyle = {
+  margin: 0,
+  opacity: 0.75,
+  fontSize: 14,
+  lineHeight: 1.5,
+};
+
+const inlineLinkStyle = {
+  color: "#0e6ea6",
+  fontWeight: 900,
+  textDecoration: "none",
+};
+
+const primaryButtonStyle = {
+  marginTop: 10,
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(14,110,166,0.35)",
+  background: "rgba(14,110,166,0.10)",
+  color: "#0e6ea6",
+  fontSize: 14,
+  fontWeight: 950,
+  cursor: "pointer",
+};
+
+/* Footer styles */
+
+const footerOuterStyle = {
+  borderTop: "1px solid rgba(0,0,0,0.08)",
+  background: "#ffffff",
+  padding: "18px 0 28px",
+};
+
+const footerInnerStyle = {
+  width: "100%",
+  maxWidth: 760,
+  margin: "0 auto",
+  padding: "0 20px",
+  display: "grid",
+  gap: 12,
+};
+
+const footerTopRowStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 12,
+  flexWrap: "wrap",
+};
+
+const footerLinksStyle = {
+  display: "flex",
+  gap: 14,
+  flexWrap: "wrap",
+  alignItems: "center",
+};
+
+const footerLinkStyle = {
+  color: "#0e6ea6",
+  fontWeight: 900,
+  textDecoration: "none",
+};
+
+const footerLinkButtonStyle = {
+  color: "#0e6ea6",
+  fontWeight: 900,
+  textDecoration: "none",
+  border: "none",
+  background: "transparent",
+  padding: 0,
+  cursor: "pointer",
+  fontSize: 14,
+};
+
+const footerCtaStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+};
+
+const footerButtonStyle = {
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(14,110,166,0.35)",
+  background: "rgba(14,110,166,0.10)",
+  color: "#0e6ea6",
+  fontSize: 14,
+  fontWeight: 950,
+  cursor: "pointer",
+};
+
+const footerMemberLinkStyle = {
+  textDecoration: "none",
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(14,110,166,0.25)",
+  background: "rgba(14,110,166,0.08)",
+  color: "#0e6ea6",
+  fontWeight: 950,
+  fontSize: 14,
+};
+
+const footerMetaStyle = {
+  display: "grid",
+  gap: 4,
+};
+
+const footerSmallStyle = {
+  fontSize: 13,
+  opacity: 0.75,
+};
