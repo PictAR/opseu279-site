@@ -22,92 +22,178 @@ export default function App() {
   );
 }
 
-function Home() {
+function NavBar() {
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#0e6ea6",
-        display: "grid",
-        placeItems: "center",
-        padding: 24,
-      }}
-    >
-      <div style={{ width: "100%", maxWidth: 520, textAlign: "center", color: "#fff" }}>
+    <header style={navStyle}>
+      {/* Left spacer keeps the center logo truly centered */}
+      <div style={navSpacer} aria-hidden="true" />
+
+      <Link to="/" style={logoLinkStyle} aria-label="OPSEU Local 279 Home">
         <img
-          src="/l279-logo-wht.png"
+          src="/l279-logo-blue.png"
           alt="OPSEU Local 279"
-          style={{ width: 190, height: "auto", margin: "0 auto 18px", display: "block" }}
+          style={logoStyle}
         />
+      </Link>
 
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>OPSEU Local 279</h1>
-        <p style={{ margin: "10px 0 18px", opacity: 0.9 }}>Norfolk County Paramedics</p>
+      <div style={navRightStyle}>
+        <SignedOut>
+          <SignInButton mode="modal" afterSignInUrl="/Member" afterSignUpUrl="/Member">
+            <button style={navButtonStyle}>Member Login</button>
+          </SignInButton>
+        </SignedOut>
 
-        <div
-          style={{
-            background: "rgba(255,255,255,0.10)",
-            border: "1px solid rgba(255,255,255,0.20)",
-            borderRadius: 16,
-            padding: 16,
-            textAlign: "left",
-            display: "grid",
-            gap: 12,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <div style={{ fontWeight: 800 }}>Members</div>
-              <div style={{ opacity: 0.9, fontSize: 14 }}>Login for member resources</div>
-            </div>
-
-            <SignedOut>
-              <SignInButton mode="modal" afterSignInUrl="/Member" afterSignUpUrl="/Member">
-                <button style={buttonStyle}>Member Login</button>
-              </SignInButton>
-            </SignedOut>
-
-            <SignedIn>
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <Link to="/Member" style={linkButtonStyle}>Member Menu</Link>
-                <UserButton />
-              </div>
-            </SignedIn>
+        <SignedIn>
+          <div style={signedInGroupStyle}>
+            <Link to="/Member" style={navLinkStyle}>Member Menu</Link>
+            <UserButton />
           </div>
-
-          <div style={{ display: "grid", gap: 10 }}>
-<Link to="/Agreement" style={linkButtonStyle}>Open Collective Agreement</Link>
-<Link to="/Faq" style={linkButtonStyle}>FAQ</Link>
-<Link to="/Documents" style={linkButtonStyle}>Documents and Standards</Link>
-<Link to="/Contact" style={linkButtonStyle}>Contact Executive and Committees</Link>
-          </div>
-        </div>
-
-        <p style={{ marginTop: 18, opacity: 0.85, fontSize: 14 }}>
-          Public info and updates coming next: Meet your Norfolk Paramedics, charitable initiatives, and Local 279 news.
-        </p>
+        </SignedIn>
       </div>
-    </main>
+    </header>
   );
 }
 
-const buttonStyle = {
+
+function Home() {
+  return (
+    <div style={pageStyle}>
+      <NavBar />
+
+      <main style={mainStyle}>
+        <section style={cardStyle}>
+          <h1 style={h1Style}>Welcome to OPSEU Local 279</h1>
+          <p style={pStyle}>
+            We represent Norfolk County Paramedics. This site shares public union news and initiatives.
+            Members can sign in using the button above for access to member resources.
+          </p>
+        </section>
+
+        {/* Placeholder for public news feed */}
+        <section style={cardStyle}>
+          <h2 style={h2Style}>Latest Union News</h2>
+          <p style={mutedStyle}>
+            Coming next: Toy Drive updates, Local 279 announcements, and community initiatives.
+          </p>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+/* Styles */
+/* Styles */
+
+const pageStyle = {
+  minHeight: "100vh",
+  background: "#ffffff",
+  color: "#0b2b3a",
+};
+
+const navStyle = {
+  position: "sticky",
+  top: 0,
+  zIndex: 10,
+  height: 64,
+  background: "#ffffff",
+  borderBottom: "1px solid rgba(0,0,0,0.08)",
+  display: "grid",
+  gridTemplateColumns: "1fr auto 1fr",
+  alignItems: "center",
+  padding: "0 14px",
+};
+
+const navSpacer = {
+  height: 1,
+};
+
+const logoLinkStyle = {
+  justifySelf: "center",
+  display: "inline-flex",
+  alignItems: "center",
+};
+
+const logoStyle = {
+  height: 42,
+  width: "auto",
+  display: "block",
+};
+
+const navRightStyle = {
+  justifySelf: "end",
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+};
+
+const navButtonStyle = {
   padding: "10px 12px",
   borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.35)",
-  background: "rgba(255,255,255,0.14)",
-  color: "#fff",
+  border: "1px solid rgba(14,110,166,0.35)",
+  background: "rgba(14,110,166,0.10)",
+  color: "#0e6ea6",
   fontSize: 14,
   fontWeight: 800,
   cursor: "pointer",
 };
 
-const linkButtonStyle = {
-  display: "block",
+const navLinkStyle = {
   textDecoration: "none",
-  padding: "12px 14px",
+  padding: "10px 12px",
   borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.25)",
-  background: "rgba(255,255,255,0.10)",
-  color: "#fff",
-  fontWeight: 700,
+  border: "1px solid rgba(14,110,166,0.25)",
+  background: "rgba(14,110,166,0.08)",
+  color: "#0e6ea6",
+  fontWeight: 800,
+  fontSize: 14,
+};
+
+const signedInGroupStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+};
+
+const mainStyle = {
+  width: "100%",
+  maxWidth: 860,
+  margin: "0 auto",
+  padding: "18px 14px 40px",
+  display: "grid",
+  gap: 14,
+};
+
+const cardStyle = {
+  background: "#ffffff",
+  border: "1px solid rgba(0,0,0,0.08)",
+  borderRadius: 16,
+  padding: 16,
+  boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
+};
+
+const h1Style = {
+  margin: 0,
+  fontSize: 22,
+  fontWeight: 900,
+  color: "#0e6ea6",
+};
+
+const h2Style = {
+  margin: "0 0 8px",
+  fontSize: 18,
+  fontWeight: 900,
+  color: "#0e6ea6",
+};
+
+const pStyle = {
+  margin: "10px 0 0",
+  lineHeight: 1.45,
+  fontSize: 15,
+};
+
+const mutedStyle = {
+  margin: 0,
+  opacity: 0.75,
+  fontSize: 14,
+  lineHeight: 1.45,
 };
