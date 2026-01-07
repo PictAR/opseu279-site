@@ -11,10 +11,11 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/faq" element={<Faq />} />
-<Route path="/documents" element={<Documents />} />
-<Route path="/agreement" element={<Agreement />} />
+        <Route path="/contact" element={<contact />} />
+        <Route path="/faq" element={<faq />} />
+        <Route path="/documents" element={<documents />} />
+        <Route path="/agreement" element={<agreement/>} />
+        <Route path="/member" element={<member />} />
       </Routes>
     </BrowserRouter>
   );
@@ -67,7 +68,10 @@ function Home() {
             </SignedOut>
 
             <SignedIn>
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              <Link to="/member" style={linkButtonStyle}>Member Menu</Link>
               <UserButton />
+              </div>
             </SignedIn>
           </div>
 
