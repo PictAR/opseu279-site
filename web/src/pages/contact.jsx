@@ -1,62 +1,28 @@
-import { useMemo, useState } from "react";
-import { CONTACTS, GROUPS } from "../data/contacts";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 
-const UNION_INBOX = "tristanbritt@gmail.com"; // change to whatever you want as the catch-all
+import Contact from "./pages/Contact";
+import Faq from "./pages/Faq";
+import Documents from "./pages/Documents";
+import Agreement from "./pages/Agreement";
+import Member from "./pages/Member";
 
-export default function Contact() {
-  const [group, setGroup] = useState(GROUPS[0]);
-  const [personEmail, setPersonEmail] = useState("");
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
-  const [fromName, setFromName] = useState("");
-  const [fromEmail, setFromEmail] = useState("");
-
-  const people = useMemo(
-    () => CONTACTS.filter((c) => c.group === group),
-    [group]
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/Contact" element={<Contact />} />
+        <Route path="/Faq" element={<Faq />} />
+        <Route path="/Documents" element={<Documents />} />
+        <Route path="/Agreement" element={<Agreement />} />
+        <Route path="/Member" element={<Member />} />
+      </Routes>
+    </BrowserRouter>
   );
+}
 
-  // keep selected person valid when group changes
-  const selectedPerson = useMemo(() => {
-    return people.find((p) => p.email === personEmail) || null;
-  }, [people, personEmail]);
-
-  function buildMailto() {
-    const to = UNION_INBOX;
-
-    // optional cc to the selected person (if they have an email)
-    const cc = selectedPerson?.email ? selectedPerson.email : "";
-
-    const lines = [
-      `Group: ${group}`,
-      `To: ${selectedPerson ? `${selectedPerson.name} (${selectedPerson.role})` : "General"}`,
-      "",
-      `From name: ${fromName || "(not provided)"}`,
-      `From email: ${fromEmail || "(not provided)"}`,
-      "",
-      "Message:",
-      message || "(no message)",
-    ];
-
-    const params = new URLSearchParams();
-    if (cc) params.set("cc", cc);
-    params.set("subject", subject || `OPSEU 279 Contact Request (${group})`);
-    params.set("body", lines.join("\n"));
-
-    return `mailto:${encodeURIComponent(to)}?${params.toString()}`;
-  }
-
-  function onSubmit(e) {
-    e.preventDefault();
-
-    if (!message.trim()) {
-      alert("Add a message so we know what you need.");
-      return;
-    }
-
-    window.location.href = buildMailto();
-  }
-
+function Home() {
   return (
     <main
       style={{
@@ -65,132 +31,83 @@ export default function Contact() {
         display: "grid",
         placeItems: "center",
         padding: 24,
-        color: "#fff",
       }}
     >
-      <div style={{ width: "100%", maxWidth: 520 }}>
-        <h1 style={{ margin: "0 0 12px", fontSize: 22 }}>Contact Your Union</h1>
-        <p style={{ margin: "0 0 18px", opacity: 0.9 }}>
-          Pick a group and person. This will open your email app with everything pre-filled.
-        </p>
+      <div style={{ width: "100%", maxWidth: 520, textAlign: "center", color: "#fff" }}>
+        <img
+          src="/l279-logo-wht.png"
+          alt="OPSEU Local 279"
+          style={{ width: 190, height: "auto", margin: "0 auto 18px", display: "block" }}
+        />
 
-        <form
-          onSubmit={onSubmit}
+        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>OPSEU Local 279</h1>
+        <p style={{ margin: "10px 0 18px", opacity: 0.9 }}>Norfolk County Paramedics</p>
+
+        <div
           style={{
             background: "rgba(255,255,255,0.10)",
             border: "1px solid rgba(255,255,255,0.20)",
             borderRadius: 16,
             padding: 16,
+            textAlign: "left",
             display: "grid",
             gap: 12,
           }}
         >
-          <label style={{ display: "grid", gap: 6 }}>
-            <span style={{ fontWeight: 600 }}>Who is this for?</span>
-            <select
-              value={group}
-              onChange={(e) => {
-                setGroup(e.target.value);
-                setPersonEmail("");
-              }}
-              style={inputStyle}
-            >
-              {GROUPS.map((g) => (
-                <option key={g} value={g}>{g}</option>
-              ))}
-            </select>
-          </label>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <div style={{ fontWeight: 800 }}>Members</div>
+              <div style={{ opacity: 0.9, fontSize: 14 }}>Login for member resources</div>
+            </div>
 
-          <label style={{ display: "grid", gap: 6 }}>
-            <span style={{ fontWeight: 600 }}>Select a person (optional)</span>
-            <select
-              value={personEmail}
-              onChange={(e) => setPersonEmail(e.target.value)}
-              style={inputStyle}
-            >
-              <option value="">General / Not sure</option>
-              {people.map((p) => (
-                <option key={p.email} value={p.email}>
-                  {p.name} — {p.role}
-                </option>
-              ))}
-            </select>
-          </label>
+            <SignedOut>
+              <SignInButton mode="modal" afterSignInUrl="/Member" afterSignUpUrl="/Member">
+                <button style={buttonStyle}>Member Login</button>
+              </SignInButton>
+            </SignedOut>
 
-          <label style={{ display: "grid", gap: 6 }}>
-            <span style={{ fontWeight: 600 }}>Your name (optional)</span>
-            <input
-              value={fromName}
-              onChange={(e) => setFromName(e.target.value)}
-              placeholder="Jane Doe"
-              style={inputStyle}
-            />
-          </label>
+            <SignedIn>
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <Link to="/Member" style={linkButtonStyle}>Member Menu</Link>
+                <UserButton />
+              </div>
+            </SignedIn>
+          </div>
 
-          <label style={{ display: "grid", gap: 6 }}>
-            <span style={{ fontWeight: 600 }}>Your email (optional)</span>
-            <input
-              value={fromEmail}
-              onChange={(e) => setFromEmail(e.target.value)}
-              placeholder="jane@email.com"
-              style={inputStyle}
-            />
-          </label>
+          <div style={{ display: "grid", gap: 10 }}>
+            <Link to="/Agreement" style={linkButtonStyle}>Open Collective Agreement</Link>
+            <Link to="/Faq" style={linkButtonStyle}>FAQ</Link>
+            <Link to="/Documents" style={linkButtonStyle}>Documents and Standards</Link>
+            <Link to="/Contact" style={linkButtonStyle}>Contact Executive and Committees</Link>
+          </div>
+        </div>
 
-          <label style={{ display: "grid", gap: 6 }}>
-            <span style={{ fontWeight: 600 }}>Subject (optional)</span>
-            <input
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder={`OPSEU 279 request (${group})`}
-              style={inputStyle}
-            />
-          </label>
-
-          <label style={{ display: "grid", gap: 6 }}>
-            <span style={{ fontWeight: 600 }}>Message</span>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="What do you need help with?"
-              rows={6}
-              style={{ ...inputStyle, resize: "vertical" }}
-            />
-          </label>
-
-          <button type="submit" style={buttonStyle}>
-            Create Email
-          </button>
-
-          <p style={{ margin: 0, fontSize: 13, opacity: 0.85 }}>
-            Next upgrade: submit directly on the site (no email app) using a Cloudflare Worker.
-          </p>
-        </form>
-
-        <a href="/" style={{ color: "#fff", opacity: 0.9, display: "inline-block", marginTop: 14 }}>
-          ← Back to home
-        </a>
+        <p style={{ marginTop: 18, opacity: 0.85, fontSize: 14 }}>
+          Public info and updates coming next: Meet your Norfolk Paramedics, charitable initiatives, and Local 279 news.
+        </p>
       </div>
     </main>
   );
 }
 
-const inputStyle = {
-  padding: "12px 12px",
-  borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.25)",
-  background: "rgba(255,255,255,0.10)",
-  color: "#fff",
-  outline: "none",
-};
-
 const buttonStyle = {
-  padding: "12px 14px",
+  padding: "10px 12px",
   borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.35)",
   background: "rgba(255,255,255,0.14)",
   color: "#fff",
-  fontSize: 16,
-  fontWeight: 700,
+  fontSize: 14,
+  fontWeight: 800,
   cursor: "pointer",
+};
+
+const linkButtonStyle = {
+  display: "block",
+  textDecoration: "none",
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.25)",
+  background: "rgba(255,255,255,0.10)",
+  color: "#fff",
+  fontWeight: 700,
 };
