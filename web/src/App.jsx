@@ -411,7 +411,7 @@ const iconButtonStyle = {
   justifyContent: "center",
   cursor: "pointer",
   fontSize: 18,
-  color: "#0e6ea6",
+  color: "#0055b8",
   padding: 0,
   lineHeight: 0,
 };
@@ -466,7 +466,7 @@ const dropdownButtonStyle = {
 };
 
 const dropdownIconStyle = {
-  color: "#0e6ea6",
+  color: "#0055b8",
 };
 
 const logoLinkStyle = {
@@ -510,14 +510,14 @@ const h1Style = {
   margin: 0,
   fontSize: 22,
   fontWeight: 950,
-  color: "#0e6ea6",
+  color: "#0055b8",
 };
 
 const h2Style = {
   margin: "0 0 8px",
   fontSize: 18,
   fontWeight: 950,
-  color: "#0e6ea6",
+  color: "#0055b8",
 };
 
 const pStyle = {
@@ -534,7 +534,7 @@ const mutedStyle = {
 };
 
 const inlineLinkStyle = {
-  color: "#0e6ea6",
+  color: "#0055b8",
   fontWeight: 900,
   textDecoration: "none",
 };
@@ -545,7 +545,7 @@ const primaryButtonStyle = {
   borderRadius: 12,
   border: "1px solid rgba(14,110,166,0.35)",
   background: "rgba(14,110,166,0.10)",
-  color: "#0e6ea6",
+  color: "#0055b8",
   fontSize: 14,
   fontWeight: 950,
   cursor: "pointer",
@@ -584,13 +584,13 @@ const footerLinksStyle = {
 };
 
 const footerLinkStyle = {
-  color: "#0e6ea6",
+  color: "#0055b8",
   fontWeight: 900,
   textDecoration: "none",
 };
 
 const footerLinkButtonStyle = {
-  color: "#0e6ea6",
+  color: "#0055b8",
   fontWeight: 900,
   textDecoration: "none",
   border: "none",
@@ -611,7 +611,7 @@ const footerButtonStyle = {
   borderRadius: 12,
   border: "1px solid rgba(14,110,166,0.35)",
   background: "rgba(14,110,166,0.10)",
-  color: "#0e6ea6",
+  color: "0055b8",
   fontSize: 14,
   fontWeight: 950,
   cursor: "pointer",
@@ -623,7 +623,7 @@ const footerMemberLinkStyle = {
   borderRadius: 12,
   border: "1px solid rgba(14,110,166,0.25)",
   background: "rgba(14,110,166,0.08)",
-  color: "#0e6ea6",
+  color: "#0055b8",
   fontWeight: 950,
   fontSize: 14,
 };
