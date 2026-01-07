@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 
-import Contact from "./pages/Contact.jsx";
-import Faq from "./pages/Faq.jsx";
-import Documents from "./pages/Documents.jsx";
-import Agreement from "./pages/Agreement.jsx";
-import Member from "./pages/Member.jsx";
+import Contact from "./pages/contact.jsx";
+import Faq from "./pages/faq.jsx";
+import Documents from "./pages/documents.jsx";
+import Agreement from "./pages/agreement.jsx";
+import Member from "./pages/member.jsx";
 
 export default function App() {
   return (
