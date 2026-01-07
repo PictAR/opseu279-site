@@ -175,6 +175,17 @@ function NavBar() {
 
   return (
     <header style={navStyle}>
+      <style>{`
+  .nav-logo {
+    transform: scale(1);
+    transition: transform 160ms ease;
+    will-change: transform;
+    transform-origin: center;
+  }
+  .nav-logo:hover {
+    transform: scale(1.12);
+  }
+`}</style>
       {/* Left */}
       <div style={navLeftStyle} ref={menuWrapRef}>
         <button
@@ -235,7 +246,7 @@ function NavBar() {
       role="menuitem"
       onClick={closeMenu}
     >
-      <FontAwesomeIcon icon={faEnvelope} style={dropdownIconStyle} />
+      <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={dropdownIconStyle} />
       OPSEU.org
     </a>
   </div>
@@ -246,11 +257,13 @@ function NavBar() {
       {/* Center */}
       <Link to="/" style={logoLinkStyle} aria-label="OPSEU Local 279 Home">
         {/* Put your blue logo file in web/public */}
-        <img
-          src="/l279-logo-blue.svg"
-          alt="OPSEU Local 279"
-          style={logoStyle}
-        />
+<img
+  src="/l279-logo-blue.svg"
+  alt="OPSEU Local 279"
+  style={logoStyle}
+  className="nav-logo"
+/>
+
       </Link>
 
       {/* Right (signed-in only): user menu */}
@@ -260,6 +273,7 @@ function NavBar() {
         </SignedIn>
       </div>
     </header>
+
   );
 }
 
@@ -387,11 +401,13 @@ const navStyle = {
   height: 92,
   background: "#ffffff",
   borderBottom: "1px solid rgba(0,0,0,0.08)",
+  boxShadow: "0 10px 22px rgba(0,0,0,0.08)", // add this
   display: "grid",
   gridTemplateColumns: "1fr auto 1fr",
   alignItems: "center",
   padding: "0 16px",
 };
+
 
 const navLeftStyle = {
   justifySelf: "start",
@@ -554,10 +570,11 @@ const primaryButtonStyle = {
 /* Footer styles */
 
 const footerOuterStyle = {
-  borderTop: "1px solid rgba(0,0,0,0.08)",
-  background: "#ffffff",
+  borderTop: "1px solid rgba(255,255,255,0.18)",
+  background: "#0055b8",
   padding: "18px 0 28px",
 };
+
 
 const footerInnerStyle = {
   width: "100%",
@@ -584,13 +601,13 @@ const footerLinksStyle = {
 };
 
 const footerLinkStyle = {
-  color: "#0055b8",
+  color: "#ffffff",
   fontWeight: 900,
   textDecoration: "none",
 };
 
 const footerLinkButtonStyle = {
-  color: "#0055b8",
+  color: "#ffffff",
   fontWeight: 900,
   textDecoration: "none",
   border: "none",
@@ -609,21 +626,22 @@ const footerCtaStyle = {
 const footerButtonStyle = {
   padding: "12px 14px",
   borderRadius: 12,
-  border: "1px solid rgba(14,110,166,0.35)",
-  background: "rgba(14,110,166,0.10)",
-  color: "0055b8",
+  border: "1px solid rgba(255,255,255,0.40)",
+  background: "rgba(255,255,255,0.12)",
+  color: "#ffffff",
   fontSize: 14,
   fontWeight: 950,
   cursor: "pointer",
 };
 
+
 const footerMemberLinkStyle = {
   textDecoration: "none",
   padding: "12px 14px",
   borderRadius: 12,
-  border: "1px solid rgba(14,110,166,0.25)",
-  background: "rgba(14,110,166,0.08)",
-  color: "#0055b8",
+  border: "1px solid rgba(255,255,255,0.35)",
+  background: "rgba(255,255,255,0.10)",
+  color: "#ffffff",
   fontWeight: 950,
   fontSize: 14,
 };
@@ -635,5 +653,6 @@ const footerMetaStyle = {
 
 const footerSmallStyle = {
   fontSize: 13,
-  opacity: 0.75,
+  opacity: 0.9,
+  color: "#ffffff",
 };
