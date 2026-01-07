@@ -14,10 +14,10 @@ export default function Member() {
         </div>
 
         <div style={{ display: "grid", gap: 10 }}>
-          <Link to="/agreement" style={linkButtonStyle}>Collective Agreement</Link>
-          <Link to="/faq" style={linkButtonStyle}>FAQ</Link>
-          <Link to="/documents" style={linkButtonStyle}>Documents and Standards</Link>
-          <Link to="/contact" style={linkButtonStyle}>Contact Executive and Committees</Link>
+          <Link to="/agreement.jsx" style={linkButtonStyle}>Collective Agreement</Link>
+          <Link to="/faq.jsx" style={linkButtonStyle}>FAQ</Link>
+          <Link to="/documents.jsx" style={linkButtonStyle}>Documents and Standards</Link>
+          <Link to="/contact.jsx" style={linkButtonStyle}>Contact Executive and Committees</Link>
         </div>
       </div>
     </main>

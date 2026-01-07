@@ -1,22 +1,22 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 
-import Contact from "./pages/Contact";
-import Faq from "./pages/Faq";
-import Documents from "./pages/Documents";
-import Agreement from "./pages/Agreement";
-import Member from "./pages/Member";
+import Contact from "./pages/Contact.jsx";
+import Faq from "./pages/Faq.jsx";
+import Documents from "./pages/Documents.jsx";
+import Agreement from "./pages/Agreement.jsx";
+import Member from "./pages/Member.jsx";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/Contact" element={<Contact />} />
-        <Route path="/Faq" element={<Faq />} />
-        <Route path="/Documents" element={<Documents />} />
-        <Route path="/Agreement" element={<Agreement />} />
-        <Route path="/Member" element={<Member />} />
+        <Route path="/Contact.jsx" element={<Contact />} />
+        <Route path="/Faq.jsx" element={<Faq />} />
+        <Route path="/Documents.jsx" element={<Documents />} />
+        <Route path="/Agreement.jsx" element={<Agreement />} />
+        <Route path="/Member.jsx" element={<Member />} />
       </Routes>
     </BrowserRouter>
   );
@@ -61,24 +61,24 @@ function Home() {
             </div>
 
             <SignedOut>
-              <SignInButton mode="modal" afterSignInUrl="/Member" afterSignUpUrl="/Member">
+              <SignInButton mode="modal" afterSignInUrl="/Member.jsx" afterSignUpUrl="/Member.jsx">
                 <button style={buttonStyle}>Member Login</button>
               </SignInButton>
             </SignedOut>
 
             <SignedIn>
               <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <Link to="/Member" style={linkButtonStyle}>Member Menu</Link>
+                <Link to="/Member.jsx" style={linkButtonStyle}>Member Menu</Link>
                 <UserButton />
               </div>
             </SignedIn>
           </div>
 
           <div style={{ display: "grid", gap: 10 }}>
-            <Link to="/Agreement" style={linkButtonStyle}>Open Collective Agreement</Link>
-            <Link to="/Faq" style={linkButtonStyle}>FAQ</Link>
-            <Link to="/Documents" style={linkButtonStyle}>Documents and Standards</Link>
-            <Link to="/Contact" style={linkButtonStyle}>Contact Executive and Committees</Link>
+            <Link to="/Agreement.jsx" style={linkButtonStyle}>Open Collective Agreement</Link>
+            <Link to="/Faq.jsx" style={linkButtonStyle}>FAQ</Link>
+            <Link to="/Documents.jsx" style={linkButtonStyle}>Documents and Standards</Link>
+            <Link to="/Contact.jsx" style={linkButtonStyle}>Contact Executive and Committees</Link>
           </div>
         </div>
 
