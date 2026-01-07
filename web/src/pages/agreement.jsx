@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function Agreement() {
+export default function agreement() {
   return (
     <main style={{ minHeight: "100vh", background: "#0e6ea6", padding: 16, color: "#fff" }}>
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
@@ -16,13 +16,13 @@ export default function Agreement() {
         <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid rgba(255,255,255,0.2)" }}>
           <iframe
             title="Collective Agreement"
-            src="/collective-agreement.pdf"
+            src="/cas/ca-norfolk-279-2326.pdf"
             style={{ width: "100%", height: "78vh", border: "none", background: "#fff" }}
           />
         </div>
 
         <p style={{ marginTop: 12 }}>
-          <a href="/collective-agreement.pdf" style={{ color: "#fff", fontWeight: 700 }}>
+          <a href="/cas/ca-norfolk-279-2326.pdf" style={{ color: "#fff", fontWeight: 700 }}>
             Download PDF
           </a>
         </p>

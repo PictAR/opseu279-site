@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
-import Contact from "./pages/Contact";
-import Faq from "./pages/Faq";
-import Documents from "./pages/Documents";
-import Agreement from "./pages/Agreement";
+import contact from "./pages/contact";
+import faq from "./pages/faq";
+import documents from "./pages/documents";
+import agreement from "./pages/agreement";
 
 
 export default function App() {
@@ -75,7 +75,7 @@ function Home() {
             <a href="/cas/ca-norfolk-279-2326.pdf" style= {linkButtonStyle}>
               Open Collective Agreement
           </a>
-          
+
   <Link to="/agreement" style={linkButtonStyle}>
   Open Collective Agreement
   </Link>
