@@ -72,14 +72,27 @@ function Home() {
           </div>
 
           <div style={{ display: "grid", gap: 10 }}>
-            <a href="/cas/ca-norfolk-279-2326.pdf" style={linkButtonStyle}>
+            <a href="/cas/ca-norfolk-279-2326.pdf" style= {linkButtonStyle}>
               Open Collective Agreement
-            </a>
-            <Link to="/contact" style={linkButtonStyle}>
-              Contact Executive and Committees
-            </Link>
-          </div>
-        </div>
+          </a>
+          
+  <Link to="/agreement" style={linkButtonStyle}>
+  Open Collective Agreement
+  </Link>
+
+  <Link to="/faq" style={linkButtonStyle}>
+    FAQ
+  </Link>
+
+  <Link to="/documents" style={linkButtonStyle}>
+    Documents and Standards
+  </Link>
+
+  <Link to="/contact" style={linkButtonStyle}>
+    Contact Executive and Committees
+  </Link>
+</div>
+
 
         <p style={{ marginTop: 18, opacity: 0.85, fontSize: 14 }}>
           Public info and updates coming next: Meet your Norfolk Paramedics, charitable initiatives, and Local 279 news.
