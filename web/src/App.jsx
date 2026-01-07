@@ -351,7 +351,7 @@ function Home() {
       <section style={cardStyle}>
         <h2 style={h2Style}>Latest Union News</h2>
         <p style={mutedStyle}>
-          Coming next: Toy Drive updates, Local 279 announcements, and community initiatives.
+          News: Toy Drive Recap, Local 279 announcements, and community initiatives.
         </p>
       </section>
 
@@ -366,8 +366,7 @@ function Home() {
       <section id="contact" style={cardStyle}>
         <h2 style={h2Style}>Contact</h2>
         <p style={pStyle}>
-          Public questions and community initiatives can be shared here. Members needing support should sign in and use
-          the members contact options.
+          General public inquiries and requests can be directed here
         </p>
       </section>
     </>
