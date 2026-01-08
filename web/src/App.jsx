@@ -517,19 +517,21 @@ const mainStyle = {
   width: "100%",
   maxWidth: 760,
   margin: "0 auto",
-  padding: "22px 16px 56px",
+  padding: "26px max(16px, env(safe-area-inset-left)) 56px max(16px, env(safe-area-inset-right))",
   display: "grid",
   gap: 16,
   outline: "2px solid red",
 };
 
 const cardStyle = {
+  width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
   background: "#ffffff",
   border: "1px solid rgba(0,0,0,0.08)",
   borderRadius: 16,
   padding: 18,
   boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
-  outline: "2px solid lime",
 };
 
 const h1Style = {

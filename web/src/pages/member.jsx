@@ -42,6 +42,9 @@ export default function Member() {
 }
 
 const cardStyle = {
+  width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
   background: "#ffffff",
   border: "1px solid rgba(0,0,0,0.08)",
   borderRadius: 16,
