@@ -409,7 +409,7 @@ const navStyle = {
   height: 92,
   background: "#ffffff",
   borderBottom: "1px solid rgba(0,0,0,0.08)",
-  boxShadow: "0 10px 22px rgba(0,0,0,0.08)", // add this
+  boxShadow: "0 10px 22px rgba(0,0,0,0.08)",
   display: "grid",
   gridTemplateColumns: "1fr auto 1fr",
   alignItems: "center",

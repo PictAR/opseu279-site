@@ -31,6 +31,89 @@ const LIBRARY = [
     },
   ],
 },
+  {
+  group: "OPSEU Local 279",
+  serviceKey: "haldimand",
+  serviceName: "Haldimand County Paramedic Services",
+  org: "OPSEU Local 2102",
+  docs: [
+    {
+      type: "ca",
+      label: "Collective Agreement",
+      items: [
+        { years: "2022 to 2025", href: "/cas/haldimand/ca-haldimand-opseu2102-2022-2025.pdf" },
+      ],
+    },
+  ],
+},
+  {
+  group: "OPSEU Local 256",
+  serviceKey: "hamilton",
+  serviceName: "Hamilton Paramedic Services",
+  org: "OPSEU Local 256",
+  docs: [
+    {
+      type: "ca",
+      label: "Collective Agreement",
+      items: [
+        { years: "2020 to 2024", href: "/cas/hamilton/ca-hamilton-opseu256-2020-2024.pdf" },
+      ],
+    },
+  ],
+},
+
+  {
+  group: "OPSEU Local 114",
+  serviceKey: "oxford",
+  serviceName: "Oxford County Paramedic Services",
+  org: "OPSEU Local 114",
+  docs: [
+    {
+      type: "ca",
+      label: "Collective Agreement",
+      items: [
+        { years: "2023 to 2025", href: "/cas/oxford/ca-oxford-opseu114-2023-2025.pdf" },
+      ],
+    },
+        {
+      type: "moa",
+      label: "Memorandum of Agreement",
+      items: [
+        { years: "2023 to 2025", href: "/cas/oxford/moa-oxford-opseu114-2023-2025.pdf" },
+      ],
+    },
+  ],
+},
+
+  {
+  group: "CUPE Local 911",
+  serviceKey: "niagara",
+  serviceName: "Niagara Region Paramedic Services",
+  org: "CUPE Local 911",
+  docs: [
+    {
+      type: "ca",
+      label: "Collective Agreement",
+      items: [
+        { years: "2020 to 2023", href: "/cas/niagara/ca-niagara-cupe911-2020-2023.pdf" },
+      ],
+    },
+        {
+      type: "ia",
+      label: "Interest Arbitration",
+      items: [
+        { years: "2020 to 2023", href: "/cas/niagara/ia-niagara-cupe911-2020-2023.pdf" },
+      ],
+    },
+            {
+      type: "ia",
+      label: "Interest Arbitration",
+      items: [
+        { years: "2023 to 2025", href: "/cas/niagara/ia-niagara-cupe911-2023-2025.pdf" },
+      ],
+    },
+  ],
+},
 
   {
     group: "Neighbouring and Comparable Services",
@@ -64,6 +147,8 @@ const LIBRARY = [
       },
     ],
   },
+
+  
 
   {
     group: "Neighbouring and Comparable Services",
