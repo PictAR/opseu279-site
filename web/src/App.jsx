@@ -182,9 +182,19 @@ function NavBar() {
     transition: transform 160ms ease;
     will-change: transform;
     transform-origin: center;
+    max-width: 60vw;
   }
   .nav-logo:hover {
     transform: scale(1.12);
+  }
+
+  @media (max-width: 420px) {
+    header[role="banner"], header {
+      height: 82px;
+    }
+    .nav-logo {
+      max-width: 58vw;
+    }
   }
 `}</style>
       {/* Left */}
@@ -392,6 +402,7 @@ const pageStyle = {
   minHeight: "100vh",
   background: "#ffffff",
   color: "#0b2b3a",
+  overflowX: "hidden", // add this
 };
 
 const navStyle = {
@@ -494,6 +505,7 @@ const logoLinkStyle = {
 
 const logoStyle = {
   height: 70,
+  maxWidth: "60vw", // add this
   width: "auto",
   display: "block",
 };
@@ -507,9 +519,9 @@ const navRightStyle = {
 
 const mainStyle = {
   width: "100%",
-  maxWidth: 760, // narrower column = wider margins
+  maxWidth: 760,
   margin: "0 auto",
-  padding: "26px 20px 56px",
+  padding: "22px 16px 56px",
   display: "grid",
   gap: 16,
 };
