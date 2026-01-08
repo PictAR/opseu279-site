@@ -183,17 +183,13 @@ function NavBar() {
     will-change: transform;
     transform-origin: center;
     max-width: 60vw;
-  }
-  .nav-logo:hover {
-    transform: scale(1.12);
+    height: auto;
   }
 
-  @media (max-width: 420px) {
-    header[role="banner"], header {
-      height: 82px;
-    }
-    .nav-logo {
-      max-width: 58vw;
+  /* Only apply hover scale on real hover devices (mouse/trackpad) */
+  @media (hover: hover) and (pointer: fine) {
+    .nav-logo:hover {
+      transform: scale(1.12);
     }
   }
 `}</style>
@@ -402,7 +398,7 @@ const pageStyle = {
   minHeight: "100vh",
   background: "#ffffff",
   color: "#0b2b3a",
-  overflowX: "hidden", // add this
+  overflowX: "hidden",
 };
 
 const navStyle = {
