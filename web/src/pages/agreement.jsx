@@ -23,16 +23,40 @@ const LIBRARY = [
     ],
   },
 
-  // Examples to expand later
-  // {
-  //   group: "Neighbouring and Comparable Services",
-  //   serviceKey: "toronto",
-  //   serviceName: "Toronto Paramedic Services",
-  //   org: "Other",
-  //   docs: [
-  //     { type: "ca", label: "Collective Agreement", items: [{ years: "Most recent", href: "/cas/toronto/ca-toronto-xxxx.pdf" }] },
-  //   ],
-  // },
+   // Expansion 
+   {
+     group: "Neighbouring and Comparable Services",
+     serviceKey: "toronto",
+     serviceName: "Toronto Paramedic Services",
+     local: "CUPE 416",
+    docs: [
+        { type: "ca", label: "Collective Agreement", items: [{ years: "2020-2024", href: "/cas/toronto/ca-toronto-cupe416-2020-2024.pdf" }] },
+        { type: "ia", label: "Interest Arbitration", items: [{ years: "2025-2028", href: "/cas/toronto/ia-toronto-cupe416-2025-2028.pdf" }] },
+     ],
+   },
+
+      {
+     group: "Neighbouring and Comparable Services",
+     serviceKey: "ottawa",
+     serviceName: "Ottawa Paramedic Services",
+     local: "CUPE 503",
+    docs: [
+        { type: "ca", label: "Collective Agreement", items: [{ years: "2020-2024", href: "/cas/ottawa/ca-ottawa-cupe503-2020-2024.pdf" }] },
+     ],
+   },
+
+         {
+     group: "Neighbouring and Comparable Services",
+     serviceKey: "Durham",
+     serviceName: "Durham Region Paramedic Services",
+     local: "CUPE 1764",
+     
+     docs: 
+    
+    [{ type: "ca", label: "Collective Agreement", items: [{ years: "2020-2024", href: "/cas/durham/ca-durham-cupe1764-2021-2024.pdf" }] },
+          { type: "moa", label: "Memorandum of Agreement", items: [{ years: "2024-2027", href: "/cas/durham/ca-durham-cupe1764-2024-2027.pdf" }] },
+     ],
+   },
 ];
 
 const TYPE_BADGE = {
