@@ -41,8 +41,6 @@ export default function Member() {
   );
 }
 
-/* Styles (scoped to this page) */
-
 const cardStyle = {
   background: "#ffffff",
   border: "1px solid rgba(0,0,0,0.08)",
@@ -64,7 +62,7 @@ const h1Style = {
   margin: 0,
   fontSize: 20,
   fontWeight: 950,
-  color: "#0e6ea6",
+  color: "#0055b8",
 };
 
 const subStyle = {
@@ -84,9 +82,9 @@ const homeLinkStyle = {
   textDecoration: "none",
   padding: "10px 12px",
   borderRadius: 12,
-  border: "1px solid rgba(14,110,166,0.25)",
-  background: "rgba(14,110,166,0.08)",
-  color: "#0e6ea6",
+  border: "1px solid rgba(0,85,184,0.25)",
+  background: "rgba(0,85,184,0.08)",
+  color: "#0055b8",
   fontWeight: 900,
   fontSize: 14,
 };
@@ -101,14 +99,14 @@ const tileStyle = {
   display: "block",
   borderRadius: 14,
   border: "1px solid rgba(0,0,0,0.08)",
-  background: "rgba(14,110,166,0.05)",
+  background: "rgba(0,85,184,0.05)",
   padding: 14,
   color: "#0b2b3a",
 };
 
 const tileTitleStyle = {
   fontWeight: 950,
-  color: "#0e6ea6",
+  color: "#0055b8",
   fontSize: 16,
 };
 
