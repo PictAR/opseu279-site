@@ -1,32 +1,178 @@
-import { Link } from "react-router-dom";
+// Agreements Library Page //
+
+// web/src/pages/agreement.jsx
+
+const LIBRARY = [
+  {
+    group: "OPSEU Local 279",
+    serviceKey: "norfolk",
+    serviceName: "Norfolk County Paramedic Services",
+    org: "OPSEU Local 279",
+    docs: [
+      {
+        type: "ca",
+        label: "Collective Agreement",
+        items: [
+          { years: "2023 to 2026", href: "/cas/norfolk/ca-norfolk-opseu279-2023-2026.pdf" },
+        ],
+      },
+      // Add MOA, MOU, IA when you have them
+      // { type: "moa", label: "Memorandum of Agreement", items: [] },
+      // { type: "mou", label: "Memorandum of Understanding", items: [] },
+      // { type: "ia", label: "Interest Arbitration", items: [] },
+    ],
+  },
+
+  // Examples to expand later
+  // {
+  //   group: "Neighbouring and Comparable Services",
+  //   serviceKey: "toronto",
+  //   serviceName: "Toronto Paramedic Services",
+  //   org: "Other",
+  //   docs: [
+  //     { type: "ca", label: "Collective Agreement", items: [{ years: "Most recent", href: "/cas/toronto/ca-toronto-xxxx.pdf" }] },
+  //   ],
+  // },
+];
+
+const TYPE_BADGE = {
+  ca: "CA",
+  moa: "MOA",
+  mou: "MOU",
+  ia: "IA",
+};
 
 export default function Agreement() {
   return (
-    <main style={{ minHeight: "100vh", background: "#0e6ea6", padding: 16, color: "#fff" }}>
-      <div style={{ maxWidth: 900, margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-          <h1 style={{ margin: 0, fontSize: 20 }}>Collective Agreement</h1>
-          <Link to="/" style={{ color: "#fff", opacity: 0.9 }}>Back</Link>
-        </div>
-
-        <p style={{ opacity: 0.9 }}>
-          You can search within the PDF using your browser’s PDF controls.
+    <section style={{ display: "grid", gap: 14 }}>
+      <header style={{ display: "grid", gap: 8 }}>
+        <h1 style={h1Style}>Agreements Library</h1>
+        <p style={subStyle}>
+          Open PDFs in a new tab for full scrolling and pinch zoom on mobile.
         </p>
+      </header>
 
-        <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid rgba(255,255,255,0.2)" }}>
-          <iframe
-            title="Collective Agreement"
-            src="/cas/ca-norfolk-279-2326.pdf"
-            style={{ width: "100%", height: "78vh", border: "none", background: "#fff" }}
-          />
-        </div>
+      {groupBy(LIBRARY, (x) => x.group).map(([groupName, services]) => (
+        <section key={groupName} style={cardStyle}>
+          <h2 style={h2Style}>{groupName}</h2>
 
-        <p style={{ marginTop: 12 }}>
-          <a href="/cas/ca-norfolk-279-2326.pdf" style={{ color: "#fff", fontWeight: 700 }}>
-            Download PDF
-          </a>
-        </p>
-      </div>
-    </main>
+          <div style={{ display: "grid", gap: 12 }}>
+            {services.map((svc) => (
+              <div key={svc.serviceKey} style={serviceBoxStyle}>
+                <div style={{ display: "grid", gap: 4 }}>
+                  <div style={serviceTitleStyle}>{svc.serviceName}</div>
+                  <div style={serviceMetaStyle}>{svc.org}</div>
+                </div>
+
+                <div style={{ display: "grid", gap: 10 }}>
+                  {svc.docs.map((doc) => (
+                    <div key={`${svc.serviceKey}-${doc.type}`} style={{ display: "grid", gap: 8 }}>
+                      <div style={docHeaderStyle}>
+                        <span style={badgeStyle}>{TYPE_BADGE[doc.type] ?? doc.type.toUpperCase()}</span>
+                        <span style={docLabelStyle}>{doc.label}</span>
+                      </div>
+
+                      {doc.items.length === 0 ? (
+                        <div style={mutedStyle}>Not added yet.</div>
+                      ) : (
+                        <div style={linkRowStyle}>
+                          {doc.items.map((it) => (
+                            <a
+                              key={it.href}
+                              href={it.href}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={pdfLinkStyle}
+                            >
+                              {it.years}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+    </section>
   );
 }
+
+/* Helpers */
+function groupBy(list, keyFn) {
+  const map = new Map();
+  for (const item of list) {
+    const k = keyFn(item);
+    if (!map.has(k)) map.set(k, []);
+    map.get(k).push(item);
+  }
+  return Array.from(map.entries());
+}
+
+/* Styles */
+const h1Style = { margin: 0, fontSize: 20, fontWeight: 950, color: "#0055b8" };
+const subStyle = { margin: 0, opacity: 0.85, lineHeight: 1.5 };
+
+const cardStyle = {
+  width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
+  background: "#ffffff",
+  border: "1px solid rgba(0,0,0,0.08)",
+  borderRadius: 16,
+  padding: 18,
+  boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
+  display: "grid",
+  gap: 12,
+};
+
+const h2Style = { margin: 0, fontSize: 16, fontWeight: 950, color: "#0055b8" };
+
+const serviceBoxStyle = {
+  display: "grid",
+  gap: 12,
+  padding: 14,
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "rgba(0,85,184,0.04)",
+};
+
+const serviceTitleStyle = { fontWeight: 950, color: "#0b2b3a", fontSize: 15 };
+const serviceMetaStyle = { fontSize: 13, opacity: 0.8 };
+
+const docHeaderStyle = { display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" };
+
+const badgeStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "4px 8px",
+  borderRadius: 999,
+  border: "1px solid rgba(0,85,184,0.25)",
+  background: "rgba(0,85,184,0.10)",
+  color: "#0055b8",
+  fontWeight: 950,
+  fontSize: 12,
+};
+
+const docLabelStyle = { fontWeight: 950, color: "#0b2b3a" };
+
+const linkRowStyle = { display: "flex", gap: 10, flexWrap: "wrap" };
+
+const pdfLinkStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "10px 12px",
+  borderRadius: 12,
+  border: "1px solid rgba(0,85,184,0.25)",
+  background: "rgba(0,85,184,0.10)",
+  color: "#0055b8",
+  fontWeight: 950,
+  textDecoration: "none",
+};
+
+const mutedStyle = { opacity: 0.75, fontSize: 14, lineHeight: 1.5 };

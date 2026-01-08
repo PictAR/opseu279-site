@@ -128,7 +128,8 @@ function MemberGate({ children }) {
   );
 }
 
-/* Navbar: hamburger dropdown left, BIG centered logo, user menu top-right (signed in only) */
+/* Navbar */
+
 function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuWrapRef = useRef(null);

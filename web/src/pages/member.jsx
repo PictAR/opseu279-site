@@ -1,5 +1,6 @@
+// Members Page //
+
 import { Link } from "react-router-dom";
-import { UserButton } from "@clerk/clerk-react";
 
 export default function Member() {
   return (
@@ -10,10 +11,6 @@ export default function Member() {
           <p style={subStyle}>Documents, standards, and member resources.</p>
         </div>
 
-        <div style={rightControlsStyle}>
-          <Link to="/" style={homeLinkStyle}>Home</Link>
-          <UserButton />
-        </div>
       </div>
 
       <div style={gridStyle}>
@@ -73,23 +70,6 @@ const subStyle = {
   fontSize: 14,
   opacity: 0.8,
   lineHeight: 1.4,
-};
-
-const rightControlsStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-};
-
-const homeLinkStyle = {
-  textDecoration: "none",
-  padding: "10px 12px",
-  borderRadius: 12,
-  border: "1px solid rgba(0,85,184,0.25)",
-  background: "rgba(0,85,184,0.08)",
-  color: "#0055b8",
-  fontWeight: 900,
-  fontSize: 14,
 };
 
 const gridStyle = {
