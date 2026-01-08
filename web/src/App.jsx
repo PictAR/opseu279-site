@@ -27,6 +27,7 @@ import {
   faEnvelope,
   faFileLines,
   faRightToBracket,
+  faArrowUpRightFromSquare,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Pages (filenames lowercase, imports must match exactly)
