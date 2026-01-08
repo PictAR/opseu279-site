@@ -1,7 +1,3 @@
-// Agreements Library Page //
-
-// web/src/pages/agreement.jsx
-
 const LIBRARY = [
   {
     group: "OPSEU Local 279",
@@ -13,52 +9,85 @@ const LIBRARY = [
         type: "ca",
         label: "Collective Agreement",
         items: [
-          { years: "2023 to 2026", href: "/cas/norfolk/ca-norfolk-opseu-279-2023-2026.pdf" },
+          { years: "2023 to 2026", href: "/cas/norfolk/ca-norfolk-opseu279-2023-2026.pdf" },
+          { years: "2020 to 2023", href: "/cas/norfolk/ca-norfolk-opseu279-2020-2023.pdf" },
+          { years: "2016 to 2020", href: "/cas/norfolk/ca-norfolk-opseu279-2016-2020.pdf" },
         ],
-          { type: "ca", label: "Collective Agreement", items: [{ years: "2020-2023", href: "/cas/norfolk/ca-norfolk-opseu279-2020-2023.pdf" }] },
-          { type: "ca", label: "Collective Agreement", items: [{ years: "2016-2020", href: "/cas/norfolk/ca-norfolk-opseu279-2016-2020.pdf" }] },
-          { type: "moa", label: "Interest Arbitration", items: [{ years: "2020-2023", href: "/cas/norfolk/ia-norfolk-opseu279-cp-2020-2023.pdf" }] },
-          { type: "moa", label: "Memorandum of Agreement", items: [{ years: "2023-2026", href: "/cas/norfolk/moa-norfolk-opseu279-cp-2023-2026.pdf" }] },
-          { type: "moa", label: "Memorandum of Agreement", items: [{ years: "2016-2020", href: "/cas/norfolk/moa-norfolk-cp-2023-2026.pdf" }] },
-
+      },
+      {
+        type: "ia",
+        label: "Interest Arbitration",
+        items: [
+          { years: "2020 to 2023", href: "/cas/norfolk/ia-norfolk-opseu279-cp-2020-2023.pdf" },
+        ],
+      },
+      {
+        type: "moa",
+        label: "Memorandum of Agreement",
+        items: [
+          { years: "2023 to 2026", href: "/cas/norfolk/moa-norfolk-opseu279-cp-2023-2026.pdf" },
+          { years: "2016 to 2020", href: "/cas/norfolk/moa-norfolk-opseu279-cp-2016-2020.pdf" },
+        ],
+      },
+      {
+        type: "mou",
+        label: "Memorandum of Understanding",
+        items: [],
       },
     ],
   },
 
-   // Expansion 
-   {
-     group: "Neighbouring and Comparable Services",
-     serviceKey: "toronto",
-     serviceName: "Toronto Paramedic Services",
-     local: "CUPE 416",
+  {
+    group: "Neighbouring and Comparable Services",
+    serviceKey: "toronto",
+    serviceName: "Toronto Paramedic Services",
+    org: "CUPE 416",
     docs: [
-        { type: "ca", label: "Collective Agreement", items: [{ years: "2020-2024", href: "/cas/toronto/ca-toronto-cupe416-2020-2024.pdf" }] },
-        { type: "ia", label: "Interest Arbitration", items: [{ years: "2025-2028", href: "/cas/toronto/ia-toronto-cupe416-2025-2028.pdf" }] },
-     ],
-   },
-
       {
-     group: "Neighbouring and Comparable Services",
-     serviceKey: "ottawa",
-     serviceName: "Ottawa Paramedic Services",
-     local: "CUPE 503",
-    docs: [
-        { type: "ca", label: "Collective Agreement", items: [{ years: "2020-2024", href: "/cas/ottawa/ca-ottawa-cupe503-2020-2024.pdf" }] },
-     ],
-   },
+        type: "ca",
+        label: "Collective Agreement",
+        items: [{ years: "2020 to 2024", href: "/cas/toronto/ca-toronto-cupe416-2020-2024.pdf" }],
+      },
+      {
+        type: "ia",
+        label: "Interest Arbitration",
+        items: [{ years: "2025 to 2028", href: "/cas/toronto/ia-toronto-cupe416-2025-2028.pdf" }],
+      },
+    ],
+  },
 
-         {
-     group: "Neighbouring and Comparable Services",
-     serviceKey: "Durham",
-     serviceName: "Durham Region Paramedic Services",
-     local: "CUPE 1764",
-     
-     docs: 
-    
-    [{ type: "ca", label: "Collective Agreement", items: [{ years: "2020-2024", href: "/cas/durham/ca-durham-cupe1764-2021-2024.pdf" }] },
-          { type: "moa", label: "Memorandum of Agreement", items: [{ years: "2024-2027", href: "/cas/durham/ca-durham-cupe1764-2024-2027.pdf" }] },
-     ],
-   },
+  {
+    group: "Neighbouring and Comparable Services",
+    serviceKey: "ottawa",
+    serviceName: "Ottawa Paramedic Services",
+    org: "CUPE 503",
+    docs: [
+      {
+        type: "ca",
+        label: "Collective Agreement",
+        items: [{ years: "2020 to 2024", href: "/cas/ottawa/ca-ottawa-cupe503-2020-2024.pdf" }],
+      },
+    ],
+  },
+
+  {
+    group: "Neighbouring and Comparable Services",
+    serviceKey: "durham",
+    serviceName: "Durham Region Paramedic Services",
+    org: "CUPE 1764",
+    docs: [
+      {
+        type: "ca",
+        label: "Collective Agreement",
+        items: [{ years: "2021 to 2024", href: "/cas/durham/ca-durham-cupe1764-2021-2024.pdf" }],
+      },
+      {
+        type: "moa",
+        label: "Memorandum of Agreement",
+        items: [{ years: "2024 to 2027", href: "/cas/durham/moa-durham-cupe1764-2024-2027.pdf" }],
+      },
+    ],
+  },
 ];
 
 const TYPE_BADGE = {
