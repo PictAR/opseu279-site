@@ -26,7 +26,7 @@ const LIBRARY = [
       label: "Memorandum of Agreement",
       items: [
         { years: "2023 to 2026", href: "/cas/norfolk/moa-norfolk-opseu279-cp-2023-2026.pdf" },
-        { years: "2016 to 2020", href: "/cas/norfolk/moa-norfolk-opseu279-cp-2016-2020.pdf" },
+        { years: "2016 to 2020", href: "/cas/norfolk/moa-norfolk-opseu279-sups-2023-2026.pdf" },
       ],
     },
   ],
