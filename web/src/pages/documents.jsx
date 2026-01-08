@@ -1,43 +1,162 @@
-import { Link } from "react-router-dom";
+// Documents Page //
 
-const DOCS = [
-  { title: "BLS Patient Care Standards", note: "Link or upload PDF" },
-  { title: "Ambulance Documentation Standards", note: "Link or upload PDF" },
-  { title: "Highway Traffic Act", note: "Link to Ontario e-Laws" },
-  { title: "Ambulance Act", note: "Link to Ontario e-Laws" },
-  { title: "Service SOPs and Policies", note: "Local process / links" },
+// web/src/pages/documents.jsx
+
+const ONTARIO_PUBLIC_DOCS = [
+  {
+    title: "Basic Life Support Patient Care Standards",
+    short: "BLS",
+    items: [
+      { label: "Open PDF", href: "/docs/ontario/bls-standards-V3_4.pdf" },
+    ],
+  },
+  {
+    title: "Advanced Life Support Patient Care Standards",
+    short: "ALS",
+    items: [
+      { label: "Open PDF", href: "/docs/ontario/alspc-standards-V5_3.pdf" },
+    ],
+  },
+  {
+    title: "Patient Care and Monitoring Standards",
+    short: "PCMS",
+    items: [
+      { label: "Open PDF", href: "/docs/ontario/pcm-standards-V1_1.pdf" },
+    ],
+  },
+  {
+    title: "Canadian Triage and Acuity Scale",
+    short: "CTAS",
+    items: [
+      { label: "Open PDF", href: "/docs/ontario/ctas-V2_0.pdf" },
+    ],
+  },
+  {
+    title: "Ontario Ambulance Documentation Standards",
+    short: "OADS",
+    items: [
+      { label: "Open PDF", href: "/docs/ontario/oad-standards-V3_0.pdf" },
+    ],
+  },
+  {
+    title: "Patient Care Transportation Standards",
+    short: "PCTS",
+    items: [
+      { label: "Open PDF", href: "/docs/ontario/pct-standards-V2_7.pdf" },
+    ],
+  },
 ];
 
 export default function Documents() {
   return (
-    <main style={{ minHeight: "100vh", background: "#0e6ea6", padding: 16, color: "#fff" }}>
-      <div style={{ maxWidth: 900, margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-          <h1 style={{ margin: 0, fontSize: 20 }}>Documents and Standards</h1>
-          <Link to="/" style={{ color: "#fff", opacity: 0.9 }}>Back</Link>
-        </div>
-
-        <p style={{ opacity: 0.9 }}>
-          This is the “what we’re expected to follow” hub. We can link to official sources or host copies.
+    <section style={{ display: "grid", gap: 14 }}>
+      <header style={{ display: "grid", gap: 8 }}>
+        <h1 style={h1Style}>Documents and Standards</h1>
+        <p style={subStyle}>
+          Public Ontario reference documents. Open PDFs in a new tab for best mobile zoom and navigation.
         </p>
+      </header>
 
-        <div style={{ display: "grid", gap: 10 }}>
-          {DOCS.map((d) => (
-            <div
-              key={d.title}
-              style={{
-                border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: 12,
-                padding: 12,
-                background: "rgba(255,255,255,0.08)",
-              }}
-            >
-              <div style={{ fontWeight: 800 }}>{d.title}</div>
-              <div style={{ opacity: 0.9, fontSize: 14 }}>{d.note}</div>
+      <section style={cardStyle}>
+        <h2 style={h2Style}>Ontario Public Documents</h2>
+
+        <div style={{ display: "grid", gap: 12 }}>
+          {ONTARIO_PUBLIC_DOCS.map((doc) => (
+            <div key={doc.title} style={itemStyle}>
+              <div style={{ display: "grid", gap: 4 }}>
+                <div style={itemTitleStyle}>{doc.title}</div>
+                <div style={itemMetaStyle}>{doc.short}</div>
+              </div>
+
+              <div style={linkRowStyle}>
+                {doc.items.map((it) => (
+                  <a
+                    key={it.href}
+                    href={it.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={pdfLinkStyle}
+                  >
+                    {it.label}
+                  </a>
+                ))}
+              </div>
             </div>
           ))}
         </div>
-      </div>
-    </main>
+      </section>
+
+      <section style={noteStyle}>
+        <div style={noteTitleStyle}>Note</div>
+        <div style={noteTextStyle}>
+          This page intentionally does not include service specific SOPs or internal operational documents.
+        </div>
+      </section>
+    </section>
   );
 }
+
+/* Styles (local so this page cannot get wrecked by global css) */
+
+const h1Style = { margin: 0, fontSize: 20, fontWeight: 950, color: "#0055b8" };
+
+const subStyle = { margin: 0, opacity: 0.85, lineHeight: 1.5 };
+
+const cardStyle = {
+  width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
+  background: "#ffffff",
+  border: "1px solid rgba(0,0,0,0.08)",
+  borderRadius: 16,
+  padding: 18,
+  boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
+  display: "grid",
+  gap: 12,
+};
+
+const h2Style = { margin: 0, fontSize: 16, fontWeight: 950, color: "#0055b8" };
+
+const itemStyle = {
+  display: "grid",
+  gap: 10,
+  padding: 14,
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "rgba(0,85,184,0.04)",
+};
+
+const itemTitleStyle = { fontWeight: 950, color: "#0b2b3a", fontSize: 15 };
+
+const itemMetaStyle = { fontSize: 13, opacity: 0.8 };
+
+const linkRowStyle = { display: "flex", gap: 10, flexWrap: "wrap" };
+
+const pdfLinkStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "10px 12px",
+  borderRadius: 12,
+  border: "1px solid rgba(0,85,184,0.25)",
+  background: "rgba(0,85,184,0.10)",
+  color: "#0055b8",
+  fontWeight: 950,
+  textDecoration: "none",
+};
+
+const noteStyle = {
+  width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
+  borderRadius: 16,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "#ffffff",
+  padding: 16,
+  display: "grid",
+  gap: 6,
+};
+
+const noteTitleStyle = { fontWeight: 950, color: "#0055b8" };
+
+const noteTextStyle = { opacity: 0.8, lineHeight: 1.5 };
