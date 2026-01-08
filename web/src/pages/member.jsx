@@ -33,6 +33,16 @@ export default function Member() {
           <div style={tileTitleStyle}>Contact Executive and Committees</div>
           <div style={tileSubStyle}>Reach the Local 279 team.</div>
         </Link>
+
+        <Link to="/member/peer-support" style={tileStyle}>
+          <div style={tileTitleStyle}>Peer Support</div>
+          <div style={tileSubStyle}>Connect with resources in support of mental health</div>
+        </Link>
+
+        <Link to="/member/discounts" style={tileStyle}>
+          <div style={tileTitleStyle}>Member Discounts</div>
+          <div style={tileSubStyle}>Exclusive discounts for OPSEU members.</div>
+        </Link>
       </div>
     </section>
   );

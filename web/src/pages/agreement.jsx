@@ -86,6 +86,25 @@ const LIBRARY = [
 },
 
   {
+    group: "Neighbouring and Comparable Services",
+    serviceKey: "toronto",
+    serviceName: "Toronto Paramedic Services",
+    org: "CUPE 416",
+    docs: [
+      {
+        type: "ca",
+        label: "Collective Agreement",
+        items: [{ years: "2020 to 2024", href: "/cas/toronto/ca-toronto-cupe416-2020-2024.pdf" }],
+      },
+      {
+        type: "ia",
+        label: "Interest Arbitration",
+        items: [{ years: "2025 to 2028", href: "/cas/toronto/ia-toronto-cupe416-2025-2028.pdf" }],
+      },
+    ],
+  },
+
+  {
   group: "CUPE Local 911",
   serviceKey: "niagara",
   serviceName: "Niagara Region Paramedic Services",
@@ -114,25 +133,6 @@ const LIBRARY = [
     },
   ],
 },
-
-  {
-    group: "Neighbouring and Comparable Services",
-    serviceKey: "toronto",
-    serviceName: "Toronto Paramedic Services",
-    org: "CUPE 416",
-    docs: [
-      {
-        type: "ca",
-        label: "Collective Agreement",
-        items: [{ years: "2020 to 2024", href: "/cas/toronto/ca-toronto-cupe416-2020-2024.pdf" }],
-      },
-      {
-        type: "ia",
-        label: "Interest Arbitration",
-        items: [{ years: "2025 to 2028", href: "/cas/toronto/ia-toronto-cupe416-2025-2028.pdf" }],
-      },
-    ],
-  },
 
   {
     group: "Neighbouring and Comparable Services",

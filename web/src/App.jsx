@@ -36,6 +36,10 @@ import Faq from "./pages/faq.jsx";
 import Documents from "./pages/documents.jsx";
 import Agreement from "./pages/agreement.jsx";
 import Member from "./pages/member.jsx";
+import Discounts from "./pages/discounts.jsx";
+import Wages from "./pages/wages.jsx";
+import Peer Support from "./pages/peer-support.jsx";
+
 
 export default function App() {
   return (
@@ -75,6 +79,21 @@ export default function App() {
             element={
               <MemberGate>
                 <Faq />
+              </MemberGate>
+            }
+                      <Route
+            path="/member/wages"
+            element={
+              <MemberGate>
+                <Wages />
+              </MemberGate>
+            }
+          />
+          <Route
+            path="/member/discounts"
+            element={
+              <MemberGate>
+                <Discounts />
               </MemberGate>
             }
           />
