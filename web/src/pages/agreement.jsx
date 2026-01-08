@@ -1,41 +1,36 @@
 const LIBRARY = [
   {
-    group: "OPSEU Local 279",
-    serviceKey: "norfolk",
-    serviceName: "Norfolk County Paramedic Services",
-    org: "OPSEU Local 279",
-    docs: [
-      {
-        type: "ca",
-        label: "Collective Agreement",
-        items: [
-          { years: "2023 to 2026", href: "/cas/norfolk/ca-norfolk-opseu279-2023-2026.pdf" },
-          { years: "2020 to 2023", href: "/cas/norfolk/ca-norfolk-opseu279-2020-2023.pdf" },
-          { years: "2016 to 2020", href: "/cas/norfolk/ca-norfolk-opseu279-2016-2020.pdf" },
-        ],
-      },
-      {
-        type: "ia",
-        label: "Interest Arbitration",
-        items: [
-          { years: "2020 to 2023", href: "/cas/norfolk/ia-norfolk-opseu279-cp-2020-2023.pdf" },
-        ],
-      },
-      {
-        type: "moa",
-        label: "Memorandum of Agreement",
-        items: [
-          { years: "2023 to 2026", href: "/cas/norfolk/moa-norfolk-opseu279-cp-2023-2026.pdf" },
-          { years: "2016 to 2020", href: "/cas/norfolk/moa-norfolk-opseu279-cp-2016-2020.pdf" },
-        ],
-      },
-      {
-        type: "mou",
-        label: "Memorandum of Understanding",
-        items: [],
-      },
-    ],
-  },
+  group: "OPSEU Local 279",
+  serviceKey: "norfolk",
+  serviceName: "Norfolk County Paramedic Services",
+  org: "OPSEU Local 279",
+  docs: [
+    {
+      type: "ca",
+      label: "Collective Agreement",
+      items: [
+        { years: "2023 to 2026", href: "/cas/norfolk/ca-norfolk-opseu279-2023-2026.pdf" },
+        { years: "2020 to 2023", href: "/cas/norfolk/ca-norfolk-opseu279-2020-2023.pdf" },
+        { years: "2016 to 2020", href: "/cas/norfolk/ca-norfolk-opseu279-2016-2020.pdf" },
+      ],
+    },
+    {
+      type: "ia",
+      label: "Interest Arbitration",
+      items: [
+        { years: "2020 to 2023", href: "/cas/norfolk/ia-norfolk-opseu279-cp-2020-2023.pdf" },
+      ],
+    },
+    {
+      type: "moa",
+      label: "Memorandum of Agreement",
+      items: [
+        { years: "2023 to 2026", href: "/cas/norfolk/moa-norfolk-opseu279-cp-2023-2026.pdf" },
+        { years: "2016 to 2020", href: "/cas/norfolk/moa-norfolk-opseu279-cp-2016-2020.pdf" },
+      ],
+    },
+  ],
+},
 
   {
     group: "Neighbouring and Comparable Services",
