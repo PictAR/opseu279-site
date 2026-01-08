@@ -13,13 +13,15 @@ const LIBRARY = [
         type: "ca",
         label: "Collective Agreement",
         items: [
-          { years: "2023 to 2026", href: "/cas/norfolk/ca-norfolk-opseu279-2023-2026.pdf" },
+          { years: "2023 to 2026", href: "/cas/norfolk/ca-norfolk-opseu-279-2023-2026.pdf" },
         ],
+          { type: "ca", label: "Collective Agreement", items: [{ years: "2020-2023", href: "/cas/norfolk/ca-norfolk-opseu279-2020-2023.pdf" }] },
+          { type: "ca", label: "Collective Agreement", items: [{ years: "2016-2020", href: "/cas/norfolk/ca-norfolk-opseu279-2016-2020.pdf" }] },
+          { type: "moa", label: "Interest Arbitration", items: [{ years: "2020-2023", href: "/cas/norfolk/ia-norfolk-opseu279-cp-2020-2023.pdf" }] },
+          { type: "moa", label: "Memorandum of Agreement", items: [{ years: "2023-2026", href: "/cas/norfolk/moa-norfolk-opseu279-cp-2023-2026.pdf" }] },
+          { type: "moa", label: "Memorandum of Agreement", items: [{ years: "2016-2020", href: "/cas/norfolk/moa-norfolk-cp-2023-2026.pdf" }] },
+
       },
-      // Add MOA, MOU, IA when you have them
-      // { type: "moa", label: "Memorandum of Agreement", items: [] },
-      // { type: "mou", label: "Memorandum of Understanding", items: [] },
-      // { type: "ia", label: "Interest Arbitration", items: [] },
     ],
   },
 
