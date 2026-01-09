@@ -8,7 +8,7 @@ export const POSTS = [
     date: "2026-01-08",
     pinned: true,
     summary:
-      "OPSEU is asking paramedics to meet with their MPP and request support for presumptive legislation for paramedics diagnosed with cancer.",
+      "OPSEU is asking paramedics to engage with their MPP and request support for presumptive legislation for paramedics diagnosed with cancer.",
     links: [
       {
         label: "Open Lobby Sheet PDF",
