@@ -37,8 +37,10 @@ import Documents from "./pages/documents.jsx";
 import Agreement from "./pages/agreement.jsx";
 import Member from "./pages/member.jsx";
 import Discounts from "./pages/discounts.jsx";
-import Wages from "./pages/wages.jsx";
+import Wages from "./pages/wages-benefits.jsx";
 import PeerSupport from "./pages/peer-support.jsx";
+import TakeAction from "./pages/take-action.jsx";
+import { POSTS } from "./data/posts.js";
 
 
 export default function App() {
@@ -67,6 +69,14 @@ export default function App() {
             }
           />
           <Route
+            path="/member/wages-benefits"
+            element={
+              <MemberGate>
+                <Wages />
+              </MemberGate>
+            }
+          />
+          <Route
             path="/member/documents"
             element={
               <MemberGate>
@@ -91,10 +101,10 @@ export default function App() {
             }
           />
           <Route
-            path="/member/wages"
+            path="/member/take-action"
             element={
               <MemberGate>
-                <Wages />
+                <TakeAction />
               </MemberGate>
             }
           />
@@ -299,7 +309,6 @@ function NavBar() {
   style={logoStyle}
   className="nav-logo"
 />
-
       </Link>
 
       {/* Right (signed-in only): user menu */}
@@ -313,7 +322,7 @@ function NavBar() {
   );
 }
 
-/* Footer: links + date + credit + member login button */
+/* Footer */
 function Footer() {
   const year = new Date().getFullYear();
   const navigate = useNavigate();
@@ -372,42 +381,124 @@ function Footer() {
   );
 }
 
-/* Public home */
+/* Public FRONT PAGE */
 function Home() {
+  const posts = [...POSTS].sort((a, b) => {
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+    return new Date(b.date) - new Date(a.date);
+  });
+
   return (
     <>
       <section style={cardStyle}>
-        <h1 style={h1Style}>Welcome to OPSEU Local 279</h1>
+        <h1 style={h1Style}>OPSEU Local 279</h1>
         <p style={pStyle}>
-          We represent Norfolk County Paramedics. This site shares public union news and initiatives. Members can access
-          documents, standards, and internal resources by signing in.
+          We represent Norfolk County Paramedics. This page shares public union news and initiatives. Members can sign in
+          for internal resources.
         </p>
       </section>
 
       <section style={cardStyle}>
-        <h2 style={h2Style}>Latest Union News</h2>
-        <p style={mutedStyle}>
-          News: Toy Drive Recap, Local 279 announcements, and community initiatives.
-        </p>
+        <h2 style={h2Style}>News</h2>
+
+        <div style={{ display: "grid", gap: 12 }}>
+          {posts.map((post) => (
+            <article key={post.id} style={postStyle}>
+              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                {post.pinned ? <span style={pinStyle}>Pinned</span> : null}
+                <div style={postTitleStyle}>{post.title}</div>
+              </div>
+
+              <div style={postMetaStyle}>{formatDate(post.date)}</div>
+              <p style={postSummaryStyle}>{post.summary}</p>
+
+              {post.links?.length ? (
+                <div style={linkRowStyle}>
+                  {post.links.map((l) => (
+                    <a
+                      key={l.href}
+                      href={l.href}
+                      target={l.external ? "_blank" : undefined}
+                      rel={l.external ? "noreferrer" : undefined}
+                      style={postLinkStyle}
+                    >
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </article>
+          ))}
+        </div>
       </section>
 
       <section id="about" style={cardStyle}>
         <h2 style={h2Style}>About Local 279</h2>
         <p style={pStyle}>
-          OPSEU Local 279 represents paramedics working for Norfolk County Paramedic Services. We advocate for fair
-          working conditions, safe practice, and a healthy workplace.
+          OPSEU Local 279 represents paramedics working for Norfolk County Paramedic Services. We advocate for fair working
+          conditions, safe practice, and a healthy workplace.
         </p>
       </section>
 
       <section id="contact" style={cardStyle}>
         <h2 style={h2Style}>Contact</h2>
         <p style={pStyle}>
-          General public inquiries and requests can be directed here
+          Public questions and community initiatives can be shared here. Members needing support should sign in and use the
+          members contact options.
         </p>
       </section>
     </>
   );
 }
+
+function formatDate(iso) {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return iso;
+  }
+}
+
+const postStyle = {
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "rgba(0,85,184,0.04)",
+  padding: 14,
+  display: "grid",
+  gap: 8,
+};
+
+const pinStyle = {
+  display: "inline-flex",
+  padding: "4px 8px",
+  borderRadius: 999,
+  border: "1px solid rgba(0,85,184,0.25)",
+  background: "rgba(0,85,184,0.10)",
+  color: "#0055b8",
+  fontWeight: 950,
+  fontSize: 12,
+};
+
+const postTitleStyle = { fontWeight: 950, color: "#0b2b3a", fontSize: 15 };
+const postMetaStyle = { fontSize: 13, opacity: 0.75 };
+const postSummaryStyle = { margin: 0, lineHeight: 1.5, opacity: 0.9 };
+
+const postLinkStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "10px 12px",
+  borderRadius: 12,
+  border: "1px solid rgba(0,85,184,0.25)",
+  background: "rgba(0,85,184,0.10)",
+  color: "#0055b8",
+  fontWeight: 950,
+  textDecoration: "none",
+};
 
 function NotFound() {
   return (

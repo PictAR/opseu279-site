@@ -15,23 +15,18 @@ export default function Member() {
 
       <div style={gridStyle}>
         <Link to="/member/agreement" style={tileStyle}>
-          <div style={tileTitleStyle}>Collective Agreement</div>
-          <div style={tileSubStyle}>Open the current NCPS collective agreement.</div>
+          <div style={tileTitleStyle}>Collective Agreements</div>
+          <div style={tileSubStyle}>View current and past collective agreements from other paramedic services.</div>
+        </Link>
+
+        <Link to="/member/wages-benefits" style={tileStyle}>
+          <div style={tileTitleStyle}>Wages & Benefits</div>
+          <div style={tileSubStyle}>Compare wages and benefits across different paramedic services.</div>
         </Link>
 
         <Link to="/member/documents" style={tileStyle}>
           <div style={tileTitleStyle}>Documents and Standards</div>
-          <div style={tileSubStyle}>Guides, policies, and reference documents.</div>
-        </Link>
-
-        <Link to="/member/faq" style={tileStyle}>
-          <div style={tileTitleStyle}>FAQ</div>
-          <div style={tileSubStyle}>Common questions and quick answers.</div>
-        </Link>
-
-        <Link to="/member/contact" style={tileStyle}>
-          <div style={tileTitleStyle}>Contact Executive and Committees</div>
-          <div style={tileSubStyle}>Reach the Local 279 team.</div>
+          <div style={tileSubStyle}>Guides, standards, and reference documents.</div>
         </Link>
 
         <Link to="/member/peer-support" style={tileStyle}>
@@ -39,9 +34,24 @@ export default function Member() {
           <div style={tileSubStyle}>Connect with resources in support of mental health</div>
         </Link>
 
+        <Link to="/member/faq" style={tileStyle}>
+          <div style={tileTitleStyle}>FAQ</div>
+          <div style={tileSubStyle}>Common questions and quick answers.</div>
+        </Link>
+
+        <Link to="/member/take-action" style={tileStyle}>
+          <div style={tileTitleStyle}>Take Action</div>
+          <div style={tileSubStyle}>Member tools for contacting elected representatives.</div>
+        </Link>
+
         <Link to="/member/discounts" style={tileStyle}>
           <div style={tileTitleStyle}>Member Discounts</div>
           <div style={tileSubStyle}>Exclusive discounts for OPSEU members.</div>
+        </Link>
+
+        <Link to="/member/contact" style={tileStyle}>
+          <div style={tileTitleStyle}>Contact Executive and Committees</div>
+          <div style={tileSubStyle}>Reach the Local 279 team.</div>
         </Link>
       </div>
     </section>
