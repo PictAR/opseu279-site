@@ -500,6 +500,12 @@ const postLinkStyle = {
   textDecoration: "none",
 };
 
+const linkRowStyle = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+};
+
 function NotFound() {
   return (
     <section style={cardStyle}>
