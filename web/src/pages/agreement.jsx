@@ -48,6 +48,28 @@ const LIBRARY = [
 },
   {
   group: "OPSEU Surrounding Area",
+  serviceKey: "brant",
+  serviceName: "Brant County Paramedic Services",
+  org: "OPSEU Local 256",
+  docs: [
+    {
+      type: "ca",
+      label: "Collective Agreement",
+      items: [
+        { years: "2023 to 2026", href: "/cas/brant/ca-brant-opseu256-2023-2026.pdf" },
+      ],
+    },
+        {
+      type: "ca",
+      label: "Collective Agreement",
+      items: [
+        { years: "2020 to 2023", href: "/cas/brant/ca-brant-opseu256-2020-2023.pdf" },
+      ],
+    },
+  ],
+},
+  {
+  group: "OPSEU Surrounding Area",
   serviceKey: "hamilton",
   serviceName: "Hamilton Paramedic Services",
   org: "OPSEU Local 256",
@@ -85,7 +107,43 @@ const LIBRARY = [
   ],
 },
   {
-  group: "CUPE Surrounding Area",
+  group: "OPSEU Other",
+  serviceKey: "guelph",
+  serviceName: "Guelph and Wellington Paramedic Services",
+  org: "OPSEU Local 231",
+  docs: [
+    {
+      type: "ca",
+      label: "Collective Agreement",
+      items: [
+        { years: "2018 to 2022", href: "/cas/guelph/ca-guelphwellington-opseu231-2018-2022.pdf" },
+      ],
+    },
+        {
+      type: "ca",
+      label: "Collective Agreement",
+      items: [
+        { years: "2015 to 2018", href: "/cas/guelph/ca-guelphwellington-opseu231-2015-2018.pdf" },
+      ],
+    },
+        {
+      type: "moa",
+      label: "Memorandum of Agreement",
+      items: [
+        { years: "2018 to 2022", href: "/cas/guelph/moa-guelphwellington-opseu231-2018-2022.pdf" },
+      ],
+    },
+            {
+      type: "moa",
+      label: "Memorandum of Settlement",
+      items: [
+        { years: "2018 to 2022", href: "/cas/guelph/moa-guelphwellington-opseu231-2018-2022.pdf" },
+      ],
+    },
+  ],
+},
+  {
+  group: "Neighbouring and Comparable Services",
   serviceKey: "niagara",
   serviceName: "Niagara Region Paramedic Services",
   org: "CUPE Local 911",
@@ -159,6 +217,19 @@ const LIBRARY = [
         type: "moa",
         label: "Memorandum of Agreement",
         items: [{ years: "2024 to 2027", href: "/cas/durham/moa-durham-cupe1764-2024-2027.pdf" }],
+      },
+    ],
+  },
+    {
+    group: "Neighbouring and Comparable Services",
+    serviceKey: "elgin",
+    serviceName: "Elgin County Paramedic Services",
+    org: "UNIFOR 302",
+    docs: [
+      {
+        type: "ca",
+        label: "Collective Agreement",
+        items: [{ years: "2023 to 2027", href: "/cas/elgin/ca-elgin-unifor302-2023-2027.pdf" }],
       },
     ],
   },
