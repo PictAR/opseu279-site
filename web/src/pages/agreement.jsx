@@ -1,6 +1,6 @@
 const LIBRARY = [
   {
-  group: "OPSEU Local 279",
+  group: "OPSEU Surrounding Area",
   serviceKey: "norfolk",
   serviceName: "Norfolk County Paramedic Services",
   org: "OPSEU Local 279",
@@ -18,7 +18,7 @@ const LIBRARY = [
       type: "ia",
       label: "Interest Arbitration",
       items: [
-        { years: "2020 to 2023", href: "/cas/norfolk/ia-norfolk-opseu279-cp-2020-2023.pdf" },
+        { years: "2020 to 2023", href: "/cas/norfolk/ia-norfolk-opseu279-2020-2023.pdf" },
       ],
     },
     {
@@ -32,7 +32,7 @@ const LIBRARY = [
   ],
 },
   {
-  group: "OPSEU Local 279",
+  group: "OPSEU Surrounding Area",
   serviceKey: "haldimand",
   serviceName: "Haldimand County Paramedic Services",
   org: "OPSEU Local 2102",
@@ -47,7 +47,7 @@ const LIBRARY = [
   ],
 },
   {
-  group: "OPSEU Local 256",
+  group: "OPSEU Surrounding Area",
   serviceKey: "hamilton",
   serviceName: "Hamilton Paramedic Services",
   org: "OPSEU Local 256",
@@ -63,7 +63,7 @@ const LIBRARY = [
 },
 
   {
-  group: "OPSEU Local 114",
+  group: "OPSEU Surrounding Area",
   serviceKey: "oxford",
   serviceName: "Oxford County Paramedic Services",
   org: "OPSEU Local 114",
@@ -84,28 +84,8 @@ const LIBRARY = [
     },
   ],
 },
-
   {
-    group: "Neighbouring and Comparable Services",
-    serviceKey: "toronto",
-    serviceName: "Toronto Paramedic Services",
-    org: "CUPE 416",
-    docs: [
-      {
-        type: "ca",
-        label: "Collective Agreement",
-        items: [{ years: "2020 to 2024", href: "/cas/toronto/ca-toronto-cupe416-2020-2024.pdf" }],
-      },
-      {
-        type: "ia",
-        label: "Interest Arbitration",
-        items: [{ years: "2025 to 2028", href: "/cas/toronto/ia-toronto-cupe416-2025-2028.pdf" }],
-      },
-    ],
-  },
-
-  {
-  group: "CUPE Local 911",
+  group: "CUPE Surrounding Area",
   serviceKey: "niagara",
   serviceName: "Niagara Region Paramedic Services",
   org: "CUPE Local 911",
@@ -133,7 +113,24 @@ const LIBRARY = [
     },
   ],
 },
-
+  {
+    group: "Neighbouring and Comparable Services",
+    serviceKey: "toronto",
+    serviceName: "Toronto Paramedic Services",
+    org: "CUPE 416",
+    docs: [
+      {
+        type: "ca",
+        label: "Collective Agreement",
+        items: [{ years: "2020 to 2024", href: "/cas/toronto/ca-toronto-cupe416-2020-2024.pdf" }],
+      },
+      {
+        type: "ia",
+        label: "Interest Arbitration",
+        items: [{ years: "2025 to 2028", href: "/cas/toronto/ia-toronto-cupe416-2025-2028.pdf" }],
+      },
+    ],
+  },
   {
     group: "Neighbouring and Comparable Services",
     serviceKey: "ottawa",
@@ -147,9 +144,6 @@ const LIBRARY = [
       },
     ],
   },
-
-  
-
   {
     group: "Neighbouring and Comparable Services",
     serviceKey: "durham",
