@@ -38,7 +38,7 @@ import Agreement from "./pages/agreement.jsx";
 import Member from "./pages/member.jsx";
 import Discounts from "./pages/discounts.jsx";
 import Wages from "./pages/wages.jsx";
-import Peer Support from "./pages/peer-support.jsx";
+import PeerSupport from "./pages/peer-support.jsx";
 
 
 export default function App() {
@@ -75,13 +75,22 @@ export default function App() {
             }
           />
           <Route
+            path="/member/peer-support"
+            element={
+              <MemberGate>
+                <PeerSupport />
+              </MemberGate>
+            }
+          />
+          <Route
             path="/member/faq"
             element={
               <MemberGate>
                 <Faq />
               </MemberGate>
             }
-                      <Route
+          />
+          <Route
             path="/member/wages"
             element={
               <MemberGate>
