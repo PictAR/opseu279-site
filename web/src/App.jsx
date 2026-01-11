@@ -302,7 +302,6 @@ function NavBar() {
 
       {/* Center */}
       <Link to="/" style={logoLinkStyle} aria-label="OPSEU Local 279 Home">
-        {/* Put your blue logo file in web/public */}
 <img
   src="/l279-logo-blue.png"
   alt="OPSEU Local 279"
