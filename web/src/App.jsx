@@ -406,7 +406,7 @@ function Home() {
           <p style={heroTextStyle}>
             OPSEU279 is the local affiliate of OPSEU.org and represents Norfolk County’s Paramedics. We advocate for our
             members and the profession through collective bargaining, workplace safety, and fair, consistent treatment.
-            Our focus is simple: protect what matters, improve what doesn’t, and push for a stronger, more equitable
+            Our focus is simple: protect what matters and push for a stronger, more equitable
             workplace for paramedics.
           </p>
 
