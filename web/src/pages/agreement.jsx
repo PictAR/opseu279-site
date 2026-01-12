@@ -301,6 +301,21 @@ export default function Agreement() {
   );
 }
 
+import { useAuth } from "@clerk/clerk-react";
+
+export function DebugClerkTokenButton() {
+  const { getToken } = useAuth();
+
+  const onClick = async () => {
+    const token = await getToken(); // default session token
+    console.log("CLERK_TOKEN:", token);
+    alert("Token printed to DevTools console. Do not paste it anywhere public.");
+  };
+
+  return <button onClick={onClick}>Debug: Get Clerk Token</button>;
+}
+
+
 /* Helpers */
 function groupBy(list, keyFn) {
   const map = new Map();
