@@ -1,6 +1,6 @@
 {
   "name": "OPSEU Local 279",
-  "short_name": "OPSEU279",
+  "short_name": "OPSEU 279",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -13,7 +13,7 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#0055b8",
+  "theme_color": "#2059A8",
   "background_color": "#ffffff",
   "display": "standalone"
 }
