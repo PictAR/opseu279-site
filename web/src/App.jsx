@@ -46,7 +46,7 @@ import PeerSupport from "./pages/peer-support.jsx";
 import TakeAction from "./pages/take-action.jsx";
 import { POSTS } from "./data/posts.js";
 
-
+import opseuUnderCon from "./assets/opseuUnderCon.png";
 
 export default function App() {
   return (
@@ -395,48 +395,40 @@ function Footer() {
 /* ********** */
 
 function Home() {
-const comingSoon = import.meta.env.VITE_COMING_SOON === "true";
+  const comingSoon = import.meta.env.VITE_COMING_SOON === "true";
 
   if (comingSoon) {
     return (
-      <section style={comingSoonWrapStyle}>
-        <div style={comingSoonCardStyle}>
-          <div style={comingSoonKickerStyle}>OPSEU Local 279</div>
+      <>
+        <section style={heroCardStyle}>
+          <h1 style={heroTitleStyle}>OPSEU Local 279</h1>
 
-          <h1 style={comingSoonTitleStyle}>COMING SOON</h1>
-
-          <p style={comingSoonTextStyle}>
-            We’re building a members hub with news and collective agreement tools.
+          <p style={heroTextStyle}>
+            OPSEU279 is the local affiliate of OPSEU.org and represents Norfolk County’s Paramedics. We advocate for our
+            members and the profession through collective bargaining, workplace safety, and fair, consistent treatment.
+            Our focus is simple: protect what matters, improve what doesn’t, and push for a stronger, more equitable
+            workplace for paramedics.
           </p>
 
-          <div style={comingSoonActionsStyle}>
-            <SignedOut>
-              <SignInButton mode="modal" afterSignInUrl="/member" afterSignUpUrl="/member">
-                <button style={primaryButtonStyle}>Member Login</button>
-              </SignInButton>
-            </SignedOut>
-
-            <SignedIn>
-              <Link to="/member" style={comingSoonLinkStyle}>
-                Go to Members Area
-              </Link>
-            </SignedIn>
-
-            <a
-              href="https://opseu.org"
-              target="_blank"
-              rel="noreferrer"
-              style={comingSoonLinkStyle}
-            >
-              OPSEU.org
-            </a>
+          <div style={heroImageWrapStyle}>
+            <img
+              src={opseuUnderCon}
+              alt="opseu279.com under construction"
+              style={heroImageStyle}
+              loading="lazy"
+            />
           </div>
+        </section>
 
-          <div style={comingSoonFinePrintStyle}>
-            Tip: Members can still sign in now.
-          </div>
-        </div>
-      </section>
+        <section id="about" style={cardStyle}>
+          <h2 style={h2Style}>About Local 279</h2>
+          <p style={pStyle}>
+            OPSEU Local 279 represents paramedics working for Norfolk County Paramedic Services. We work to advance
+            paramedic interests through collective bargaining, enforcement of the collective agreement, and advocacy for
+            respectful workplaces grounded in fairness and equality.
+          </p>
+        </section>
+      </>
     );
   }
 
@@ -761,6 +753,52 @@ const primaryButtonStyle = {
   fontSize: 14,
   fontWeight: 950,
   cursor: "pointer",
+};
+
+/* ****************************** */
+/* UNDER CONSTRUCTION PAGE STYLES */
+/* ****************************** */
+
+const heroCardStyle = {
+  width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
+  background: "#ffffff",
+  border: "1px solid rgba(0,0,0,0.08)",
+  borderRadius: 16,
+  padding: 18,
+  boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
+  display: "grid",
+  gap: 14,
+};
+
+const heroTitleStyle = {
+  margin: 0,
+  fontSize: 24,
+  fontWeight: 950,
+  color: "#0055b8",
+};
+
+const heroTextStyle = {
+  margin: 0,
+  lineHeight: 1.55,
+  fontSize: 15,
+  opacity: 0.95,
+};
+
+const heroImageWrapStyle = {
+  width: "100%",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "rgba(0,85,184,0.04)",
+  padding: 12,
+};
+
+const heroImageStyle = {
+  width: "100%",
+  height: "auto",
+  display: "block",
+  borderRadius: 10,
 };
 
 /* ************* */
