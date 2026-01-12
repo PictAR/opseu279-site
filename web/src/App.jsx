@@ -383,7 +383,7 @@ function Footer() {
 
         <div style={footerMetaStyle}>
           <div style={footerSmallStyle}>© {year} OPSEU Local 279</div>
-          <div style={footerSmallStyle}>Website by Tristan Britt</div>
+          <div style={footerSmallStyle}>Website by TJ3D</div>
         </div>
       </div>
     </footer>
