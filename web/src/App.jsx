@@ -395,6 +395,51 @@ function Footer() {
 /* ********** */
 
 function Home() {
+const comingSoon = import.meta.env.VITE_COMING_SOON === "true";
+
+  if (comingSoon) {
+    return (
+      <section style={comingSoonWrapStyle}>
+        <div style={comingSoonCardStyle}>
+          <div style={comingSoonKickerStyle}>OPSEU Local 279</div>
+
+          <h1 style={comingSoonTitleStyle}>COMING SOON</h1>
+
+          <p style={comingSoonTextStyle}>
+            We’re building a members hub with news and collective agreement tools.
+          </p>
+
+          <div style={comingSoonActionsStyle}>
+            <SignedOut>
+              <SignInButton mode="modal" afterSignInUrl="/member" afterSignUpUrl="/member">
+                <button style={primaryButtonStyle}>Member Login</button>
+              </SignInButton>
+            </SignedOut>
+
+            <SignedIn>
+              <Link to="/member" style={comingSoonLinkStyle}>
+                Go to Members Area
+              </Link>
+            </SignedIn>
+
+            <a
+              href="https://opseu.org"
+              target="_blank"
+              rel="noreferrer"
+              style={comingSoonLinkStyle}
+            >
+              OPSEU.org
+            </a>
+          </div>
+
+          <div style={comingSoonFinePrintStyle}>
+            Tip: Members can still sign in now.
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const posts = [...POSTS].sort((a, b) => {
     if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
     return new Date(b.date) - new Date(a.date);
