@@ -1,4 +1,6 @@
-// web/src/App.jsx
+// ******* //
+// APP.JSX //
+// ******* //
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -30,7 +32,9 @@ import {
   faArrowUpRightFromSquare,
 } from "@fortawesome/free-solid-svg-icons";
 
-// Pages (filenames lowercase, imports must match exactly)
+import EnvBadge from "./components/EnvBadge.jsx";
+
+// Pages
 import Contact from "./pages/contact.jsx";
 import Faq from "./pages/faq.jsx";
 import Documents from "./pages/documents.jsx";
@@ -41,6 +45,7 @@ import Wages from "./pages/wages-benefits.jsx";
 import PeerSupport from "./pages/peer-support.jsx";
 import TakeAction from "./pages/take-action.jsx";
 import { POSTS } from "./data/posts.js";
+
 
 
 export default function App() {
@@ -136,6 +141,7 @@ export default function App() {
 function Shell() {
   return (
     <div style={pageStyle}>
+      <EnvBadge />
       <NavBar />
       <main style={mainStyle}>
         <Outlet />
@@ -166,7 +172,9 @@ function MemberGate({ children }) {
   );
 }
 
+/* ****** */
 /* Navbar */
+/* ****** */
 
 function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -317,11 +325,13 @@ function NavBar() {
         </SignedIn>
       </div>
     </header>
-
   );
 }
 
+/* ****** */
 /* Footer */
+/* ****** */
+
 function Footer() {
   const year = new Date().getFullYear();
   const navigate = useNavigate();
@@ -380,7 +390,10 @@ function Footer() {
   );
 }
 
-/* Public FRONT PAGE */
+/* ********** */
+/* FRONT PAGE */
+/* ********** */
+
 function Home() {
   const posts = [...POSTS].sort((a, b) => {
     if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
@@ -517,7 +530,9 @@ function NotFound() {
   );
 }
 
+/* ****** */
 /* Styles */
+/* ****** */
 
 const pageStyle = {
   minHeight: "100vh",
@@ -539,7 +554,6 @@ const navStyle = {
   alignItems: "center",
   padding: "0 16px",
 };
-
 
 const navLeftStyle = {
   justifySelf: "start",
@@ -642,10 +656,10 @@ const mainStyle = {
   width: "100%",
   maxWidth: 760,
   margin: "0 auto",
-  padding: "26px max(16px, env(safe-area-inset-left)) 56px max(16px, env(safe-area-inset-right))",
+  padding:
+    "26px max(16px, env(safe-area-inset-left)) 56px max(16px, env(safe-area-inset-right))",
   display: "grid",
   gap: 16,
-  outline: "2px solid red",
 };
 
 const cardStyle = {
@@ -704,14 +718,15 @@ const primaryButtonStyle = {
   cursor: "pointer",
 };
 
+/* ************* */
 /* Footer styles */
+/* ************* */
 
 const footerOuterStyle = {
   borderTop: "1px solid rgba(255,255,255,0.18)",
   background: "#0055b8",
   padding: "18px 0 28px",
 };
-
 
 const footerInnerStyle = {
   width: "100%",
@@ -770,7 +785,6 @@ const footerButtonStyle = {
   fontWeight: 950,
   cursor: "pointer",
 };
-
 
 const footerMemberLinkStyle = {
   textDecoration: "none",
