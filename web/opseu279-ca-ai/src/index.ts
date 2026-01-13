@@ -1,13 +1,11 @@
 /**
- * OPSEU 279 CA AI Worker (TypeScript)
+ * OPSEU 279 CA AI Worker (Cloudflare Workers + TypeScript)
  *
- * Required env vars:
- *  - OPENAI_API_KEY
+ * Env vars (Cloudflare):
+ *  - OPENAI_API_KEY (secret)
  *  - OPENAI_VECTOR_STORE_ID
- *
- * Optional env vars:
- *  - OPENAI_MODEL (default: "gpt-4.1")
- *  - ALLOWED_ORIGINS (comma-separated, default includes opseu279.com + localhost:5173)
+ *  - OPENAI_MODEL (optional)
+ *  - ALLOWED_ORIGINS (optional)
  */
 
 export interface Env {
@@ -36,16 +34,13 @@ const DEFAULT_ALLOWED_ORIGINS = [
 
 const SYSTEM_INSTRUCTIONS = `
 You are the OPSEU Local 279 Collective Agreement assistant.
-You MUST answer using ONLY information found in the Norfolk County OPSEU Local 279 collective agreement (the provided files via file_search).
+You MUST answer using ONLY information found in the Norfolk County OPSEU Local 279 collective agreement (via file_search).
 
-Rules:
-1) If the answer is not clearly found in the collective agreement text returned by file_search, set not_found=true and answer: "I can’t find that in the collective agreement."
-2) If you answer, you MUST include:
-   - a short direct answer
-   - one or more verbatim quotes copied from the collective agreement
-   - a citation string for each quote that matches the agreement’s own section/article labeling (e.g., "Article 19.02", "19.02", "Section X", etc.)
-3) Do NOT invent citations. Do NOT cite anything not present in the quoted text.
-4) Keep it concise.
+Output rules:
+- If the answer is not clearly found in the collective agreement text returned by file_search: set not_found=true and answer exactly: "I can’t find that in the collective agreement."
+- If you answer: you MUST include one or more verbatim quotes copied from the agreement and provide an article/section citation for each quote.
+- Do NOT invent citations.
+- Keep it concise.
 `.trim();
 
 const JSON_SCHEMA: JsonValue = {
@@ -125,11 +120,8 @@ function extractAssistantText(resp: any): string {
   for (const m of msgs) {
     const content = Array.isArray(m?.content) ? m.content : [];
     for (const c of content) {
-      // Many responses look like: { type:"output_text", text:"..." }
       if (c && typeof c === "object" && typeof c.text === "string") parts.push(c.text);
-      // Sometimes: { type:"refusal", refusal:"..." }
       if (c && typeof c === "object" && typeof c.refusal === "string") parts.push(c.refusal);
-      // Rare fallback
       if (typeof c === "string") parts.push(c);
     }
   }
@@ -144,7 +136,7 @@ function extractSearchResults(resp: any): RetrievedChunk[] {
   const chunks: RetrievedChunk[] = [];
 
   for (const call of calls) {
-    // With include: ["file_search_call.results"], the tool call should contain `results`.
+    // With include: ["file_search_call.results"], results should appear here.
     const results = call?.results ?? call?.search_results ?? null;
     if (!Array.isArray(results)) continue;
 
@@ -153,12 +145,10 @@ function extractSearchResults(resp: any): RetrievedChunk[] {
       const file_id = r?.file_id ?? r?.file?.id ?? r?.id ?? undefined;
       const score = typeof r?.score === "number" ? r.score : undefined;
 
-      // Try a bunch of possible shapes
       let text = "";
       if (typeof r?.text === "string") text = r.text;
       else if (typeof r?.content === "string") text = r.content;
       else if (Array.isArray(r?.content)) {
-        // e.g. content: [{type:"text", text:"..."}]
         text = r.content
           .map((p: any) => (typeof p?.text === "string" ? p.text : typeof p === "string" ? p : ""))
           .filter(Boolean)
@@ -189,20 +179,23 @@ function validateAndFormatAnswer(parsed: CAAnswer, retrieved: RetrievedChunk[]) 
     const quote = safeString(q?.quote).trim();
     if (!citation || !quote) continue;
 
-    const nCitation = normalizeText(citation);
     const nQuote = normalizeText(quote);
+    const nCitation = normalizeText(citation);
 
-    // Require BOTH citation and quote to appear in the retrieved text (normalized)
+    // Must confirm the quote actually exists in retrieved text.
     if (!combined.includes(nQuote)) continue;
-    if (!combined.includes(nCitation)) continue;
+
+    // Citation must either appear in retrieved text OR be present inside the quote itself.
+    const citationOk = combined.includes(nCitation) || nQuote.includes(nCitation);
+    if (!citationOk) continue;
 
     validQuotes.push({ citation, quote });
   }
 
-  // Hard rule: If they claim found but can't produce validated quote+citation, treat as not found.
   const notFound =
     parsed.not_found === true ||
-    normalizeText(parsed.answer).toLowerCase() === normalizeText("I can’t find that in the collective agreement.").toLowerCase() ||
+    normalizeText(parsed.answer).toLowerCase() ===
+      normalizeText("I can’t find that in the collective agreement.").toLowerCase() ||
     validQuotes.length === 0;
 
   if (notFound) {
@@ -217,7 +210,6 @@ function validateAndFormatAnswer(parsed: CAAnswer, retrieved: RetrievedChunk[]) 
   const answer = parsed.answer.trim();
   const citations = Array.from(new Set(validQuotes.map((q) => q.citation)));
 
-  // User-facing formatted output (simple + predictable)
   const lines: string[] = [];
   lines.push(answer);
   lines.push("");
@@ -245,4 +237,200 @@ async function readJson(req: Request): Promise<any> {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response>
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const origin = request.headers.get("Origin");
+    const allowed = parseAllowedOrigins(env);
+
+    // Preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders(origin, allowed),
+      });
+    }
+
+    if (request.method !== "POST") {
+      return jsonResponse(
+        { error: { message: "Method not allowed" } },
+        { status: 405 },
+        origin,
+        allowed,
+      );
+    }
+
+    const body = await readJson(request);
+    const input = safeString(body?.input ?? body?.question ?? body?.q).trim();
+    const debug = body?.debug === true || new URL(request.url).searchParams.get("debug") === "1";
+
+    if (!input) {
+      return jsonResponse(
+        { error: { message: "Missing `input`" } },
+        { status: 400 },
+        origin,
+        allowed,
+      );
+    }
+
+    if (!env.OPENAI_API_KEY) {
+      return jsonResponse(
+        { error: { message: "Server misconfigured: missing OPENAI_API_KEY" } },
+        { status: 500 },
+        origin,
+        allowed,
+      );
+    }
+
+    if (!env.OPENAI_VECTOR_STORE_ID) {
+      return jsonResponse(
+        { error: { message: "Server misconfigured: missing OPENAI_VECTOR_STORE_ID" } },
+        { status: 500 },
+        origin,
+        allowed,
+      );
+    }
+
+    // Frontend sends a Clerk token. For now we just require a Bearer token exists.
+    // (We can add real Clerk JWT verification next.)
+    const auth = request.headers.get("Authorization") || "";
+    if (!auth.startsWith("Bearer ")) {
+      return jsonResponse(
+        { error: { message: "Missing Authorization Bearer token" } },
+        { status: 401 },
+        origin,
+        allowed,
+      );
+    }
+
+    const model = env.OPENAI_MODEL || "gpt-4.1";
+
+    const payload: Record<string, unknown> = {
+      model,
+      temperature: 0,
+      store: false,
+      max_tool_calls: 1,
+      input: [
+        { role: "system", content: SYSTEM_INSTRUCTIONS },
+        { role: "user", content: input },
+      ],
+      tools: [
+        {
+          type: "file_search",
+          vector_store_ids: [env.OPENAI_VECTOR_STORE_ID],
+        },
+      ],
+      // IMPORTANT: include belongs at the TOP LEVEL (not inside tools)
+      include: ["file_search_call.results"],
+      text: {
+        format: {
+          type: "json_schema",
+          strict: true,
+          schema: JSON_SCHEMA,
+          name: "ca_answer",
+        },
+      },
+    };
+
+    try {
+      const r = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const openaiResp = await r.json();
+
+      if (!r.ok) {
+        return jsonResponse(
+          {
+            error: {
+              message: openaiResp?.error?.message || "OpenAI request failed",
+              ...(debug ? { details: openaiResp } : {}),
+            },
+          },
+          { status: 502 },
+          origin,
+          allowed,
+        );
+      }
+
+      const retrieved = extractSearchResults(openaiResp);
+      const openaiRawText = extractAssistantText(openaiResp);
+
+      // No file_search results = do not answer.
+      if (retrieved.length === 0) {
+        return jsonResponse(
+          {
+            text: "I can’t find that in the collective agreement.",
+            ...(debug
+              ? {
+                  debug: {
+                    note: "No file_search results returned",
+                    output_types: (openaiResp?.output || []).map((o: any) => o?.type),
+                  },
+                }
+              : {}),
+          },
+          { status: 200 },
+          origin,
+          allowed,
+        );
+      }
+
+      let parsed: CAAnswer;
+      try {
+        parsed = JSON.parse(openaiRawText) as CAAnswer;
+      } catch {
+        // If structured output fails, don't risk hallucinations.
+        return jsonResponse(
+          {
+            error: {
+              message: "AI returned an unexpected format (JSON parse failed).",
+              ...(debug ? { raw: openaiRawText, openai: openaiResp } : {}),
+            },
+          },
+          { status: 502 },
+          origin,
+          allowed,
+        );
+      }
+
+      const finalized = validateAndFormatAnswer(parsed, retrieved);
+
+      return jsonResponse(
+        {
+          text: finalized.text,
+          citations: finalized.citations,
+          quotes: finalized.quotes,
+          ...(debug
+            ? {
+                debug: {
+                  model,
+                  retrieved_count: retrieved.length,
+                  retrieved_preview: retrieved.slice(0, 5).map((x) => ({
+                    filename: x.filename,
+                    file_id: x.file_id,
+                    score: x.score,
+                    text_preview: x.text.slice(0, 240),
+                  })),
+                  raw_json: parsed,
+                },
+              }
+            : {}),
+        },
+        { status: 200 },
+        origin,
+        allowed,
+      );
+    } catch (e: any) {
+      return jsonResponse(
+        { error: { message: e?.message || String(e) } },
+        { status: 500 },
+        origin,
+        allowed,
+      );
+    }
+  },
+};
