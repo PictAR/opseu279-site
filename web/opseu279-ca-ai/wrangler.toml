@@ -1,0 +1,8 @@
+name = "opseu279-ca-ai"
+main = "src/index.ts"
+compatibility_date = "2026-01-13"
+
+[vars]
+ALLOWED_ORIGINS = "https://opseu279.com,https://www.opseu279.com,http://localhost:5173"
+OPENAI_VECTOR_STORE_ID = ""
+OPENAI_MODEL = "gpt-4.1-mini"
