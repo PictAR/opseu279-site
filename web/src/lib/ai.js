@@ -12,9 +12,6 @@ export async function askCaAi({ input, token }) {
   });
 
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(data?.error?.message || data?.error || `Request failed (${res.status})`);
-  }
-
+  if (!res.ok) throw new Error(data?.error?.message || data?.error || `Request failed (${res.status})`);
   return data.text;
 }

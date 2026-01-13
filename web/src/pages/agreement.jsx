@@ -2,7 +2,7 @@
 /* Agreements Library Page */
 /* *********************** */
 
-import { useAuth } from "@clerk/clerk-react";
+import AskCaBox from "../components/AskCaBox";
 
 const LIBRARY = [
   {
@@ -30,7 +30,6 @@ const LIBRARY = [
         label: "Memorandum of Agreement",
         items: [
           { years: "2023 to 2026", href: "/cas/norfolk/moa-norfolk-opseu279-cp-2023-2026.pdf" },
-          // NOTE: Your original years didn't match the filename. Adjust if needed.
           { years: "2023 to 2026", href: "/cas/norfolk/moa-norfolk-opseu279-sups-2023-2026.pdf" },
         ],
       },
@@ -204,32 +203,15 @@ const LIBRARY = [
 
 const TYPE_BADGE = { ca: "CA", moa: "MOA", mou: "MOU", ia: "IA" };
 
-function DebugClerkTokenButton() {
-  const { getToken } = useAuth();
-
-  const onClick = async () => {
-    const token = await getToken();
-    console.log("CLERK_TOKEN:", token);
-    alert("Token printed to DevTools console. Do not paste it anywhere public.");
-  };
-
-  return (
-    <button onClick={onClick} style={debugBtnStyle}>
-      Debug: Get Clerk Token
-    </button>
-  );
-}
-
 export default function Agreement() {
   return (
     <section style={{ display: "grid", gap: 14 }}>
       <header style={{ display: "grid", gap: 8 }}>
         <h1 style={h1Style}>Agreements Library</h1>
         <p style={subStyle}>Open PDFs in a new tab for full scrolling and pinch zoom on mobile.</p>
-
-        {/* TEMP: remove once you've tested */}
-        <DebugClerkTokenButton />
       </header>
+
+      <AskCaBox />
 
       {groupBy(LIBRARY, (x) => x.group).map(([groupName, services]) => (
         <section key={groupName} style={cardStyle}>
@@ -288,17 +270,6 @@ function groupBy(list, keyFn) {
 /* Styles */
 const h1Style = { margin: 0, fontSize: 20, fontWeight: 950, color: "#0055b8" };
 const subStyle = { margin: 0, opacity: 0.85, lineHeight: 1.5 };
-
-const debugBtnStyle = {
-  justifySelf: "start",
-  padding: "10px 12px",
-  borderRadius: 12,
-  border: "1px solid rgba(0,85,184,0.25)",
-  background: "rgba(0,85,184,0.10)",
-  color: "#0055b8",
-  fontWeight: 950,
-  cursor: "pointer",
-};
 
 const cardStyle = {
   width: "100%",
