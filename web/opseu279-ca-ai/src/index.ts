@@ -366,6 +366,7 @@ export default {
         {
           type: "file_search",
           vector_store_ids: [env.OPENAI_VECTOR_STORE_ID],
+          max_num_results: 6,
         },
       ],
       // IMPORTANT: include belongs at the TOP LEVEL (not inside tools)
