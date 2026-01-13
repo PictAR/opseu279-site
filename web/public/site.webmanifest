@@ -1,19 +1,12 @@
 {
   "name": "OPSEU Local 279",
   "short_name": "OPSEU 279",
-  "icons": [
-    {
-      "src": "/android-chrome-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/android-chrome-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "theme_color": "#2059A8",
+  "start_url": "/",
+  "display": "standalone",
   "background_color": "#ffffff",
-  "display": "standalone"
+  "theme_color": "#0055b8",
+  "icons": [
+    { "src": "/favicon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }
