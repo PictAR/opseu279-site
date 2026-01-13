@@ -271,7 +271,7 @@ function validateAndFormatAnswer(parsed: CAAnswer, retrieved: RetrievedChunk[]) 
     quotes: validQuotes,
     citations,
   };
-}
+
 
 async function readJson(req: Request): Promise<any> {
   const ct = req.headers.get("Content-Type") || "";
