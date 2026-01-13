@@ -6,8 +6,5 @@ compatibility_date = "2026-01-13"
 # Comma-separated list of allowed origins for CORS
 ALLOWED_ORIGINS = "https://opseu279.com,https://www.opseu279.com,http://localhost:5173"
 
-# Your OpenAI vector store id (vs_...)
-OPENAI_VECTOR_STORE_ID = ""
-
 # Optional model override (must support Responses API + file_search; and json_schema is recommended)
 OPENAI_MODEL = "gpt-4.1"
