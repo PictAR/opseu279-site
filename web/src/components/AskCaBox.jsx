@@ -49,24 +49,31 @@ export default function AskCaBox() {
       </button>
 
 {a && (
-  <pre
+  <div
     tabIndex={0}
     style={{
-      whiteSpace: "pre-wrap",
-      overflowWrap: "anywhere",
-      wordBreak: "break-word",
-      margin: 0,
-      padding: 12,
-      borderRadius: 12,
-      background: "rgba(0,0,0,0.03)",
       maxHeight: "60vh",
       overflowY: "auto",
       WebkitOverflowScrolling: "touch",
+      padding: 12,
+      borderRadius: 12,
+      background: "rgba(0,0,0,0.03)",
+      border: "1px solid rgba(0,0,0,0.08)",
       textAlign: "left",
+      overscrollBehavior: "contain",
+      touchAction: "pan-y",
     }}
   >
-    {a}
-  </pre>
+    <div
+      style={{
+        whiteSpace: "pre-wrap",
+        overflowWrap: "anywhere",
+        wordBreak: "break-word",
+      }}
+    >
+      {a}
+    </div>
+  </div>
 )}
     </section>
   );
