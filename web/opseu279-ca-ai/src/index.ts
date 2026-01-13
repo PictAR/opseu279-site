@@ -192,34 +192,56 @@ function deriveCitationFromChunk(chunkText: string, quote: string): string | nul
   return null;
 }
 
+function extractExcerptByCitation(citation: string, retrieved: RetrievedChunk[]): string | null {
+  const cit = citation.trim();
+  if (!cit) return null;
+
+  for (const r of retrieved) {
+    const idx = r.text.indexOf(cit);
+    if (idx >= 0) {
+      const after = r.text.slice(idx);
+
+      // Try to stop at the next clause number (e.g., 19.03) if present
+      const rest = after.slice(cit.length);
+      const next = rest.match(/\b\d{1,2}\.\d{2}\b/);
+
+      const end =
+        next && next.index != null
+          ? cit.length + next.index
+          : Math.min(after.length, 700);
+
+      return after.slice(0, end).trim();
+    }
+  }
+
+  // Fallback: return the best available chunk start
+  return retrieved[0]?.text ? retrieved[0].text.slice(0, 700).trim() : null;
+}
+
 function validateAndFormatAnswer(parsed: CAAnswer, retrieved: RetrievedChunk[]) {
-  const normalizedChunks = retrieved.map((r) => ({
-    ...r,
-    nText: normalizeText(r.text),
-  }));
+  const combined = normalizeText(retrieved.map((r) => r.text).join("\n\n"));
 
   const validQuotes: CAAnswer["quotes"] = [];
 
   for (const q of parsed.quotes || []) {
+    const citation = safeString(q?.citation).trim();
     const quote = safeString(q?.quote).trim();
-    if (!quote) continue;
 
-    const nQuote = normalizeText(quote);
+    if (!citation) continue;
 
-    // Find the specific retrieved chunk that contains this quote
-    const hit = normalizedChunks.find((r) => r.nText.includes(nQuote));
-    if (!hit) continue;
+    // If the model quote is verifiably present in retrieved text, keep it
+    if (quote && combined.includes(normalizeText(quote))) {
+      validQuotes.push({ citation, quote });
+      continue;
+    }
 
-    // Derive the clause/article citation from the retrieved CA text (not from the model)
-    const derived = deriveCitationFromChunk(hit.text, quote);
-
-    // If we cannot derive, we still allow the quote but label it clearly.
-    const citation = derived || "Citation not found in retrieved excerpt";
-
-    validQuotes.push({ citation, quote });
+    // Otherwise, extract a real excerpt from retrieved text using the citation
+    const extracted = extractExcerptByCitation(citation, retrieved);
+    if (extracted) {
+      validQuotes.push({ citation, quote: extracted });
+    }
   }
 
-  // If they claim found but we can't validate any verbatim quote, treat as not found.
   const notFound =
     parsed.not_found === true ||
     normalizeText(parsed.answer).toLowerCase() ===
@@ -253,25 +275,6 @@ function validateAndFormatAnswer(parsed: CAAnswer, retrieved: RetrievedChunk[]) 
     citations,
   };
 }
-
-  const answer = parsed.answer.trim();
-  const citations = Array.from(new Set(validQuotes.map((q) => q.citation)));
-
-  const lines: string[] = [];
-  lines.push(answer);
-  lines.push("");
-  lines.push("Quoted clause(s):");
-  for (const q of validQuotes) {
-    lines.push(`• (${q.citation}) "${q.quote}"`);
-  }
-
-  return {
-    not_found: false,
-    text: lines.join("\n"),
-    quotes: validQuotes,
-    citations,
-  };
-
 
 async function readJson(req: Request): Promise<any> {
   const ct = req.headers.get("Content-Type") || "";

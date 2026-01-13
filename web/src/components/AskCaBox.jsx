@@ -48,11 +48,26 @@ export default function AskCaBox() {
         {loading ? "Asking..." : "Ask AI"}
       </button>
 
-      {a && (
-        <pre style={{ whiteSpace: "pre-wrap", margin: 0, padding: 12, borderRadius: 12, background: "rgba(0,0,0,0.03)" }}>
-          {a}
-        </pre>
-      )}
+{a && (
+  <pre
+    tabIndex={0}
+    style={{
+      whiteSpace: "pre-wrap",
+      overflowWrap: "anywhere",
+      wordBreak: "break-word",
+      margin: 0,
+      padding: 12,
+      borderRadius: 12,
+      background: "rgba(0,0,0,0.03)",
+      maxHeight: "60vh",
+      overflowY: "auto",
+      WebkitOverflowScrolling: "touch",
+      textAlign: "left",
+    }}
+  >
+    {a}
+  </pre>
+)}
     </section>
   );
 }
