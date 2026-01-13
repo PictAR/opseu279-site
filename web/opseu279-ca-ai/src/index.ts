@@ -39,6 +39,7 @@ You MUST answer using ONLY information found in the Norfolk County OPSEU Local 2
 Output rules:
 - If the answer is not clearly found in the collective agreement text returned by file_search: set not_found=true and answer exactly: "I can’t find that in the collective agreement."
 - If you answer: you MUST include one or more verbatim quotes copied from the agreement and provide an article/section citation for each quote.
+- Citations must be in the agreement’s own format (e.g., "19.02" or "Article 19"). Do NOT use bracket/file citations like "[5:1†...]" .
 - Do NOT invent citations.
 - Keep it concise.
 `.trim();
@@ -170,28 +171,55 @@ function extractSearchResults(resp: any): RetrievedChunk[] {
   return chunks;
 }
 
+function deriveCitationFromChunk(chunkText: string, quote: string): string | null {
+  const nChunk = normalizeText(chunkText);
+  const nQuote = normalizeText(quote);
+  const idx = nChunk.indexOf(nQuote);
+
+  // If we can’t locate the quote in this chunk, bail
+  if (idx < 0) return null;
+
+  // Look a bit before the quote for the nearest clause number, e.g., 19.02
+  const windowStart = Math.max(0, idx - 800);
+  const window = nChunk.slice(windowStart, idx + 80);
+
+  const clauseMatches = [...window.matchAll(/\b\d{1,2}\.\d{2}\b/g)];
+  if (clauseMatches.length) return clauseMatches[clauseMatches.length - 1][0];
+
+  const articleMatches = [...window.matchAll(/\bARTICLE\s+\d+\b/gi)];
+  if (articleMatches.length) return articleMatches[articleMatches.length - 1][0].replace(/\s+/g, " ");
+
+  return null;
+}
+
 function validateAndFormatAnswer(parsed: CAAnswer, retrieved: RetrievedChunk[]) {
-  const combined = normalizeText(retrieved.map((r) => r.text).join("\n\n"));
+  const normalizedChunks = retrieved.map((r) => ({
+    ...r,
+    nText: normalizeText(r.text),
+  }));
+
   const validQuotes: CAAnswer["quotes"] = [];
 
   for (const q of parsed.quotes || []) {
-    const citation = safeString(q?.citation).trim();
     const quote = safeString(q?.quote).trim();
-    if (!citation || !quote) continue;
+    if (!quote) continue;
 
     const nQuote = normalizeText(quote);
-    const nCitation = normalizeText(citation);
 
-    // Must confirm the quote actually exists in retrieved text.
-    if (!combined.includes(nQuote)) continue;
+    // Find the specific retrieved chunk that contains this quote
+    const hit = normalizedChunks.find((r) => r.nText.includes(nQuote));
+    if (!hit) continue;
 
-    // Citation must either appear in retrieved text OR be present inside the quote itself.
-    const citationOk = combined.includes(nCitation) || nQuote.includes(nCitation);
-    if (!citationOk) continue;
+    // Derive the clause/article citation from the retrieved CA text (not from the model)
+    const derived = deriveCitationFromChunk(hit.text, quote);
+
+    // If we cannot derive, we still allow the quote but label it clearly.
+    const citation = derived || "Citation not found in retrieved excerpt";
 
     validQuotes.push({ citation, quote });
   }
 
+  // If they claim found but we can't validate any verbatim quote, treat as not found.
   const notFound =
     parsed.not_found === true ||
     normalizeText(parsed.answer).toLowerCase() ===
@@ -206,6 +234,25 @@ function validateAndFormatAnswer(parsed: CAAnswer, retrieved: RetrievedChunk[]) 
       citations: [],
     };
   }
+
+  const answer = parsed.answer.trim();
+  const citations = Array.from(new Set(validQuotes.map((x) => x.citation)));
+
+  const lines: string[] = [];
+  lines.push(answer);
+  lines.push("");
+  lines.push("Quoted clause(s):");
+  for (const q of validQuotes) {
+    lines.push(`• (${q.citation}) "${q.quote}"`);
+  }
+
+  return {
+    not_found: false,
+    text: lines.join("\n"),
+    quotes: validQuotes,
+    citations,
+  };
+}
 
   const answer = parsed.answer.trim();
   const citations = Array.from(new Set(validQuotes.map((q) => q.citation)));
