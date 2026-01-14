@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 
 // CURRENT / ACTIVE EXECUTIVE MEMBERS + ROLES + CONTACT EMAIL
 const EXEC = [
-  { name: "President Poops McGoops", email: "tristanbritt@gmail.com.com" },
+  { name: "President", email: "tristanbritt@gmail.com" },
   { name: "Vice President", email: "dostal.carol@hotmail.com" },
   { name: "Secretary", email: "jennhancock74@gmail.com" },
   { name: "Treasurer", email: "devonlansdell@gmail.com" },

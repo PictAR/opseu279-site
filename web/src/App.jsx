@@ -68,7 +68,7 @@ export default function App() {
           {/* Members (protected) */}
 <Route path="/members" element={<MemberGate><MembersLayout /></MemberGate>}>
   <Route index element={<MembersHome />} />
-  <Route path="agreement" element={<Agreement />} />
+  <Route path="agreement" element={<Collective-Agreement />} />
   <Route path="documents" element={<Documents />} />
   <Route path="peer-support" element={<PeerSupport />} />
   <Route path="faq" element={<Faq />} />
