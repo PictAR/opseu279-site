@@ -25,15 +25,6 @@ export default function TakeAction() {
           >
             Open Lobby Sheet PDF
           </a>
-
-          <a
-            href="https://www.elections.on.ca/en/voting-in-ontario/electoral-districts.html"
-            target="_blank"
-            rel="noreferrer"
-            style={buttonLinkStyle}
-          >
-            Find your MPP
-          </a>
         </div>
       </section>
 
@@ -54,6 +45,23 @@ export default function TakeAction() {
           </a>
         </div>
       </section>
+
+<section style={cardStyle}>
+  <h2 style={h2Style}>Find your MPP</h2>
+  <p style={pStyle}>Use Elections Ontario to find your riding and contact information.</p>
+
+  <div style={linkRowStyle}>
+    <a
+      href="https://www.elections.on.ca/en/voting-in-ontario/electoral-districts.html"
+      target="_blank"
+      rel="noreferrer"
+      style={buttonLinkStyle}
+    >
+      Open MPP Lookup
+    </a>
+  </div>
+</section>
+
     </section>
   );
 }

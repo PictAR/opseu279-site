@@ -115,18 +115,6 @@ export default function MembersHome() {
         <RowLink to="/members/seniority" label="Seniority Lists" sub="Past and present lists" />
       </Card>
 
-      <Card title="External Resources">
-        <ExternalLink
-          href="https://www.ontario.ca/laws/"
-          label="Ontario E Laws"
-          sub="Official Ontario legislation lookup"
-        />
-        <ExternalLink
-          href="https://www.lr.labour.gov.on.ca/en-CA/Collective-Agreements/"
-          label="Collective Agreement Lookup"
-          sub="Ontario Ministry searchable CA database"
-        />
-      </Card>
     </div>
   );
 }

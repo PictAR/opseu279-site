@@ -86,6 +86,22 @@ export default function Documents() {
         </div>
       </section>
 
+<section style={{ ...cardStyle, marginTop: 14 }}>
+  <h2 style={h2Style}>Ontario E Laws</h2>
+  <p style={pStyle}>Official Ontario legislation lookup.</p>
+
+  <div style={linkRowStyle}>
+    <a
+      href="https://www.ontario.ca/laws/"
+      target="_blank"
+      rel="noreferrer"
+      style={buttonLinkStyle}
+    >
+      Open Ontario E Laws
+    </a>
+  </div>
+</section>
+
       <section style={noteStyle}>
         <div style={noteTitleStyle}>Note</div>
         <div style={noteTextStyle}>

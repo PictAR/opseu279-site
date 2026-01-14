@@ -254,6 +254,22 @@ export default function Agreement() {
               </div>
             ))}
           </div>
+          <section style={cardStyle}>
+  <h2 style={h2Style}>Collective Agreement Lookup</h2>
+  <p style={mutedStyle}>Ontario Ministry searchable collective agreement database.</p>
+
+  <div style={linkRowStyle}>
+    <a
+      href="https://www.lr.labour.gov.on.ca/en-CA/Collective-Agreements/"
+      target="_blank"
+      rel="noreferrer"
+      style={pdfLinkStyle}
+    >
+      Open CA Lookup
+    </a>
+  </div>
+</section>
+
         </section>
       ))}
     </section>
