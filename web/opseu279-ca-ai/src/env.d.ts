@@ -1,0 +1,1 @@
+npm i -D @cloudflare/workers-types
