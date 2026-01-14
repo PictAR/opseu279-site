@@ -1,14 +1,12 @@
 import { useMemo, useState } from "react";
-import MemberHeader from "../components/MemberHeader";
 
-// Replace these with your real exec/committee emails.
+// Replace these emails with the real exec emails.
 const EXEC = [
-  { name: "President", email: "tristanbritt@gmail.com.com" },
-  { name: "Vice President", email: "dostal.carol@gmail.com" },
-  { name: "Secretary", email: "jennhancock74@gmail.com" },
-  { name: "Treasurer", email: "devonlansdell@gmail.com" },
-  { name: "Steward", email: "michael.basha.9@gmail.com.com" }
-  { name: "Steward", email: "rach_beck_@hotmail.com" },
+  { name: "President", email: "president@example.com" },
+  { name: "Vice President", email: "vp@example.com" },
+  { name: "Secretary", email: "secretary@example.com" },
+  { name: "Treasurer", email: "treasurer@example.com" },
+  { name: "Chief Steward", email: "steward@example.com" },
 ];
 
 function encodeMailto({ to, cc, bcc, subject, body }) {
@@ -17,20 +15,18 @@ function encodeMailto({ to, cc, bcc, subject, body }) {
   if (bcc?.length) params.set("bcc", bcc.join(","));
   if (subject) params.set("subject", subject);
   if (body) params.set("body", body);
+
   return `mailto:${encodeURIComponent(to)}?${params.toString()}`;
 }
 
-export default function Contact() {
+export default function ContactExec() {
   const [toEmail, setToEmail] = useState(EXEC[0]?.email || "");
   const [cc, setCc] = useState([]);
   const [bcc, setBcc] = useState([]);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
-  const options = useMemo(
-    () => EXEC.map((x) => ({ label: `${x.name} (${x.email})`, value: x.email })),
-    []
-  );
+  const options = useMemo(() => EXEC.map((x) => ({ label: `${x.name} (${x.email})`, value: x.email })), []);
 
   const toggle = (list, setList, value) => {
     setList((prev) => (prev.includes(value) ? prev.filter((x) => x !== value) : [...prev, value]));
@@ -48,19 +44,17 @@ export default function Contact() {
   }, [toEmail, cc, bcc, subject, message]);
 
   return (
-    <section style={{ display: "grid", gap: 14 }}>
-      <MemberHeader title="Contact Executive and Committees" />
-
-      <p style={{ margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+    <div style={{ display: "grid", gap: 12 }}>
+      <div style={{ opacity: 0.8 }}>
         This opens your email app with To, CC, and BCC filled in.
-      </p>
+      </div>
 
-      <label style={labelStyle}>
-        <div style={labelTitleStyle}>To</div>
+      <label style={{ display: "grid", gap: 6 }}>
+        <div style={{ fontWeight: 700 }}>To</div>
         <select
           value={toEmail}
           onChange={(e) => setToEmail(e.target.value)}
-          style={inputStyle}
+          style={{ padding: 10, borderRadius: 12, border: "1px solid rgba(0,0,0,0.15)" }}
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>
@@ -70,11 +64,11 @@ export default function Contact() {
         </select>
       </label>
 
-      <div style={{ display: "grid", gap: 8 }}>
-        <div style={labelTitleStyle}>CC</div>
+      <div style={{ display: "grid", gap: 6 }}>
+        <div style={{ fontWeight: 700 }}>CC</div>
         <div style={{ display: "grid", gap: 8 }}>
           {options.map((o) => (
-            <label key={`cc-${o.value}`} style={checkRowStyle}>
+            <label key={`cc-${o.value}`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <input
                 type="checkbox"
                 checked={cc.includes(o.value)}
@@ -87,11 +81,11 @@ export default function Contact() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gap: 8 }}>
-        <div style={labelTitleStyle}>BCC</div>
+      <div style={{ display: "grid", gap: 6 }}>
+        <div style={{ fontWeight: 700 }}>BCC</div>
         <div style={{ display: "grid", gap: 8 }}>
           {options.map((o) => (
-            <label key={`bcc-${o.value}`} style={checkRowStyle}>
+            <label key={`bcc-${o.value}`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <input
                 type="checkbox"
                 checked={bcc.includes(o.value)}
@@ -104,24 +98,24 @@ export default function Contact() {
         </div>
       </div>
 
-      <label style={labelStyle}>
-        <div style={labelTitleStyle}>Subject</div>
+      <label style={{ display: "grid", gap: 6 }}>
+        <div style={{ fontWeight: 700 }}>Subject</div>
         <input
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           placeholder="Subject..."
-          style={inputStyle}
+          style={{ padding: 10, borderRadius: 12, border: "1px solid rgba(0,0,0,0.15)" }}
         />
       </label>
 
-      <label style={labelStyle}>
-        <div style={labelTitleStyle}>Message</div>
+      <label style={{ display: "grid", gap: 6 }}>
+        <div style={{ fontWeight: 700 }}>Message</div>
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Message..."
           rows={8}
-          style={{ ...inputStyle, resize: "vertical" }}
+          style={{ padding: 10, borderRadius: 12, border: "1px solid rgba(0,0,0,0.15)" }}
         />
       </label>
 
@@ -136,35 +130,15 @@ export default function Contact() {
           padding: "12px 12px",
           borderRadius: 12,
           border: "1px solid rgba(0,0,0,0.15)",
-          background: "rgba(0,85,184,0.10)",
-          color: "#0055b8",
-          fontWeight: 950,
+          background: "rgba(255,255,255,0.75)",
+          color: "inherit",
+          fontWeight: 700,
           opacity: mailto ? 1 : 0.5,
           pointerEvents: mailto ? "auto" : "none",
         }}
       >
         Open Email
       </a>
-    </section>
+    </div>
   );
 }
-
-const labelStyle = { display: "grid", gap: 6 };
-const labelTitleStyle = { fontWeight: 950, color: "#0055b8" };
-
-const inputStyle = {
-  padding: 10,
-  borderRadius: 12,
-  border: "1px solid rgba(0,0,0,0.15)",
-  background: "rgba(255,255,255,0.9)",
-};
-
-const checkRowStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  padding: 8,
-  borderRadius: 12,
-  border: "1px solid rgba(0,0,0,0.10)",
-  background: "rgba(0,85,184,0.05)",
-};

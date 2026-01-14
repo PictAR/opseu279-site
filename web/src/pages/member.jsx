@@ -11,19 +11,48 @@ export default function Member() {
           <p style={subStyle}>Documents, standards, and member resources.</p>
         </div>
 
+        <Link to="/" style={homeLinkStyle}>
+          Back to Home
+        </Link>
       </div>
 
       <div style={gridStyle}>
+        {/* Consolidated tile (CA + Wages/Benefits bundled here) */}
         <Link to="/member/agreement" style={tileStyle}>
-          <div style={tileTitleStyle}>Collective Agreements</div>
-          <div style={tileSubStyle}>View current and past collective agreements from other paramedic services.</div>
+          <div style={tileTitleStyle}>Collective Agreement, Wages, Benefits</div>
+          <div style={tileSubStyle}>
+            Norfolk Local 279 CA plus the CA AI Q and A. Wage and benefits tools will live here too.
+          </div>
         </Link>
 
-        <Link to="/member/wages-benefits" style={tileStyle}>
-          <div style={tileTitleStyle}>Wages & Benefits</div>
-          <div style={tileSubStyle}>Compare wages and benefits across different paramedic services.</div>
+        {/* Seniority */}
+        <Link to="/member/seniority" style={tileStyle}>
+          <div style={tileTitleStyle}>Seniority Lists</div>
+          <div style={tileSubStyle}>Past and present seniority lists.</div>
         </Link>
 
+        {/* External links requested */}
+        <a
+          href="https://www.ontario.ca/laws/"
+          target="_blank"
+          rel="noreferrer"
+          style={tileStyle}
+        >
+          <div style={tileTitleStyle}>Ontario E Laws</div>
+          <div style={tileSubStyle}>Official Ontario legislation lookup.</div>
+        </a>
+
+        <a
+          href="https://www.lr.labour.gov.on.ca/en-CA/Collective-Agreements/"
+          target="_blank"
+          rel="noreferrer"
+          style={tileStyle}
+        >
+          <div style={tileTitleStyle}>Collective Agreement Lookup</div>
+          <div style={tileSubStyle}>Ontario Ministry searchable CA database.</div>
+        </a>
+
+        {/* Keep the rest as-is */}
         <Link to="/member/documents" style={tileStyle}>
           <div style={tileTitleStyle}>Documents and Standards</div>
           <div style={tileSubStyle}>Guides, standards, and reference documents.</div>
@@ -31,7 +60,7 @@ export default function Member() {
 
         <Link to="/member/peer-support" style={tileStyle}>
           <div style={tileTitleStyle}>Peer Support</div>
-          <div style={tileSubStyle}>Connect with resources in support of mental health</div>
+          <div style={tileSubStyle}>Connect with resources in support of mental health.</div>
         </Link>
 
         <Link to="/member/faq" style={tileStyle}>
@@ -51,7 +80,7 @@ export default function Member() {
 
         <Link to="/member/contact" style={tileStyle}>
           <div style={tileTitleStyle}>Contact Executive and Committees</div>
-          <div style={tileSubStyle}>Reach the Local 279 team.</div>
+          <div style={tileSubStyle}>Send an email with To, CC, BCC from one screen.</div>
         </Link>
       </div>
     </section>
@@ -90,6 +119,19 @@ const subStyle = {
   fontSize: 14,
   opacity: 0.8,
   lineHeight: 1.4,
+};
+
+const homeLinkStyle = {
+  textDecoration: "none",
+  fontWeight: 900,
+  color: "#0055b8",
+  border: "1px solid rgba(0,85,184,0.25)",
+  background: "rgba(0,85,184,0.08)",
+  padding: "10px 12px",
+  borderRadius: 12,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
 };
 
 const gridStyle = {

@@ -45,6 +45,12 @@ import Wages from "./pages/wages-benefits.jsx";
 import PeerSupport from "./pages/peer-support.jsx";
 import TakeAction from "./pages/take-action.jsx";
 import { POSTS } from "./data/posts.js";
+import MembersLayout from "./pages/members/MembersLayout";
+import MembersHome from "./pages/members/MembersHome";
+import Seniority from "./pages/seniority.jsx";
+import SeniorityLists from "./pages/members/SeniorityLists";
+import ContactExec from "./pages/members/ContactExec";
+
 
 import opseuUnderCon from "./assets/opseuUnderCon.png";
 
@@ -89,6 +95,10 @@ export default function App() {
               </MemberGate>
             }
           />
+          <Route path="/members" element={<MembersLayout />}>
+  <Route index element={<MembersHome />} />
+  <Route path="seniority" element={<SeniorityLists />} />
+  <Route path="contact" element={<ContactExec />} />
           <Route
             path="/member/peer-support"
             element={
@@ -102,6 +112,14 @@ export default function App() {
             element={
               <MemberGate>
                 <Faq />
+              </MemberGate>
+            }
+          />
+          <Route
+            path="/member/seniority"
+            element={
+              <MemberGate>
+                <Seniority />
               </MemberGate>
             }
           />
@@ -132,12 +150,13 @@ export default function App() {
 
           <Route path="*" element={<NotFound />} />
         </Route>
+        </Route>
       </Routes>
     </BrowserRouter>
   );
 }
 
-/* Layout: navbar + content + footer */
+/* Layout: navbar // content // footer */
 function Shell() {
   return (
     <div style={pageStyle}>

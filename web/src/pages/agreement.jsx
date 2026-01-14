@@ -2,7 +2,9 @@
 /* Agreements Library Page */
 /* *********************** */
 
+import MemberHeader from "../components/MemberHeader";
 import AskCaBox from "../components/AskCaBox";
+
 
 const LIBRARY = [
   {
@@ -206,12 +208,14 @@ const TYPE_BADGE = { ca: "CA", moa: "MOA", mou: "MOU", ia: "IA" };
 export default function Agreement() {
   return (
     <section style={{ display: "grid", gap: 14 }}>
-      <header style={{ display: "grid", gap: 8 }}>
-        <h1 style={h1Style}>Agreements Library</h1>
-        <p style={subStyle}>Open PDFs in a new tab for full scrolling and pinch zoom on mobile.</p>
-      </header>
+      <MemberHeader title="Collective Agreement Library" />
 
-      <AskCaBox />
+<div style={{ padding: 14, borderRadius: 14, border: "1px solid rgba(0,0,0,0.10)", background: "rgba(255,255,255,0.7)" }}>
+  <div style={{ fontWeight: 950, color: "#0055b8", marginBottom: 8 }}>
+    Ask the Agreement
+  </div>
+  <AskCaBox />
+</div>
 
       {groupBy(LIBRARY, (x) => x.group).map(([groupName, services]) => (
         <section key={groupName} style={cardStyle}>
