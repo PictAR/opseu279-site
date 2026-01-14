@@ -1,4 +1,4 @@
-import WageComparisonChart from "../components/WageComparisonChart.jsx";
+import WageComparisonChart from "../components/wageCompChart-opseu_01.csv";
 
 export default function Wages() {
   return (
