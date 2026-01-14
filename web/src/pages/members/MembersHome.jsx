@@ -12,7 +12,7 @@ function Card({ title, children }) {
         gap: 10,
       }}
     >
-      <div style={{ fontWeight: 900, color: "#0055b8" }}>{label}</div>
+      <div style={{ fontWeight: 800, color: "#0055b8" }}>{title}</div>
       {children}
     </div>
   );
@@ -56,7 +56,7 @@ function ExternalLink({ href, label, sub }) {
         background: "rgba(255,255,255,0.55)",
       }}
     >
-      <div style={{ fontWeight: 700 }}>{label}</div>
+      <div style={{ fontWeight: 900, color: "#0055b8" }}>{label}</div>
       {sub ? <div style={{ fontSize: 12, opacity: 0.75 }}>{sub}</div> : null}
     </a>
   );
@@ -102,11 +102,7 @@ export default function MembersHome() {
           label="Peer Support"
           sub="Support resources and contacts"
         />
-        <RowLink
-          to="/members/faq"
-          label="FAQ"
-          sub="Common questions and quick answers"
-        />
+        <RowLink to="/members/faq" label="FAQ" sub="Common questions and quick answers" />
         <RowLink
           to="/members/discounts"
           label="Member Discounts"
@@ -115,11 +111,7 @@ export default function MembersHome() {
       </Card>
 
       <Card title="Seniority">
-        <RowLink
-          to="/members/seniority"
-          label="Seniority Lists"
-          sub="Past and present lists"
-        />
+        <RowLink to="/members/seniority" label="Seniority Lists" sub="Past and present lists" />
       </Card>
 
       <Card title="External Resources">
