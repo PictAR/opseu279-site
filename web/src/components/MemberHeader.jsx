@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-export default function MemberHeader({ title, backTo = "/member", dark = false }) {
+export default function MemberHeader({ title, backTo = "/members", dark = false }) {
   const navigate = useNavigate();
 
   const fg = dark ? "#fff" : "#0b2b3a";

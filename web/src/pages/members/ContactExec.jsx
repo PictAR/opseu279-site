@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 
-// Replace these emails with the real exec emails.
+// CURRENT / ACTIVE EXECUTIVE MEMBERS + ROLES + CONTACT EMAIL
 const EXEC = [
-  { name: "President", email: "president@example.com" },
-  { name: "Vice President", email: "vp@example.com" },
-  { name: "Secretary", email: "secretary@example.com" },
-  { name: "Treasurer", email: "treasurer@example.com" },
-  { name: "Chief Steward", email: "steward@example.com" },
+  { name: "President Poops McGoops", email: "tristanbritt@gmail.com.com" },
+  { name: "Vice President", email: "dostal.carol@hotmail.com" },
+  { name: "Secretary", email: "jennhancock74@gmail.com" },
+  { name: "Treasurer", email: "devonlansdell@gmail.com" },
+  { name: "Steward", email: "michael.basha.9@gmail.com" },
+  { name: "Steward", email: "rach_beck_@hotmail.com" },
 ];
 
 function encodeMailto({ to, cc, bcc, subject, body }) {

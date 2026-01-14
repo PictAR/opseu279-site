@@ -42,7 +42,7 @@ import Contact from "./pages/contact.jsx";
 import Faq from "./pages/faq.jsx";
 import Documents from "./pages/documents.jsx";
 import Agreement from "./pages/agreement.jsx";
-import Member from "./pages/member.jsx";
+/* import Member from "./pages/member.jsx"; */
 import Discounts from "./pages/discounts.jsx";
 import Wages from "./pages/wages-benefits.jsx";
 import PeerSupport from "./pages/peer-support.jsx";
@@ -318,13 +318,13 @@ function Footer() {
 
           <div style={footerCtaStyle}>
             <SignedOut>
-              <SignInButton mode="modal" afterSignInUrl="/member" afterSignUpUrl="/member">
+              <SignInButton mode="modal" afterSignInUrl="/members" afterSignUpUrl="/members">
                 <button style={footerButtonStyle}>Member Login</button>
               </SignInButton>
             </SignedOut>
 
             <SignedIn>
-              <Link to="/member" style={footerMemberLinkStyle}>Go to Members Area</Link>
+              <Link to="/members" style={footerMemberLinkStyle}>Go to Members Area</Link>
             </SignedIn>
           </div>
         </div>
