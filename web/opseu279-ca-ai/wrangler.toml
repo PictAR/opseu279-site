@@ -11,5 +11,5 @@ OPENAI_MODEL = "gpt-4.1"
 
 [[kv_namespaces]]
 binding = "CA_CACHE"
-id = "PASTE_PROD_ID_HERE"
-preview_id = "PASTE_PREVIEW_ID_HERE"
+id = "07e9f1ce95df4f29a7778ef6aa2a643b"
+preview_id = "5aa40e8729d9426c97420b7f84c5f2e2"
