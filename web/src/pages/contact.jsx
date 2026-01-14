@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import MemberHeader from "../components/MemberHeader";
 
-// Replace these with your real exec/committee emails.
+// CURRENT / ACTIVE EXECUTIVE MEMBERS + ROLES + CONTACT EMAIL
 const EXEC = [
   { name: "President", email: "tristanbritt@gmail.com.com" },
-  { name: "Vice President", email: "dostal.carol@gmail.com" },
+  { name: "Vice President", email: "dostal.carol@hotmail.com" },
   { name: "Secretary", email: "jennhancock74@gmail.com" },
   { name: "Treasurer", email: "devonlansdell@gmail.com" },
   { name: "Steward", email: "michael.basha.9@gmail.com.com" },
