@@ -3,7 +3,7 @@ import MemberHeader from "../components/MemberHeader";
 
 // CURRENT / ACTIVE EXECUTIVE MEMBERS + ROLES + CONTACT EMAIL
 const EXEC = [
-  { name: "President", email: "tristanbritt@gmail.com.com" },
+  { name: "President", email: "tristanbritt@gmail.com" },
   { name: "Vice President", email: "dostal.carol@hotmail.com" },
   { name: "Secretary", email: "jennhancock74@gmail.com" },
   { name: "Treasurer", email: "devonlansdell@gmail.com" },
