@@ -12,7 +12,7 @@ function Card({ title, children }) {
         gap: 10,
       }}
     >
-      <div style={{ fontWeight: 800 }}>{title}</div>
+      <div style={{ fontWeight: 900, color: "#0055b8" }}>{label}</div>
       {children}
     </div>
   );
@@ -24,7 +24,7 @@ function RowLink({ to, label, sub }) {
       to={to}
       style={{
         textDecoration: "none",
-        color: "inherit",
+        color: "#0b2b3a",
         padding: 10,
         borderRadius: 12,
         border: "1px solid rgba(0,0,0,0.10)",
@@ -33,7 +33,7 @@ function RowLink({ to, label, sub }) {
         background: "rgba(255,255,255,0.55)",
       }}
     >
-      <div style={{ fontWeight: 700 }}>{label}</div>
+      <div style={{ fontWeight: 900, color: "#0055b8" }}>{label}</div>
       {sub ? <div style={{ fontSize: 12, opacity: 0.75 }}>{sub}</div> : null}
     </Link>
   );
@@ -47,7 +47,7 @@ function ExternalLink({ href, label, sub }) {
       rel="noreferrer"
       style={{
         textDecoration: "none",
-        color: "inherit",
+        color: "#0b2b3a",
         padding: 10,
         borderRadius: 12,
         border: "1px solid rgba(0,0,0,0.10)",
