@@ -55,7 +55,7 @@ import Seniority from "./pages/seniority.jsx";
 import Profile from "./pages/members/Profile.jsx";
 
 import { POSTS } from "./data/posts.js";
-import { APP_VERSION, RELEASE_NOTES } from "./data/releaseNotes.js";
+/* import { APP_VERSION, RELEASE_NOTES } from "./data/releaseNotes.js"; */
 
 
 import opseuUnderCon from "./assets/opseuUnderCon.png";
@@ -290,8 +290,7 @@ function Footer() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const showNotes = import.meta.env.VITE_SHOW_VERSION_NOTES !== "false";
-  const latest = RELEASE_NOTES?.[0];
+const showNotes = false;
 
   function goHomeAndScroll(sectionId) {
     if (location.pathname !== "/") {
