@@ -8,3 +8,8 @@ ALLOWED_ORIGINS = "https://opseu279.com,https://www.opseu279.com,http://localhos
 
 # Optional model override (must support Responses API + file_search; and json_schema is recommended)
 OPENAI_MODEL = "gpt-4.1"
+
+[[kv_namespaces]]
+binding = "CA_CACHE"
+id = "PASTE_PROD_ID_HERE"
+preview_id = "PASTE_PREVIEW_ID_HERE"

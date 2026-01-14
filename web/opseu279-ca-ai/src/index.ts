@@ -1,11 +1,20 @@
 /**
  * OPSEU 279 CA AI Worker (Cloudflare Workers + TypeScript)
  *
+ * Features:
+ * - Uses OpenAI Responses API + file_search against your vector store
+ * - Quotes verbatim CA text and cites clause/article (no hallucinated citations)
+ * - If CA doesn't contain answer, returns: "I can’t find that in the collective agreement."
+ * - KV cache for speed/cost (optional; requires CA_CACHE binding)
+ * - /feedback endpoint for "Was this helpful?"
+ *
  * Env vars (Cloudflare):
  *  - OPENAI_API_KEY (secret)
- *  - OPENAI_VECTOR_STORE_ID
- *  - OPENAI_MODEL (optional)
- *  - ALLOWED_ORIGINS (optional)
+ *  - OPENAI_VECTOR_STORE_ID (secret or env var)
+ *  - OPENAI_MODEL (optional, default gpt-4.1)
+ *  - ALLOWED_ORIGINS (optional, comma list)
+ * Bindings (optional but recommended):
+ *  - CA_CACHE (KV Namespace)
  */
 
 export interface Env {
@@ -13,6 +22,7 @@ export interface Env {
   OPENAI_VECTOR_STORE_ID: string;
   OPENAI_MODEL?: string;
   ALLOWED_ORIGINS?: string;
+  CA_CACHE?: KVNamespace;
 }
 
 type JsonValue = null | boolean | number | string | JsonValue[] | { [k: string]: JsonValue };
@@ -21,10 +31,12 @@ type CAAnswer = {
   not_found: boolean;
   answer: string;
   quotes: Array<{
-    citation: string;
-    quote: string;
+    citation: string; // e.g. "19.02" or "ARTICLE 19"
+    quote: string; // verbatim excerpt
   }>;
 };
+
+type RetrievedChunk = { filename?: string; file_id?: string; text: string; score?: number };
 
 const DEFAULT_ALLOWED_ORIGINS = [
   "https://opseu279.com",
@@ -38,10 +50,9 @@ You MUST answer using ONLY information found in the Norfolk County OPSEU Local 2
 
 Output rules:
 - If the answer is not clearly found in the collective agreement text returned by file_search: set not_found=true and answer exactly: "I can’t find that in the collective agreement."
-- If you answer: you MUST include one or more verbatim quotes copied from the agreement and provide an article/section citation for each quote.
-- Citations must be in the agreement’s own format (e.g., "19.02" or "Article 19"). Do NOT use bracket/file citations like "[5:1†...]" .
-- Do NOT invent citations.
-- Keep it concise.
+- If you answer: the "answer" field must be a SHORT plain-English summary (do not paste long quotes in "answer").
+- The "quotes" array MUST include one or more verbatim excerpts copied from the agreement and provide a citation for each quote in the agreement’s own format (e.g., "19.02" or "ARTICLE 19"). Do NOT use bracket/file citations like "[5:1†...]".
+- Do NOT invent citations or wording.
 `.trim();
 
 const JSON_SCHEMA: JsonValue = {
@@ -114,6 +125,25 @@ function safeString(x: unknown): string {
   return String(x);
 }
 
+function normalizeQuestion(q: string): string {
+  return q.replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+async function sha256Hex(s: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function readJson(req: Request): Promise<any> {
+  const ct = req.headers.get("Content-Type") || "";
+  if (!ct.toLowerCase().includes("application/json")) return null;
+  try {
+    return await req.json();
+  } catch {
+    return null;
+  }
+}
+
 function extractAssistantText(resp: any): string {
   const output = Array.isArray(resp?.output) ? resp.output : [];
   const msgs = output.filter((o: any) => o?.type === "message" && o?.role === "assistant");
@@ -129,15 +159,12 @@ function extractAssistantText(resp: any): string {
   return parts.join("").trim();
 }
 
-type RetrievedChunk = { filename?: string; file_id?: string; text: string; score?: number };
-
 function extractSearchResults(resp: any): RetrievedChunk[] {
   const output = Array.isArray(resp?.output) ? resp.output : [];
   const calls = output.filter((o: any) => o?.type === "file_search_call");
   const chunks: RetrievedChunk[] = [];
 
   for (const call of calls) {
-    // With include: ["file_search_call.results"], results should appear here.
     const results = call?.results ?? call?.search_results ?? null;
     if (!Array.isArray(results)) continue;
 
@@ -171,51 +198,43 @@ function extractSearchResults(resp: any): RetrievedChunk[] {
   return chunks;
 }
 
-function deriveCitationFromChunk(chunkText: string, quote: string): string | null {
-  const nChunk = normalizeText(chunkText);
-  const nQuote = normalizeText(quote);
-  const idx = nChunk.indexOf(nQuote);
-
-  // If we can’t locate the quote in this chunk, bail
-  if (idx < 0) return null;
-
-  // Look a bit before the quote for the nearest clause number, e.g., 19.02
-  const windowStart = Math.max(0, idx - 800);
-  const window = nChunk.slice(windowStart, idx + 80);
-
-  const clauseMatches = [...window.matchAll(/\b\d{1,2}\.\d{2}\b/g)];
-  if (clauseMatches.length) return clauseMatches[clauseMatches.length - 1][0];
-
-  const articleMatches = [...window.matchAll(/\bARTICLE\s+\d+\b/gi)];
-  if (articleMatches.length) return articleMatches[articleMatches.length - 1][0].replace(/\s+/g, " ");
-
-  return null;
-}
-
+/**
+ * Extract a real excerpt directly from retrieved CA text, starting at the cited clause/article.
+ * This avoids failures when model-generated quotes are longer than any single retrieved chunk.
+ */
 function extractExcerptByCitation(citation: string, retrieved: RetrievedChunk[]): string | null {
-  const cit = citation.trim();
-  if (!cit) return null;
+  const citRaw = citation.trim();
+  if (!citRaw) return null;
+
+  const cit = citRaw.replace(/^article\s+/i, "ARTICLE ").trim();
 
   for (const r of retrieved) {
-    const idx = r.text.indexOf(cit);
+    const text = r.text;
+    // Try exact match first
+    let idx = text.indexOf(cit);
+    if (idx < 0) {
+      // Try case-insensitive match
+      const lower = text.toLowerCase();
+      idx = lower.indexOf(cit.toLowerCase());
+    }
     if (idx >= 0) {
-      const after = r.text.slice(idx);
+      const after = text.slice(idx);
 
-      // Try to stop at the next clause number (e.g., 19.03) if present
-      const rest = after.slice(cit.length);
-      const next = rest.match(/\b\d{1,2}\.\d{2}\b/);
+      // stop at the next clause number if it appears
+      const rest = after.slice(Math.min(after.length, 12)); // move past the clause token a bit
+      const nextClause = rest.match(/\b\d{1,2}\.\d{2}\b/);
 
       const end =
-        next && next.index != null
-          ? cit.length + next.index
-          : Math.min(after.length, 700);
+        nextClause && nextClause.index != null
+          ? Math.min(after.length, 12 + nextClause.index)
+          : Math.min(after.length, 900);
 
       return after.slice(0, end).trim();
     }
   }
 
-  // Fallback: return the best available chunk start
-  return retrieved[0]?.text ? retrieved[0].text.slice(0, 700).trim() : null;
+  // fallback: a short chunk preview (still only from retrieved text)
+  return retrieved[0]?.text ? retrieved[0].text.slice(0, 900).trim() : null;
 }
 
 function validateAndFormatAnswer(parsed: CAAnswer, retrieved: RetrievedChunk[]) {
@@ -276,33 +295,70 @@ function validateAndFormatAnswer(parsed: CAAnswer, retrieved: RetrievedChunk[]) 
   };
 }
 
-async function readJson(req: Request): Promise<any> {
-  const ct = req.headers.get("Content-Type") || "";
-  if (!ct.toLowerCase().includes("application/json")) return null;
-  try {
-    return await req.json();
-  } catch {
-    return null;
-  }
-}
-
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const origin = request.headers.get("Origin");
     const allowed = parseAllowedOrigins(env);
+    const url = new URL(request.url);
 
     // Preflight
     if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: corsHeaders(origin, allowed),
-      });
+      return new Response(null, { status: 204, headers: corsHeaders(origin, allowed) });
     }
 
+    // Require bearer token (Clerk). We are not verifying it yet.
+    const auth = request.headers.get("Authorization") || "";
+    const hasBearer = auth.startsWith("Bearer ");
+
+    // /feedback route
+    if (url.pathname === "/feedback") {
+      if (request.method !== "POST") {
+        return jsonResponse({ error: { message: "Method not allowed" } }, { status: 405 }, origin, allowed);
+      }
+      if (!hasBearer) {
+        return jsonResponse(
+          { error: { message: "Missing Authorization Bearer token" } },
+          { status: 401 },
+          origin,
+          allowed,
+        );
+      }
+      if (!env.CA_CACHE) {
+        return jsonResponse(
+          { error: { message: "Server misconfigured: missing CA_CACHE binding" } },
+          { status: 500 },
+          origin,
+          allowed,
+        );
+      }
+
+      const body = await readJson(request);
+      const q_hash = safeString(body?.q_hash).trim();
+      const helpful = body?.helpful === true;
+
+      if (!q_hash) {
+        return jsonResponse({ error: { message: "Missing q_hash" } }, { status: 400 }, origin, allowed);
+      }
+
+      const key = `fb:${q_hash}`;
+      const current = (await env.CA_CACHE.get(key, "json")) as any | null;
+      const next = {
+        up: (current?.up || 0) + (helpful ? 1 : 0),
+        down: (current?.down || 0) + (helpful ? 0 : 1),
+      };
+
+      await env.CA_CACHE.put(key, JSON.stringify(next), { expirationTtl: 60 * 60 * 24 * 180 }); // 180 days
+      return jsonResponse({ ok: true, ...next }, { status: 200 }, origin, allowed);
+    }
+
+    // Main ask route
     if (request.method !== "POST") {
+      return jsonResponse({ error: { message: "Method not allowed" } }, { status: 405 }, origin, allowed);
+    }
+    if (!hasBearer) {
       return jsonResponse(
-        { error: { message: "Method not allowed" } },
-        { status: 405 },
+        { error: { message: "Missing Authorization Bearer token" } },
+        { status: 401 },
         origin,
         allowed,
       );
@@ -310,17 +366,11 @@ export default {
 
     const body = await readJson(request);
     const input = safeString(body?.input ?? body?.question ?? body?.q).trim();
-    const debug = body?.debug === true || new URL(request.url).searchParams.get("debug") === "1";
+    const debug = body?.debug === true || url.searchParams.get("debug") === "1";
 
     if (!input) {
-      return jsonResponse(
-        { error: { message: "Missing `input`" } },
-        { status: 400 },
-        origin,
-        allowed,
-      );
+      return jsonResponse({ error: { message: "Missing `input`" } }, { status: 400 }, origin, allowed);
     }
-
     if (!env.OPENAI_API_KEY) {
       return jsonResponse(
         { error: { message: "Server misconfigured: missing OPENAI_API_KEY" } },
@@ -329,7 +379,6 @@ export default {
         allowed,
       );
     }
-
     if (!env.OPENAI_VECTOR_STORE_ID) {
       return jsonResponse(
         { error: { message: "Server misconfigured: missing OPENAI_VECTOR_STORE_ID" } },
@@ -339,25 +388,33 @@ export default {
       );
     }
 
-    // Frontend sends a Clerk token. For now we just require a Bearer token exists.
-    // (We can add real Clerk JWT verification next.)
-    const auth = request.headers.get("Authorization") || "";
-    if (!auth.startsWith("Bearer ")) {
-      return jsonResponse(
-        { error: { message: "Missing Authorization Bearer token" } },
-        { status: 401 },
-        origin,
-        allowed,
-      );
+    // Compute q_hash (returned to frontend for feedback + caching)
+    const normQ = normalizeQuestion(input);
+    const q_hash = await sha256Hex(`${env.OPENAI_VECTOR_STORE_ID}:${normQ}`);
+    const cacheKey = `qa:${q_hash}`;
+
+    // Cache HIT (skip OpenAI entirely)
+    if (!debug && env.CA_CACHE) {
+      const cached = (await env.CA_CACHE.get(cacheKey, "json")) as any | null;
+      if (cached?.text) {
+        return jsonResponse(
+          { ...cached, q_hash, cached: true },
+          { status: 200, headers: { "X-Cache": "HIT" } },
+          origin,
+          allowed,
+        );
+      }
     }
 
     const model = env.OPENAI_MODEL || "gpt-4.1";
 
+    // Keep file_search results smaller to reduce cost/latency
     const payload: Record<string, unknown> = {
       model,
       temperature: 0,
       store: false,
       max_tool_calls: 1,
+      max_output_tokens: 700,
       input: [
         { role: "system", content: SYSTEM_INSTRUCTIONS },
         { role: "user", content: input },
@@ -369,7 +426,6 @@ export default {
           max_num_results: 6,
         },
       ],
-      // IMPORTANT: include belongs at the TOP LEVEL (not inside tools)
       include: ["file_search_call.results"],
       text: {
         format: {
@@ -410,31 +466,35 @@ export default {
       const retrieved = extractSearchResults(openaiResp);
       const openaiRawText = extractAssistantText(openaiResp);
 
-      // No file_search results = do not answer.
       if (retrieved.length === 0) {
-        return jsonResponse(
-          {
-            text: "I can’t find that in the collective agreement.",
-            ...(debug
-              ? {
-                  debug: {
-                    note: "No file_search results returned",
-                    output_types: (openaiResp?.output || []).map((o: any) => o?.type),
-                  },
-                }
-              : {}),
-          },
-          { status: 200 },
-          origin,
-          allowed,
-        );
+        const bodyOut = {
+          text: "I can’t find that in the collective agreement.",
+          citations: [],
+          quotes: [],
+          q_hash,
+          cached: false,
+          ...(debug
+            ? {
+                debug: {
+                  note: "No file_search results returned",
+                  output_types: (openaiResp?.output || []).map((o: any) => o?.type),
+                },
+              }
+            : {}),
+        };
+
+        // Cache not_found briefly
+        if (!debug && env.CA_CACHE) {
+          await env.CA_CACHE.put(cacheKey, JSON.stringify(bodyOut), { expirationTtl: 60 * 60 * 12 });
+        }
+
+        return jsonResponse(bodyOut, { status: 200, headers: { "X-Cache": "MISS" } }, origin, allowed);
       }
 
       let parsed: CAAnswer;
       try {
         parsed = JSON.parse(openaiRawText) as CAAnswer;
       } catch {
-        // If structured output fails, don't risk hallucinations.
         return jsonResponse(
           {
             error: {
@@ -450,38 +510,38 @@ export default {
 
       const finalized = validateAndFormatAnswer(parsed, retrieved);
 
-      return jsonResponse(
-        {
-          text: finalized.text,
-          citations: finalized.citations,
-          quotes: finalized.quotes,
-          ...(debug
-            ? {
-                debug: {
-                  model,
-                  retrieved_count: retrieved.length,
-                  retrieved_preview: retrieved.slice(0, 5).map((x) => ({
-                    filename: x.filename,
-                    file_id: x.file_id,
-                    score: x.score,
-                    text_preview: x.text.slice(0, 240),
-                  })),
-                  raw_json: parsed,
-                },
-              }
-            : {}),
-        },
-        { status: 200 },
-        origin,
-        allowed,
-      );
+      const bodyOut: any = {
+        text: finalized.text,
+        citations: finalized.citations,
+        quotes: finalized.quotes,
+        q_hash,
+        cached: false,
+      };
+
+      if (debug) {
+        bodyOut.debug = {
+          model,
+          retrieved_count: retrieved.length,
+          retrieved_preview: retrieved.slice(0, 5).map((x) => ({
+            filename: x.filename,
+            file_id: x.file_id,
+            score: x.score,
+            text_preview: x.text.slice(0, 240),
+          })),
+          raw_json: parsed,
+        };
+      }
+
+      // Cache (long for found, shorter for not_found)
+      if (!debug && env.CA_CACHE) {
+        await env.CA_CACHE.put(cacheKey, JSON.stringify(bodyOut), {
+          expirationTtl: finalized.not_found ? 60 * 60 * 12 : 60 * 60 * 24 * 30,
+        });
+      }
+
+      return jsonResponse(bodyOut, { status: 200, headers: { "X-Cache": "MISS" } }, origin, allowed);
     } catch (e: any) {
-      return jsonResponse(
-        { error: { message: e?.message || String(e) } },
-        { status: 500 },
-        origin,
-        allowed,
-      );
+      return jsonResponse({ error: { message: e?.message || String(e) } }, { status: 500 }, origin, allowed);
     }
   },
 };
