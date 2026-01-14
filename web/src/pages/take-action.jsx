@@ -36,6 +36,24 @@ export default function TakeAction() {
           </a>
         </div>
       </section>
+
+      <section style={cardStyle}>
+        <h2 style={h2Style}>Ontario Health Care</h2>
+        <p style={pStyle}>
+          Support OPSEU advocacy related to public health care enforcement.
+        </p>
+
+        <div style={linkRowStyle}>
+          <a
+            href="https://opseu.org/news/sign-this-petition-to-demand-the-federal-government-enforce-the-canada-health-act-in-ontario/304296/"
+            target="_blank"
+            rel="noreferrer"
+            style={buttonLinkStyle}
+          >
+            Sign the Canada Health Act petition
+          </a>
+        </div>
+      </section>
     </section>
   );
 }
