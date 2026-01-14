@@ -254,7 +254,9 @@ export default function Agreement() {
               </div>
             ))}
           </div>
-          <section style={cardStyle}>
+        </section>
+      ))}
+                <section style={cardStyle}>
   <h2 style={h2Style}>Collective Agreement Lookup</h2>
   <p style={mutedStyle}>Ontario Ministry searchable collective agreement database.</p>
 
@@ -269,9 +271,6 @@ export default function Agreement() {
     </a>
   </div>
 </section>
-
-        </section>
-      ))}
     </section>
   );
 }
