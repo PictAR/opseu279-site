@@ -210,11 +210,30 @@ export default function Agreement() {
     <section style={{ display: "grid", gap: 14 }}>
       <MemberHeader title="Collective Agreement Library" />
 
-<div style={{ padding: 14, borderRadius: 14, border: "1px solid rgba(0,0,0,0.10)", background: "rgba(255,255,255,0.7)" }}>
-  <div style={{ fontWeight: 950, color: "#0055b8", marginBottom: 8 }}>
-    Ask the Agreement
-  </div>
+<div
+  style={{
+    padding: 14,
+    borderRadius: 14,
+    border: "1px solid rgba(0,0,0,0.10)",
+    background: "rgba(255,255,255,0.7)",
+    display: "grid",
+    gap: 10,
+  }}
+>
   <AskCaBox />
+
+  <div
+    style={{
+      fontSize: 12,
+      lineHeight: 1.4,
+      opacity: 0.8,
+      borderTop: "1px solid rgba(0,0,0,0.10)",
+      paddingTop: 10,
+    }}
+  >
+    <b>Note:</b> Right now, this tool can only answer questions about the <b>current</b> Norfolk County Paramedics
+    Collective Agreement. We’ll expand it later to include other services.
+  </div>
 </div>
 
       {groupBy(LIBRARY, (x) => x.group).map(([groupName, services]) => (
