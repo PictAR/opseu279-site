@@ -2,6 +2,49 @@ import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import MemberHeader from "../../components/MemberHeader";
 
+/* ===================== */
+/* Styles (top of file)  */
+/* ===================== */
+
+const cardStyle = {
+  border: "1px solid rgba(0,0,0,0.10)",
+  borderRadius: 16,
+  padding: 14,
+  background: "rgba(255,255,255,0.7)",
+};
+
+const labelStyle = { display: "grid", gap: 6 };
+
+const labelTitleStyle = {
+  fontWeight: 950,
+  color: "#0055b8",
+};
+
+const inputStyle = {
+  padding: 10,
+  borderRadius: 12,
+  border: "1px solid rgba(0,0,0,0.15)",
+  background: "rgba(255,255,255,0.92)",
+  color: "#0b2b3a",
+  width: "100%",
+  boxSizing: "border-box",
+};
+
+const buttonStyle = {
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(14,110,166,0.35)",
+  background: "rgba(14,110,166,0.10)",
+  color: "#0055b8",
+  fontSize: 14,
+  fontWeight: 950,
+  cursor: "pointer",
+};
+
+/* ===================== */
+/* Helpers               */
+/* ===================== */
+
 const CLASSIFICATIONS = [
   "Full Time",
   "Part Time",
@@ -9,16 +52,6 @@ const CLASSIFICATIONS = [
   "Part Time Community Paramedic",
   "Part Time and Part Time CP",
 ];
-
-<div style={{ display: "grid", gap: 6 }}>
-  <div style={labelTitleStyle}>Name</div>
-  <div style={{ ...inputStyle, display: "flex", alignItems: "center", opacity: 0.9 }}>
-    {user?.fullName || user?.username || "Member"}
-  </div>
-  <div style={{ fontSize: 12, opacity: 0.7 }}>
-    Name is pulled from your sign-in account.
-  </div>
-</div>
 
 function yearsOfService(startDateStr) {
   if (!startDateStr) return null;
@@ -40,10 +73,14 @@ function yearsOfService(startDateStr) {
   return { years, months };
 }
 
-export default function Profile() {
+/* ===================== */
+/* Component             */
+/* ===================== */
+
+export default function MyProfile() {
   const { user, isLoaded } = useUser();
 
-  // We store everything under unsafeMetadata.profile
+  // stored under unsafeMetadata.profile
   const existing = useMemo(() => {
     const profile = user?.unsafeMetadata?.profile;
     return profile && typeof profile === "object" ? profile : {};
@@ -60,12 +97,15 @@ export default function Profile() {
 
     setStartDate(typeof existing.startDate === "string" ? existing.startDate : "");
     setClassification(
-      typeof existing.classification === "string" ? existing.classification : CLASSIFICATIONS[0]
+      typeof existing.classification === "string" && existing.classification
+        ? existing.classification
+        : CLASSIFICATIONS[0]
     );
     setSchool(typeof existing.school === "string" ? existing.school : "");
   }, [isLoaded, user, existing]);
 
   const yos = yearsOfService(startDate);
+  const displayName = user?.fullName || user?.username || "Member";
 
   async function onSave() {
     if (!user) return;
@@ -104,7 +144,18 @@ export default function Profile() {
       <MemberHeader title="My Profile" />
 
       <div style={cardStyle}>
-        <div style={{ display: "grid", gap: 10 }}>
+        <div style={{ display: "grid", gap: 12 }}>
+          {/* Name is NOT editable, pulled from Clerk */}
+          <div style={{ display: "grid", gap: 6 }}>
+            <div style={labelTitleStyle}>Name</div>
+            <div style={{ ...inputStyle, display: "flex", alignItems: "center", opacity: 0.9 }}>
+              {displayName}
+            </div>
+            <div style={{ fontSize: 12, opacity: 0.7 }}>
+              Name is pulled from your sign in account.
+            </div>
+          </div>
+
           <label style={labelStyle}>
             <div style={labelTitleStyle}>Start date</div>
             <input
@@ -120,7 +171,7 @@ export default function Profile() {
               </div>
             ) : (
               <div style={{ fontSize: 13, opacity: 0.7 }}>
-                Enter your start date to calculate years of service.
+                Optional. Enter your start date to calculate years of service.
               </div>
             )}
           </label>
@@ -138,6 +189,7 @@ export default function Profile() {
                 </option>
               ))}
             </select>
+            <div style={{ fontSize: 12, opacity: 0.7 }}>Optional.</div>
           </label>
 
           <label style={labelStyle}>
@@ -145,7 +197,7 @@ export default function Profile() {
             <input
               value={school}
               onChange={(e) => setSchool(e.target.value)}
-              placeholder="e.g., Humber, Fanshawe, etc."
+              placeholder="Optional (e.g., Humber, Fanshawe)"
               style={inputStyle}
             />
           </label>
@@ -154,44 +206,14 @@ export default function Profile() {
             <button type="button" onClick={onSave} disabled={saving} style={buttonStyle}>
               {saving ? "Saving..." : "Save"}
             </button>
-            {savedMsg ? <div style={{ fontWeight: 800 }}>{savedMsg}</div> : null}
+            {savedMsg ? <div style={{ fontWeight: 900 }}>{savedMsg}</div> : null}
           </div>
 
           <div style={{ fontSize: 12, opacity: 0.75, lineHeight: 1.4 }}>
-            Note: these fields are stored in your Clerk user metadata.
+            Stored privately in your account metadata.
           </div>
         </div>
       </div>
     </section>
   );
 }
-
-const cardStyle = {
-  border: "1px solid rgba(0,0,0,0.10)",
-  borderRadius: 16,
-  padding: 14,
-  background: "rgba(255,255,255,0.7)",
-};
-
-const labelStyle = { display: "grid", gap: 6 };
-
-const labelTitleStyle = { fontWeight: 950, color: "#0055b8" };
-
-const inputStyle = {
-  padding: 10,
-  borderRadius: 12,
-  border: "1px solid rgba(0,0,0,0.15)",
-  background: "rgba(255,255,255,0.92)",
-  color: "#0b2b3a",
-};
-
-const buttonStyle = {
-  padding: "12px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(14,110,166,0.35)",
-  background: "rgba(14,110,166,0.10)",
-  color: "#0055b8",
-  fontSize: 14,
-  fontWeight: 950,
-  cursor: "pointer",
-};
