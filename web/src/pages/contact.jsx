@@ -7,7 +7,7 @@ const EXEC = [
   { name: "Vice President", email: "dostal.carol@hotmail.com" },
   { name: "Secretary", email: "jennhancock74@gmail.com" },
   { name: "Treasurer", email: "devonlansdell@gmail.com" },
-  { name: "Steward", email: "michael.basha.9@gmail.com.com" },
+  { name: "Steward", email: "michael.basha.9@gmail.com" },
   { name: "Steward", email: "rach_beck_@hotmail.com" },
 ];
 
