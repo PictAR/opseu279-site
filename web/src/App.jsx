@@ -3,6 +3,7 @@
 // ******* //
 
 import { useEffect, useRef, useState } from "react";
+
 import {
   BrowserRouter,
   Routes,
@@ -11,7 +12,9 @@ import {
   Outlet,
   useLocation,
   useNavigate,
+  Navigate,
 } from "react-router-dom";
+
 
 import {
   SignedIn,
@@ -63,93 +66,19 @@ export default function App() {
           <Route index element={<Home />} />
 
           {/* Members (protected) */}
-          <Route
-            path="/member"
-            element={
-              <MemberGate>
-                <Member />
-              </MemberGate>
-            }
-          />
-          <Route
-            path="/member/agreement"
-            element={
-              <MemberGate>
-                <Agreement />
-              </MemberGate>
-            }
-          />
-          <Route
-            path="/member/wages-benefits"
-            element={
-              <MemberGate>
-                <Wages />
-              </MemberGate>
-            }
-          />
-          <Route
-            path="/member/documents"
-            element={
-              <MemberGate>
-                <Documents />
-              </MemberGate>
-            }
-          />
-          <Route path="/members" element={<MembersLayout />}>
+<Route path="/members" element={<MemberGate><MembersLayout /></MemberGate>}>
   <Route index element={<MembersHome />} />
-  <Route path="seniority" element={<SeniorityLists />} />
-  <Route path="contact" element={<ContactExec />} />
-          <Route
-            path="/member/peer-support"
-            element={
-              <MemberGate>
-                <PeerSupport />
-              </MemberGate>
-            }
-          />
-          <Route
-            path="/member/faq"
-            element={
-              <MemberGate>
-                <Faq />
-              </MemberGate>
-            }
-          />
-          <Route
-            path="/member/seniority"
-            element={
-              <MemberGate>
-                <Seniority />
-              </MemberGate>
-            }
-          />
-          <Route
-            path="/member/take-action"
-            element={
-              <MemberGate>
-                <TakeAction />
-              </MemberGate>
-            }
-          />
-          <Route
-            path="/member/discounts"
-            element={
-              <MemberGate>
-                <Discounts />
-              </MemberGate>
-            }
-          />
-          <Route
-            path="/member/contact"
-            element={
-              <MemberGate>
-                <Contact />
-              </MemberGate>
-            }
-          />
+  <Route path="agreement" element={<Agreement />} />
+  <Route path="documents" element={<Documents />} />
+  <Route path="peer-support" element={<PeerSupport />} />
+  <Route path="faq" element={<Faq />} />
+  <Route path="take-action" element={<TakeAction />} />
+  <Route path="discounts" element={<Discounts />} />
+  <Route path="contact" element={<Contact />} />
+  <Route path="seniority" element={<Seniority />} />
+</Route>
 
           <Route path="*" element={<NotFound />} />
-        </Route>
         </Route>
       </Routes>
     </BrowserRouter>
@@ -182,7 +111,7 @@ function MemberGate({ children }) {
           <p style={pStyle}>
             This section is for OPSEU Local 279 members. Please sign in to continue.
           </p>
-          <SignInButton mode="modal" afterSignInUrl="/member" afterSignUpUrl="/member">
+          <SignInButton mode="modal" afterSignInUrl="/members" afterSignUpUrl="/members">
             <button style={primaryButtonStyle}>Member Login</button>
           </SignInButton>
         </section>
@@ -295,14 +224,14 @@ function NavBar() {
 
     {/* 3) Members Area */}
     <SignedIn>
-      <Link to="/member" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
+      <Link to="/members" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
         <FontAwesomeIcon icon={faFileLines} style={dropdownIconStyle} />
         Members Area
       </Link>
     </SignedIn>
 
     <SignedOut>
-      <SignInButton mode="modal" afterSignInUrl="/member" afterSignUpUrl="/member">
+      <SignInButton mode="modal" afterSignInUrl="/members" afterSignUpUrl="s">
         <button type="button" style={dropdownButtonStyle} role="menuitem">
           <FontAwesomeIcon icon={faRightToBracket} style={dropdownIconStyle} />
           Members Area

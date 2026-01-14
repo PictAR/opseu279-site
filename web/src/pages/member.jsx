@@ -18,7 +18,7 @@ export default function Member() {
 
       <div style={gridStyle}>
         {/* Consolidated tile (CA + Wages/Benefits bundled here) */}
-        <Link to="/member/agreement" style={tileStyle}>
+        <Link to="/members/agreement" style={tileStyle}>
           <div style={tileTitleStyle}>Collective Agreement, Wages, Benefits</div>
           <div style={tileSubStyle}>
             Norfolk Local 279 CA plus the CA AI Q and A. Wage and benefits tools will live here too.
@@ -26,7 +26,7 @@ export default function Member() {
         </Link>
 
         {/* Seniority */}
-        <Link to="/member/seniority" style={tileStyle}>
+        <Link to="/members/seniority" style={tileStyle}>
           <div style={tileTitleStyle}>Seniority Lists</div>
           <div style={tileSubStyle}>Past and present seniority lists.</div>
         </Link>
@@ -53,32 +53,32 @@ export default function Member() {
         </a>
 
         {/* Keep the rest as-is */}
-        <Link to="/member/documents" style={tileStyle}>
+        <Link to="/members/documents" style={tileStyle}>
           <div style={tileTitleStyle}>Documents and Standards</div>
           <div style={tileSubStyle}>Guides, standards, and reference documents.</div>
         </Link>
 
-        <Link to="/member/peer-support" style={tileStyle}>
+        <Link to="/members/peer-support" style={tileStyle}>
           <div style={tileTitleStyle}>Peer Support</div>
           <div style={tileSubStyle}>Connect with resources in support of mental health.</div>
         </Link>
 
-        <Link to="/member/faq" style={tileStyle}>
+        <Link to="/members/faq" style={tileStyle}>
           <div style={tileTitleStyle}>FAQ</div>
           <div style={tileSubStyle}>Common questions and quick answers.</div>
         </Link>
 
-        <Link to="/member/take-action" style={tileStyle}>
+        <Link to="/members/take-action" style={tileStyle}>
           <div style={tileTitleStyle}>Take Action</div>
           <div style={tileSubStyle}>Member tools for contacting elected representatives.</div>
         </Link>
 
-        <Link to="/member/discounts" style={tileStyle}>
+        <Link to="/members/discounts" style={tileStyle}>
           <div style={tileTitleStyle}>Member Discounts</div>
           <div style={tileSubStyle}>Exclusive discounts for OPSEU members.</div>
         </Link>
 
-        <Link to="/member/contact" style={tileStyle}>
+        <Link to="/members/contact" style={tileStyle}>
           <div style={tileTitleStyle}>Contact Executive and Committees</div>
           <div style={tileSubStyle}>Send an email with To, CC, BCC from one screen.</div>
         </Link>
