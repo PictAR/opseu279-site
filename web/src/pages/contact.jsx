@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import MemberHeader from "../components/MemberHeader";
 
-// CURRENT / ACTIVE EXECUTIVE MEMBERS + ROLES + CONTACT EMAIL
+// Replace with your real exec emails
 const EXEC = [
   { name: "President", email: "tristanbritt@gmail.com" },
   { name: "Vice President", email: "dostal.carol@hotmail.com" },
@@ -20,21 +20,50 @@ function encodeMailto({ to, cc, bcc, subject, body }) {
   return `mailto:${encodeURIComponent(to)}?${params.toString()}`;
 }
 
+function Chip({ text, onRemove }) {
+  return (
+    <button type="button" onClick={onRemove} style={chipStyle} title="Remove">
+      {text} <span style={{ opacity: 0.7 }}>×</span>
+    </button>
+  );
+}
+
 export default function Contact() {
   const [toEmail, setToEmail] = useState(EXEC[0]?.email || "");
   const [cc, setCc] = useState([]);
   const [bcc, setBcc] = useState([]);
+  const [ccPick, setCcPick] = useState("");
+  const [bccPick, setBccPick] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
+  // If TO changes, ensure it is not in CC/BCC
+  useEffect(() => {
+    setCc((prev) => prev.filter((x) => x !== toEmail));
+    setBcc((prev) => prev.filter((x) => x !== toEmail));
+    setCcPick("");
+    setBccPick("");
+  }, [toEmail]);
+
   const options = useMemo(
-    () => EXEC.map((x) => ({ label: `${x.name} (${x.email})`, value: x.email })),
+    () => EXEC.map((x) => ({ label: `${x.name} (${x.email})`, value: x.email, name: x.name })),
     []
   );
 
-  const toggle = (list, setList, value) => {
-    setList((prev) => (prev.includes(value) ? prev.filter((x) => x !== value) : [...prev, value]));
-  };
+  const availableCc = useMemo(
+    () => options.filter((o) => o.value !== toEmail && !cc.includes(o.value)),
+    [options, toEmail, cc]
+  );
+
+  const availableBcc = useMemo(
+    () => options.filter((o) => o.value !== toEmail && !bcc.includes(o.value)),
+    [options, toEmail, bcc]
+  );
+
+  const toLabel = useMemo(() => {
+    const found = options.find((o) => o.value === toEmail);
+    return found ? found.label : toEmail;
+  }, [options, toEmail]);
 
   const mailto = useMemo(() => {
     if (!toEmail) return "";
@@ -47,124 +76,180 @@ export default function Contact() {
     });
   }, [toEmail, cc, bcc, subject, message]);
 
+  function addCc() {
+    if (!ccPick) return;
+    setCc((prev) => (prev.includes(ccPick) ? prev : [...prev, ccPick]));
+    setCcPick("");
+  }
+
+  function addBcc() {
+    if (!bccPick) return;
+    setBcc((prev) => (prev.includes(bccPick) ? prev : [...prev, bccPick]));
+    setBccPick("");
+  }
+
   return (
     <section style={{ display: "grid", gap: 14 }}>
       <MemberHeader title="Contact Executive and Committees" />
 
-      <p style={{ margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
-        This opens your email app with To, CC, and BCC filled in.
-      </p>
+      <div style={cardStyle}>
+        <div style={{ display: "grid", gap: 12 }}>
+          <div style={{ display: "grid", gap: 6 }}>
+            <div style={labelTitleStyle}>To</div>
+            <select value={toEmail} onChange={(e) => setToEmail(e.target.value)} style={inputStyle}>
+              {options.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+            <div style={{ fontSize: 12, opacity: 0.75 }}>Selected: {toLabel}</div>
+          </div>
 
-      <label style={labelStyle}>
-        <div style={labelTitleStyle}>To</div>
-        <select
-          value={toEmail}
-          onChange={(e) => setToEmail(e.target.value)}
-          style={inputStyle}
-        >
-          {options.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      </label>
+          <div style={twoColStyle}>
+            <div style={{ display: "grid", gap: 8 }}>
+              <div style={labelTitleStyle}>CC</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <select value={ccPick} onChange={(e) => setCcPick(e.target.value)} style={inputStyle}>
+                  <option value="">Add CC...</option>
+                  {availableCc.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.name}
+                    </option>
+                  ))}
+                </select>
+                <button type="button" onClick={addCc} style={smallButtonStyle}>
+                  Add
+                </button>
+              </div>
+              {cc.length ? (
+                <div style={chipRowStyle}>
+                  {cc.map((email) => (
+                    <Chip key={email} text={email} onRemove={() => setCc((p) => p.filter((x) => x !== email))} />
+                  ))}
+                </div>
+              ) : (
+                <div style={hintStyle}>No CC recipients.</div>
+              )}
+            </div>
 
-      <div style={{ display: "grid", gap: 8 }}>
-        <div style={labelTitleStyle}>CC</div>
-        <div style={{ display: "grid", gap: 8 }}>
-          {options.map((o) => (
-            <label key={`cc-${o.value}`} style={checkRowStyle}>
-              <input
-                type="checkbox"
-                checked={cc.includes(o.value)}
-                onChange={() => toggle(cc, setCc, o.value)}
-                disabled={o.value === toEmail}
-              />
-              <span>{o.label}</span>
-            </label>
-          ))}
+            <div style={{ display: "grid", gap: 8 }}>
+              <div style={labelTitleStyle}>BCC</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <select value={bccPick} onChange={(e) => setBccPick(e.target.value)} style={inputStyle}>
+                  <option value="">Add BCC...</option>
+                  {availableBcc.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.name}
+                    </option>
+                  ))}
+                </select>
+                <button type="button" onClick={addBcc} style={smallButtonStyle}>
+                  Add
+                </button>
+              </div>
+              {bcc.length ? (
+                <div style={chipRowStyle}>
+                  {bcc.map((email) => (
+                    <Chip key={email} text={email} onRemove={() => setBcc((p) => p.filter((x) => x !== email))} />
+                  ))}
+                </div>
+              ) : (
+                <div style={hintStyle}>No BCC recipients.</div>
+              )}
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gap: 6 }}>
+            <div style={labelTitleStyle}>Subject</div>
+            <input value={subject} onChange={(e) => setSubject(e.target.value)} style={inputStyle} />
+          </div>
+
+          <div style={{ display: "grid", gap: 6 }}>
+            <div style={labelTitleStyle}>Message</div>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={8}
+              style={{ ...inputStyle, resize: "vertical" }}
+            />
+          </div>
+
+          <a
+            href={mailto || "#"}
+            onClick={(e) => {
+              if (!mailto) e.preventDefault();
+            }}
+            style={{
+              textDecoration: "none",
+              textAlign: "center",
+              padding: "12px 12px",
+              borderRadius: 12,
+              border: "1px solid rgba(0,0,0,0.15)",
+              background: "rgba(0,85,184,0.10)",
+              color: "#0055b8",
+              fontWeight: 950,
+              opacity: mailto ? 1 : 0.5,
+              pointerEvents: mailto ? "auto" : "none",
+            }}
+          >
+            Open Email
+          </a>
         </div>
       </div>
-
-      <div style={{ display: "grid", gap: 8 }}>
-        <div style={labelTitleStyle}>BCC</div>
-        <div style={{ display: "grid", gap: 8 }}>
-          {options.map((o) => (
-            <label key={`bcc-${o.value}`} style={checkRowStyle}>
-              <input
-                type="checkbox"
-                checked={bcc.includes(o.value)}
-                onChange={() => toggle(bcc, setBcc, o.value)}
-                disabled={o.value === toEmail}
-              />
-              <span>{o.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <label style={labelStyle}>
-        <div style={labelTitleStyle}>Subject</div>
-        <input
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          placeholder="Subject..."
-          style={inputStyle}
-        />
-      </label>
-
-      <label style={labelStyle}>
-        <div style={labelTitleStyle}>Message</div>
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Message..."
-          rows={8}
-          style={{ ...inputStyle, resize: "vertical" }}
-        />
-      </label>
-
-      <a
-        href={mailto || "#"}
-        onClick={(e) => {
-          if (!mailto) e.preventDefault();
-        }}
-        style={{
-          textDecoration: "none",
-          textAlign: "center",
-          padding: "12px 12px",
-          borderRadius: 12,
-          border: "1px solid rgba(0,0,0,0.15)",
-          background: "rgba(0,85,184,0.10)",
-          color: "#0055b8",
-          fontWeight: 950,
-          opacity: mailto ? 1 : 0.5,
-          pointerEvents: mailto ? "auto" : "none",
-        }}
-      >
-        Open Email
-      </a>
     </section>
   );
 }
 
-const labelStyle = { display: "grid", gap: 6 };
+const cardStyle = {
+  border: "1px solid rgba(0,0,0,0.10)",
+  borderRadius: 16,
+  padding: 14,
+  background: "rgba(255,255,255,0.7)",
+};
+
 const labelTitleStyle = { fontWeight: 950, color: "#0055b8" };
 
 const inputStyle = {
   padding: 10,
   borderRadius: 12,
   border: "1px solid rgba(0,0,0,0.15)",
-  background: "rgba(255,255,255,0.9)",
+  background: "rgba(255,255,255,0.92)",
+  color: "#0b2b3a",
+  width: "100%",
+  boxSizing: "border-box",
 };
 
-const checkRowStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  padding: 8,
-  borderRadius: 12,
-  border: "1px solid rgba(0,0,0,0.10)",
-  background: "rgba(0,85,184,0.05)",
+const twoColStyle = {
+  display: "grid",
+  gap: 12,
 };
+
+const smallButtonStyle = {
+  padding: "10px 12px",
+  borderRadius: 12,
+  border: "1px solid rgba(14,110,166,0.35)",
+  background: "rgba(14,110,166,0.10)",
+  color: "#0055b8",
+  fontWeight: 950,
+  cursor: "pointer",
+  whiteSpace: "nowrap",
+};
+
+const chipRowStyle = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
+};
+
+const chipStyle = {
+  border: "1px solid rgba(0,85,184,0.25)",
+  background: "rgba(0,85,184,0.08)",
+  color: "#0055b8",
+  padding: "8px 10px",
+  borderRadius: 999,
+  cursor: "pointer",
+  fontWeight: 900,
+};
+
+const hintStyle = { fontSize: 12, opacity: 0.7 };

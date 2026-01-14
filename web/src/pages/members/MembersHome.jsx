@@ -89,6 +89,7 @@ export default function MembersHome() {
           label="Contact Executive and Committees"
           sub="Send an email with To, CC, and BCC from one screen"
         />
+        <RowLink to="/members/profile" label="My Profile" sub="Start date, classification, school" />
       </Card>
 
       <Card title="Support and Info">

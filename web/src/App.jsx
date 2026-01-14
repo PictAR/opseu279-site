@@ -37,22 +37,25 @@ import {
 
 import EnvBadge from "./components/EnvBadge.jsx";
 
-// Pages
+// ***** //
+// PAGES //
+// ***** //
+
 import Contact from "./pages/contact.jsx";
 import Faq from "./pages/faq.jsx";
 import Documents from "./pages/documents.jsx";
 import Agreement from "./pages/agreement.jsx";
-/* import Member from "./pages/member.jsx"; */
 import Discounts from "./pages/discounts.jsx";
 import Wages from "./pages/wages-benefits.jsx";
 import PeerSupport from "./pages/peer-support.jsx";
 import TakeAction from "./pages/take-action.jsx";
-import { POSTS } from "./data/posts.js";
 import MembersLayout from "./pages/members/MembersLayout";
 import MembersHome from "./pages/members/MembersHome";
 import Seniority from "./pages/seniority.jsx";
-import SeniorityLists from "./pages/members/SeniorityLists";
-import ContactExec from "./pages/members/ContactExec";
+import Profile from "./pages/members/Profile.jsx";
+
+import { POSTS } from "./data/posts.js";
+import { APP_VERSION, RELEASE_NOTES } from "./data/releaseNotes.js";
 
 
 import opseuUnderCon from "./assets/opseuUnderCon.png";
@@ -77,6 +80,7 @@ export default function App() {
   <Route path="discounts" element={<Discounts />} />
   <Route path="contact" element={<Contact />} />
   <Route path="seniority" element={<Seniority />} />
+  <Route path="profile" element={<Profile />} />
 </Route>
 
           <Route path="*" element={<NotFound />} />
@@ -286,6 +290,9 @@ function Footer() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const showNotes = import.meta.env.VITE_SHOW_VERSION_NOTES !== "false";
+  const latest = RELEASE_NOTES?.[0];
+
   function goHomeAndScroll(sectionId) {
     if (location.pathname !== "/") {
       navigate("/");
@@ -329,6 +336,42 @@ function Footer() {
             </SignedIn>
           </div>
         </div>
+
+        {showNotes && latest ? (
+          <div style={footerNotesWrapStyle}>
+            <div style={footerNotesTopStyle}>
+              <div style={footerNotesTitleStyle}>
+                Version {APP_VERSION}
+              </div>
+              <div style={footerNotesMetaStyle}>
+                Updated {latest.date}
+              </div>
+            </div>
+
+            <details style={footerDetailsStyle}>
+              <summary style={footerSummaryStyle}>
+                What changed
+              </summary>
+
+              <div style={footerNotesBodyStyle}>
+                <div style={{ fontWeight: 900, marginBottom: 6 }}>
+                  {latest.title}
+                </div>
+                <ul style={footerNotesListStyle}>
+                  {latest.changes.map((c, i) => (
+                    <li key={i} style={footerNotesItemStyle}>{c}</li>
+                  ))}
+                </ul>
+
+                {RELEASE_NOTES.length > 1 ? (
+                  <div style={footerNotesHintStyle}>
+                    Older updates are in the release notes file.
+                  </div>
+                ) : null}
+              </div>
+            </details>
+          </div>
+        ) : null}
 
         <div style={footerMetaStyle}>
           <div style={footerSmallStyle}>© {year} OPSEU Local 279</div>
@@ -753,6 +796,70 @@ const heroImageStyle = {
 /* ************* */
 /* Footer styles */
 /* ************* */
+
+const footerNotesWrapStyle = {
+  border: "1px solid rgba(255,255,255,0.25)",
+  background: "rgba(255,255,255,0.08)",
+  borderRadius: 14,
+  padding: 12,
+  display: "grid",
+  gap: 10,
+};
+
+const footerNotesTopStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "baseline",
+  gap: 10,
+  flexWrap: "wrap",
+};
+
+const footerNotesTitleStyle = {
+  color: "#ffffff",
+  fontWeight: 950,
+  fontSize: 14,
+};
+
+const footerNotesMetaStyle = {
+  color: "#ffffff",
+  opacity: 0.85,
+  fontSize: 12,
+  fontWeight: 800,
+};
+
+const footerDetailsStyle = {
+  color: "#ffffff",
+};
+
+const footerSummaryStyle = {
+  cursor: "pointer",
+  fontWeight: 950,
+  color: "#ffffff",
+  listStyle: "none",
+};
+
+const footerNotesBodyStyle = {
+  marginTop: 10,
+  color: "#ffffff",
+};
+
+const footerNotesListStyle = {
+  margin: "8px 0 0",
+  paddingLeft: 18,
+  display: "grid",
+  gap: 6,
+};
+
+const footerNotesItemStyle = {
+  lineHeight: 1.35,
+  opacity: 0.95,
+};
+
+const footerNotesHintStyle = {
+  marginTop: 10,
+  fontSize: 12,
+  opacity: 0.8,
+};
 
 const footerOuterStyle = {
   borderTop: "1px solid rgba(255,255,255,0.18)",
