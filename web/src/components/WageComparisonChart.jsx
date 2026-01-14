@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 
-const DATA_URL = "/data/wages/web/public/data/wageCompChart-opseu_01.csv";
+const DATA_URL = "/data/wages/wageCompChart-opseu_01.csv";
 
-// A tiny CSV parser that handles quoted fields safely.
+// Tiny CSV parser (handles quoted fields)
 function parseCsv(text) {
   const lines = text.replace(/\r/g, "").split("\n").filter(Boolean);
   if (!lines.length) return { headers: [], rows: [] };
@@ -55,7 +55,7 @@ function formatMoney(n) {
   try {
     return n.toLocaleString(undefined, { style: "currency", currency: "CAD" });
   } catch {
-    return `$${n.toFixed(2)}`;
+    return `$${Number(n).toFixed(2)}`;
   }
 }
 
@@ -68,35 +68,53 @@ function formatDateLabel(isoOrDate) {
   }
 }
 
+function normHeader(h) {
+  return String(h || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\./g, "")
+    .replace(/\s+/g, "_");
+}
+
+function findColIndex(headers, candidates) {
+  const map = headers.map(normHeader);
+  for (const c of candidates) {
+    const idx = map.indexOf(c);
+    if (idx !== -1) return idx;
+  }
+  return -1;
+}
+
 function isPcpTopRateRow(service, cls, step) {
-  // Omit Elgin even if it sneaks back in.
+  // Safety: omit Elgin even if it sneaks in later
   if (String(service).toLowerCase().includes("elgin")) return false;
 
   const c = String(cls).trim().toUpperCase();
   const st = String(step).trim().toUpperCase();
 
-  return c === "PCP" && st.includes("LEVEL 2");
+  // Your CSV uses "PCP FT" and "LEVEL 2"
+  return c.includes("PCP") && st.includes("LEVEL 2");
 }
 
 function buildFilledSeries({ headers, rows }) {
-  // Expect: Local, Class., Step, then date columns
   if (!headers?.length || !rows?.length) return null;
-  if (headers.length < 4) return null;
 
-  const serviceIdx = 0;
-  const classIdx = 1;
-  const stepIdx = 2;
+  // Detect columns by name (works with both "Local/Class./Step" and "service/class/step")
+  const idxService = findColIndex(headers, ["service", "local"]);
+  const idxClass = findColIndex(headers, ["class", "class_"]);
+  const idxStep = findColIndex(headers, ["step"]);
 
-  // Date columns begin at col 3
-  const dateHeaders = headers.slice(3);
+  if (idxService === -1 || idxClass === -1 || idxStep === -1) {
+    return { series: [], reason: "Missing expected columns (service/class/step)." };
+  }
 
-  // Parse dates and keep only valid ones
-  const dateCols = dateHeaders
-    .map((h, i) => ({ h, i: i + 3, d: new Date(h) }))
+  // Date columns = headers that parse as dates
+  const dateCols = headers
+    .map((h, i) => ({ h, i, d: new Date(h) }))
     .filter((x) => x.d instanceof Date && !Number.isNaN(x.d.getTime()))
     .sort((a, b) => a.d - b.d);
 
-  // Drop fully blank date columns (all rows empty in that column)
+  // Drop fully empty date columns
   const nonBlankDateCols = dateCols.filter((col) => {
     for (const r of rows) {
       const v = (r[col.i] ?? "").trim();
@@ -105,15 +123,15 @@ function buildFilledSeries({ headers, rows }) {
     return false;
   });
 
-  // Some CSVs use block headers with blanks; forward fill service + class if needed.
+  // Forward-fill service/class if your sheet ever has blank repeated cells
   let lastService = "";
   let lastClass = "";
 
   const filtered = [];
   for (const r of rows) {
-    const rawService = (r[serviceIdx] ?? "").trim();
-    const rawClass = (r[classIdx] ?? "").trim();
-    const rawStep = (r[stepIdx] ?? "").trim();
+    const rawService = (r[idxService] ?? "").trim();
+    const rawClass = (r[idxClass] ?? "").trim();
+    const rawStep = (r[idxStep] ?? "").trim();
 
     const service = rawService || lastService;
     const cls = rawClass || lastClass;
@@ -128,8 +146,8 @@ function buildFilledSeries({ headers, rows }) {
     filtered.push({ service, cls, step, row: r });
   }
 
-  // Build per-service change map
-  const byService = new Map(); // service -> Map(dateISO -> rate)
+  // Map: service -> Map(dateKey -> rate)
+  const byService = new Map();
   for (const item of filtered) {
     const m = byService.get(item.service) || new Map();
     for (const col of nonBlankDateCols) {
@@ -144,17 +162,17 @@ function buildFilledSeries({ headers, rows }) {
   const dates = nonBlankDateCols.map((c) => c.d);
   const dateKeys = dates.map((d) => d.toISOString().slice(0, 10));
 
-  // Forward-fill across the shared date grid
+  // Forward-fill rates across the shared date grid
   const series = [];
   for (const [service, changes] of byService.entries()) {
     let last = null;
+
     const points = dateKeys.map((k) => {
       const v = changes.has(k) ? changes.get(k) : null;
       if (v != null) last = v;
       return { date: k, rate: last };
     });
 
-    // Remove leading nulls
     const firstIdx = points.findIndex((p) => p.rate != null);
     const trimmed = firstIdx >= 0 ? points.slice(firstIdx) : [];
 
@@ -167,10 +185,7 @@ function buildFilledSeries({ headers, rows }) {
     });
   }
 
-  return {
-    dates: dateKeys,
-    series,
-  };
+  return { series };
 }
 
 const COLORS = ["#0055b8", "#0e6ea6", "#6b4eff", "#0b2b3a", "#2a8f3a", "#b84a00"];
@@ -219,7 +234,6 @@ export default function WageComparisonChart() {
       .sort((a, b) => (b.latestRate ?? -Infinity) - (a.latestRate ?? -Infinity));
   }, [built]);
 
-  // Default select all
   useEffect(() => {
     if (!ranked.length) return;
     setSelected((prev) => {
@@ -228,11 +242,9 @@ export default function WageComparisonChart() {
     });
   }, [ranked]);
 
-  const activeSeries = useMemo(() => {
-    return ranked.filter((s) => selected.has(s.service));
-  }, [ranked, selected]);
+  const activeSeries = useMemo(() => ranked.filter((s) => selected.has(s.service)), [ranked, selected]);
 
-  // SVG chart sizing (mobile friendly: scroll if needed)
+  // SVG sizing
   const W = 760;
   const H = 360;
   const PAD_L = 52;
@@ -243,13 +255,11 @@ export default function WageComparisonChart() {
   const chart = useMemo(() => {
     if (!activeSeries.length) return null;
 
-    // Build unified date list from active series (they should share grid, but trimmed starts differ)
     const allDates = new Set();
     for (const s of activeSeries) for (const p of s.points) allDates.add(p.date);
-    const dates = [...allDates].sort(); // ISO date string sorts correctly
+    const dates = [...allDates].sort();
     if (!dates.length) return null;
 
-    // y-range
     let minY = Infinity;
     let maxY = -Infinity;
     for (const s of activeSeries) {
@@ -261,7 +271,6 @@ export default function WageComparisonChart() {
     }
     if (!Number.isFinite(minY) || !Number.isFinite(maxY)) return null;
 
-    // add padding
     const pad = Math.max(0.25, (maxY - minY) * 0.08);
     minY -= pad;
     maxY += pad;
@@ -282,34 +291,22 @@ export default function WageComparisonChart() {
       return y0 - (y0 - y1) * t;
     };
 
-    // ticks
     const yTicks = 5;
     const tickVals = Array.from({ length: yTicks }, (_, i) => {
       const t = yTicks === 1 ? 0 : i / (yTicks - 1);
       return minY + (maxY - minY) * (1 - t);
     });
 
-    // x ticks: show ~6 labels
     const xTickCount = Math.min(6, dates.length);
     const xTickIdxs = Array.from({ length: xTickCount }, (_, i) => {
       const t = xTickCount === 1 ? 0 : i / (xTickCount - 1);
       return Math.round(t * (dates.length - 1));
     });
 
-    // hover
     const hoverDate = hoverIdx != null && dates[hoverIdx] ? dates[hoverIdx] : null;
 
-    return {
-      dates,
-      xFor,
-      yFor,
-      tickVals,
-      xTickIdxs,
-      hoverDate,
-      minY,
-      maxY,
-    };
-  }, [activeSeries, selected, hoverIdx]);
+    return { dates, xFor, yFor, tickVals, xTickIdxs, hoverDate };
+  }, [activeSeries, hoverIdx]);
 
   function toggleService(name) {
     setSelected((prev) => {
@@ -328,24 +325,11 @@ export default function WageComparisonChart() {
     setSelected(new Set());
   }
 
-  if (loading) {
-    return <div style={mutedStyle}>Loading wage chart…</div>;
-  }
-
-  if (err) {
-    return (
-      <div style={errorStyle}>
-        Couldn’t load wage chart data. {err}
-      </div>
-    );
-  }
+  if (loading) return <div style={mutedStyle}>Loading wage chart…</div>;
+  if (err) return <div style={errorStyle}>Couldn’t load wage chart data. {err}</div>;
 
   if (!ranked.length) {
-    return (
-      <div style={mutedStyle}>
-        No PCP Level 2 wage data found in the CSV.
-      </div>
-    );
+    return <div style={mutedStyle}>No PCP Level 2 wage data found in the CSV.</div>;
   }
 
   return (
@@ -357,7 +341,6 @@ export default function WageComparisonChart() {
         </div>
       </div>
 
-      {/* Ranking + toggles */}
       <div style={toggleCardStyle}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
           <div style={{ fontWeight: 950, color: "#0b2b3a" }}>Services (highest to lowest)</div>
@@ -373,12 +356,7 @@ export default function WageComparisonChart() {
             const color = COLORS[idx % COLORS.length];
             return (
               <label key={s.service} style={toggleRowStyle}>
-                <input
-                  type="checkbox"
-                  checked={on}
-                  onChange={() => toggleService(s.service)}
-                  style={{ transform: "scale(1.1)" }}
-                />
+                <input type="checkbox" checked={on} onChange={() => toggleService(s.service)} style={{ transform: "scale(1.1)" }} />
                 <span style={{ width: 10, height: 10, borderRadius: 999, background: color, display: "inline-block" }} />
                 <span style={{ fontWeight: 950 }}>{s.service}</span>
                 <span style={{ marginLeft: "auto", fontWeight: 950, color: "#0055b8" }}>
@@ -393,7 +371,6 @@ export default function WageComparisonChart() {
         </div>
       </div>
 
-      {/* Chart */}
       <div style={chartWrapStyle}>
         {!chart ? (
           <div style={mutedStyle}>Select at least one service to display the chart.</div>
@@ -416,7 +393,6 @@ export default function WageComparisonChart() {
                 setHoverIdx(idx);
               }}
             >
-              {/* grid + y-axis ticks */}
               {chart.tickVals.map((v, i) => {
                 const y = chart.yFor(v);
                 return (
@@ -429,7 +405,6 @@ export default function WageComparisonChart() {
                 );
               })}
 
-              {/* x ticks */}
               {chart.xTickIdxs.map((idx) => {
                 const d = chart.dates[idx];
                 const x = chart.xFor(d);
@@ -443,7 +418,6 @@ export default function WageComparisonChart() {
                 );
               })}
 
-              {/* lines */}
               {activeSeries.map((s, si) => {
                 const color = COLORS[si % COLORS.length];
                 const pts = s.points
@@ -451,37 +425,28 @@ export default function WageComparisonChart() {
                   .map((p) => [chart.xFor(p.date), chart.yFor(p.rate)]);
                 if (pts.length < 2) return null;
 
-                const d = pts
-                  .map((p, i) => (i === 0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`))
-                  .join(" ");
-
+                const d = pts.map((p, i) => (i === 0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(" ");
                 return <path key={s.service} d={d} fill="none" stroke={color} strokeWidth="2.6" />;
               })}
 
-              {/* hover marker */}
               {chart.hoverDate ? (
-                <g>
-                  <line
-                    x1={chart.xFor(chart.hoverDate)}
-                    x2={chart.xFor(chart.hoverDate)}
-                    y1={PAD_T}
-                    y2={H - PAD_B}
-                    stroke="rgba(0,0,0,0.18)"
-                    strokeDasharray="4 4"
-                  />
-                </g>
+                <line
+                  x1={chart.xFor(chart.hoverDate)}
+                  x2={chart.xFor(chart.hoverDate)}
+                  y1={PAD_T}
+                  y2={H - PAD_B}
+                  stroke="rgba(0,0,0,0.18)"
+                  strokeDasharray="4 4"
+                />
               ) : null}
             </svg>
           </div>
         )}
       </div>
 
-      {/* Hover readout */}
       {chart?.hoverDate ? (
         <div style={hoverCardStyle}>
-          <div style={{ fontWeight: 950, color: "#0b2b3a" }}>
-            {formatDateLabel(chart.hoverDate)}
-          </div>
+          <div style={{ fontWeight: 950, color: "#0b2b3a" }}>{formatDateLabel(chart.hoverDate)}</div>
           <div style={{ display: "grid", gap: 6, marginTop: 8 }}>
             {activeSeries.map((s, si) => {
               const color = COLORS[si % COLORS.length];
@@ -504,7 +469,6 @@ export default function WageComparisonChart() {
 }
 
 const titleStyle = { fontSize: 16, fontWeight: 950, color: "#0055b8" };
-
 const mutedStyle = { margin: 0, opacity: 0.8, fontSize: 13, lineHeight: 1.45 };
 
 const errorStyle = {
