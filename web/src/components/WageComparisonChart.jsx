@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-const DATA_URL = "/data/wages/wage-comparison.csv";
+const DATA_URL = "/data/wages/web/public/data/wageCompChart-opseu_01.csv";
 
 // A tiny CSV parser that handles quoted fields safely.
 function parseCsv(text) {
