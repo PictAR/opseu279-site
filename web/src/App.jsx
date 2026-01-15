@@ -15,7 +15,6 @@ import {
   Navigate,
 } from "react-router-dom";
 
-
 import {
   SignedIn,
   SignedOut,
@@ -53,10 +52,10 @@ import MembersLayout from "./pages/members/MembersLayout";
 import MembersHome from "./pages/members/MembersHome";
 import Seniority from "./pages/seniority.jsx";
 import Profile from "./pages/members/Profile.jsx";
+import ReleaseNotes from "./components/ReleaseNotes.jsx";
 
 import { POSTS } from "./data/posts.js";
 /* import { APP_VERSION, RELEASE_NOTES } from "./data/releaseNotes.js"; */
-
 
 import opseuUnderCon from "./assets/opseuUnderCon.png";
 
@@ -69,19 +68,26 @@ export default function App() {
           <Route index element={<Home />} />
 
           {/* Members (protected) */}
-<Route path="/members" element={<MemberGate><MembersLayout /></MemberGate>}>
-  <Route index element={<MembersHome />} />
-  <Route path="collective-agreement" element={<Agreement />} />
-  <Route path="wages-benefits" element={<Wages />} />
-  <Route path="documents" element={<Documents />} />
-  <Route path="peer-support" element={<PeerSupport />} />
-  <Route path="faq" element={<Faq />} />
-  <Route path="take-action" element={<TakeAction />} />
-  <Route path="discounts" element={<Discounts />} />
-  <Route path="contact" element={<Contact />} />
-  <Route path="seniority" element={<Seniority />} />
-  <Route path="profile" element={<Profile />} />
-</Route>
+          <Route
+            path="/members"
+            element={
+              <MemberGate>
+                <MembersLayout />
+              </MemberGate>
+            }
+          >
+            <Route index element={<MembersHome />} />
+            <Route path="collective-agreement" element={<Agreement />} />
+            <Route path="wages-benefits" element={<Wages />} />
+            <Route path="documents" element={<Documents />} />
+            <Route path="peer-support" element={<PeerSupport />} />
+            <Route path="faq" element={<Faq />} />
+            <Route path="take-action" element={<TakeAction />} />
+            <Route path="discounts" element={<Discounts />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="seniority" element={<Seniority />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
 
           <Route path="*" element={<NotFound />} />
         </Route>
@@ -114,9 +120,14 @@ function MemberGate({ children }) {
         <section style={cardStyle}>
           <h2 style={h2Style}>Members Area</h2>
           <p style={pStyle}>
-            This section is for OPSEU Local 279 members. Please sign in to continue.
+            This section is for OPSEU Local 279 members. Please sign in to
+            continue.
           </p>
-          <SignInButton mode="modal" afterSignInUrl="/members" afterSignUpUrl="/members">
+          <SignInButton
+            mode="modal"
+            afterSignInUrl="/members"
+            afterSignUpUrl="/members"
+          >
             <button style={primaryButtonStyle}>Member Login</button>
           </SignInButton>
         </section>
@@ -208,67 +219,90 @@ function NavBar() {
           />
         </button>
 
-{menuOpen && (
-  <div style={dropdownStyle} role="menu" aria-label="Site menu">
-    {/* 1) News */}
-    <Link to="/" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
-      <FontAwesomeIcon icon={faNewspaper} style={dropdownIconStyle} />
-      News
-    </Link>
+        {menuOpen && (
+          <div style={dropdownStyle} role="menu" aria-label="Site menu">
+            {/* 1) News */}
+            <Link
+              to="/"
+              style={dropdownItemStyle}
+              role="menuitem"
+              onClick={closeMenu}
+            >
+              <FontAwesomeIcon icon={faNewspaper} style={dropdownIconStyle} />
+              News
+            </Link>
 
-    {/* 2) About */}
-    <button
-      type="button"
-      style={dropdownButtonStyle}
-      role="menuitem"
-      onClick={() => goHomeAndScroll("about")}
-    >
-      <FontAwesomeIcon icon={faCircleInfo} style={dropdownIconStyle} />
-      About
-    </button>
+            {/* 2) About */}
+            <button
+              type="button"
+              style={dropdownButtonStyle}
+              role="menuitem"
+              onClick={() => goHomeAndScroll("about")}
+            >
+              <FontAwesomeIcon icon={faCircleInfo} style={dropdownIconStyle} />
+              About
+            </button>
 
-    {/* 3) Members Area */}
-    <SignedIn>
-      <Link to="/members" style={dropdownItemStyle} role="menuitem" onClick={closeMenu}>
-        <FontAwesomeIcon icon={faFileLines} style={dropdownIconStyle} />
-        Members Area
-      </Link>
-    </SignedIn>
+            {/* 3) Members Area */}
+            <SignedIn>
+              <Link
+                to="/members"
+                style={dropdownItemStyle}
+                role="menuitem"
+                onClick={closeMenu}
+              >
+                <FontAwesomeIcon icon={faFileLines} style={dropdownIconStyle} />
+                Members Area
+              </Link>
+            </SignedIn>
 
-    <SignedOut>
-      <SignInButton mode="modal" afterSignInUrl="/members" afterSignUpUrl="s">
-        <button type="button" style={dropdownButtonStyle} role="menuitem">
-          <FontAwesomeIcon icon={faRightToBracket} style={dropdownIconStyle} />
-          Members Area
-        </button>
-      </SignInButton>
-    </SignedOut>
+            <SignedOut>
+              <SignInButton
+                mode="modal"
+                afterSignInUrl="/members"
+                afterSignUpUrl="s"
+              >
+                <button
+                  type="button"
+                  style={dropdownButtonStyle}
+                  role="menuitem"
+                >
+                  <FontAwesomeIcon
+                    icon={faRightToBracket}
+                    style={dropdownIconStyle}
+                  />
+                  Members Area
+                </button>
+              </SignInButton>
+            </SignedOut>
 
-    {/* 4) OPSEU.org */}
-    <a
-      href="https://opseu.org"
-      target="_blank"
-      rel="noreferrer"
-      style={dropdownItemStyle}
-      role="menuitem"
-      onClick={closeMenu}
-    >
-      <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={dropdownIconStyle} />
-      OPSEU.org
-    </a>
-  </div>
-)}
-
+            {/* 4) OPSEU.org */}
+            <a
+              href="https://opseu.org"
+              target="_blank"
+              rel="noreferrer"
+              style={dropdownItemStyle}
+              role="menuitem"
+              onClick={closeMenu}
+            >
+              <FontAwesomeIcon
+                icon={faArrowUpRightFromSquare}
+                style={dropdownIconStyle}
+              />
+              OPSEU.org
+            </a>
+          </div>
+        )}
       </div>
 
       {/* Center */}
       <Link to="/" style={logoLinkStyle} aria-label="OPSEU Local 279 Home">
-<img
-  src="/l279-logo-blue.png"
-  alt="OPSEU Local 279"
-  style={logoStyle}
-  className="nav-logo"
-/>
+        <img
+          src="/l279-logo-blue.png"
+          alt="OPSEU Local 279"
+          style={logoStyle}
+          className="nav-logo"
+        />
       </Link>
 
       {/* Right (signed-in only): user menu */}
@@ -290,8 +324,6 @@ function Footer() {
   const navigate = useNavigate();
   const location = useLocation();
 
-const showNotes = false;
-
   function goHomeAndScroll(sectionId) {
     if (location.pathname !== "/") {
       navigate("/");
@@ -310,7 +342,11 @@ const showNotes = false;
       <div style={footerInnerStyle}>
         <div style={footerTopRowStyle}>
           <div style={footerLinksStyle}>
-            <button type="button" style={footerLinkButtonStyle} onClick={() => goHomeAndScroll("contact")}>
+            <button
+              type="button"
+              style={footerLinkButtonStyle}
+              onClick={() => goHomeAndScroll("contact")}
+            >
               Contact
             </button>
             <a
@@ -325,52 +361,25 @@ const showNotes = false;
 
           <div style={footerCtaStyle}>
             <SignedOut>
-              <SignInButton mode="modal" afterSignInUrl="/members" afterSignUpUrl="/members">
+              <SignInButton
+                mode="modal"
+                afterSignInUrl="/members"
+                afterSignUpUrl="/members"
+              >
                 <button style={footerButtonStyle}>Member Login</button>
               </SignInButton>
             </SignedOut>
 
             <SignedIn>
-              <Link to="/members" style={footerMemberLinkStyle}>Go to Members Area</Link>
+              <Link to="/members" style={footerMemberLinkStyle}>
+                Go to Members Area
+              </Link>
             </SignedIn>
           </div>
         </div>
 
-        {showNotes && latest ? (
-          <div style={footerNotesWrapStyle}>
-            <div style={footerNotesTopStyle}>
-              <div style={footerNotesTitleStyle}>
-                Version {APP_VERSION}
-              </div>
-              <div style={footerNotesMetaStyle}>
-                Updated {latest.date}
-              </div>
-            </div>
-
-            <details style={footerDetailsStyle}>
-              <summary style={footerSummaryStyle}>
-                What changed
-              </summary>
-
-              <div style={footerNotesBodyStyle}>
-                <div style={{ fontWeight: 900, marginBottom: 6 }}>
-                  {latest.title}
-                </div>
-                <ul style={footerNotesListStyle}>
-                  {latest.changes.map((c, i) => (
-                    <li key={i} style={footerNotesItemStyle}>{c}</li>
-                  ))}
-                </ul>
-
-                {RELEASE_NOTES.length > 1 ? (
-                  <div style={footerNotesHintStyle}>
-                    Older updates are in the release notes file.
-                  </div>
-                ) : null}
-              </div>
-            </details>
-          </div>
-        ) : null}
+        {/* ✅ Release notes live here */}
+        <ReleaseNotes />
 
         <div style={footerMetaStyle}>
           <div style={footerSmallStyle}>© {year} OPSEU Local 279</div>
@@ -395,10 +404,11 @@ function Home() {
           <h1 style={heroTitleStyle}>OPSEU Local 279</h1>
 
           <p style={heroTextStyle}>
-            OPSEU279 is the local affiliate of OPSEU.org and represents Norfolk County’s Paramedics. We advocate for our
-            members and the profession through collective bargaining, workplace safety, and fair, consistent treatment.
-            Our focus is simple: protect what matters and push for a stronger, more equitable
-            workplace for paramedics.
+            OPSEU279 is the local affiliate of OPSEU.org and represents Norfolk
+            County’s Paramedics. We advocate for our members and the profession
+            through collective bargaining, workplace safety, and fair,
+            consistent treatment. Our focus is simple: protect what matters and
+            push for a stronger, more equitable workplace for paramedics.
           </p>
 
           <div style={heroImageWrapStyle}>
@@ -414,9 +424,11 @@ function Home() {
         <section id="about" style={cardStyle}>
           <h2 style={h2Style}>About Local 279</h2>
           <p style={pStyle}>
-            OPSEU Local 279 represents paramedics working for Norfolk County Paramedic Services. We work to advance
-            paramedic interests through collective bargaining, enforcement of the collective agreement, and advocacy for
-            respectful workplaces grounded in fairness and equality.
+            OPSEU Local 279 represents paramedics working for Norfolk County
+            Paramedic Services. We work to advance paramedic interests through
+            collective bargaining, enforcement of the collective agreement, and
+            advocacy for respectful workplaces grounded in fairness and
+            equality.
           </p>
         </section>
       </>
@@ -433,8 +445,8 @@ function Home() {
       <section style={cardStyle}>
         <h1 style={h1Style}>OPSEU Local 279</h1>
         <p style={pStyle}>
-          We represent Norfolk County Paramedics. This page shares public union news and initiatives. Members can sign in
-          for internal resources.
+          We represent Norfolk County Paramedics. This page shares public union
+          news and initiatives. Members can sign in for internal resources.
         </p>
       </section>
 
@@ -444,7 +456,14 @@ function Home() {
         <div style={{ display: "grid", gap: 12 }}>
           {posts.map((post) => (
             <article key={post.id} style={postStyle}>
-              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
                 {post.pinned ? <span style={pinStyle}>Pinned</span> : null}
                 <div style={postTitleStyle}>{post.title}</div>
               </div>
@@ -475,16 +494,17 @@ function Home() {
       <section id="about" style={cardStyle}>
         <h2 style={h2Style}>About Local 279</h2>
         <p style={pStyle}>
-          OPSEU Local 279 represents paramedics working for Norfolk County Paramedic Services. We advocate for fair working
-          conditions, safe practice, and a healthy workplace.
+          OPSEU Local 279 represents paramedics working for Norfolk County
+          Paramedic Services. We advocate for fair working conditions, safe
+          practice, and a healthy workplace.
         </p>
       </section>
 
       <section id="contact" style={cardStyle}>
         <h2 style={h2Style}>Contact</h2>
         <p style={pStyle}>
-          Public questions and community initiatives can be shared here. Members needing support should sign in and use the
-          members contact options.
+          Public questions and community initiatives can be shared here. Members
+          needing support should sign in and use the members contact options.
         </p>
       </section>
     </>
@@ -552,7 +572,10 @@ function NotFound() {
       <h2 style={h2Style}>Page not found</h2>
       <p style={pStyle}>
         That link doesn’t go anywhere. Head back to the{" "}
-        <Link to="/" style={inlineLinkStyle}>home page</Link>.
+        <Link to="/" style={inlineLinkStyle}>
+          home page
+        </Link>
+        .
       </p>
     </section>
   );
