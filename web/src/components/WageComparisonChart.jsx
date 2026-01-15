@@ -1,14 +1,25 @@
-/* ******************* */
-/* WageComparisonChart */
-/* ******************* */
-
+// web/src/components/WageComparisonChart.jsx
 import { useEffect, useMemo, useState } from "react";
 
 const DATA_URL = "/data/wages/wageCompChart-opseu_01.csv";
 
+// ===== Chart layout constants (must be in scope before chart useMemo) =====
+const BASE_W = 760; // matches your centered content width
+const H = 360;
+
+const PAD_L = 58;
+const PAD_R = 18;
+const PAD_T = 18;
+const PAD_B = 44;
+
+// Horizontal spacing per date point (bigger = wider chart = more scroll)
+const PX_PER_POINT = 64;
+
+const COLORS = ["#ecdc00", "#0016bd", "#d60000", "#00aeff", "#00c921", "#d55500"];
+
 // Tiny CSV parser (handles quoted fields)
 function parseCsv(text) {
-  const lines = text.replace(/\r/g, "").split("\n").filter(Boolean);
+  const lines = text.replace(/\r/g, "").split("\n").filter((l) => l.trim().length > 0);
   if (!lines.length) return { headers: [], rows: [] };
 
   const parseLine = (line) => {
@@ -90,7 +101,6 @@ function findColIndex(headers, candidates) {
 }
 
 function isPcpTopRateRow(service, cls, step) {
-  // Safety: omit Elgin even if it sneaks in later
   if (String(service).toLowerCase().includes("elgin")) return false;
 
   const c = String(cls).trim().toUpperCase();
@@ -120,21 +130,21 @@ function buildFilledSeries({ headers, rows }) {
   // Drop fully empty date columns
   const nonBlankDateCols = dateCols.filter((col) => {
     for (const r of rows) {
-      const v = String(r[col.i] ?? "").trim();
+      const v = (r[col.i] ?? "").trim();
       if (v) return true;
     }
     return false;
   });
 
-  // Forward-fill service/class if sheet has blank repeated cells
+  // Forward-fill service/class (if sheet ever leaves repeated cells blank)
   let lastService = "";
   let lastClass = "";
 
   const filtered = [];
   for (const r of rows) {
-    const rawService = String(r[idxService] ?? "").trim();
-    const rawClass = String(r[idxClass] ?? "").trim();
-    const rawStep = String(r[idxStep] ?? "").trim();
+    const rawService = (r[idxService] ?? "").trim();
+    const rawClass = (r[idxClass] ?? "").trim();
+    const rawStep = (r[idxStep] ?? "").trim();
 
     const service = rawService || lastService;
     const cls = rawClass || lastClass;
@@ -162,9 +172,10 @@ function buildFilledSeries({ headers, rows }) {
     byService.set(item.service, m);
   }
 
-  const dateKeys = nonBlankDateCols.map((c) => c.d.toISOString().slice(0, 10));
+  const dates = nonBlankDateCols.map((c) => c.d);
+  const dateKeys = dates.map((d) => d.toISOString().slice(0, 10));
 
-  // Forward-fill rates across the shared date grid
+  // Forward-fill rates across shared date grid
   const series = [];
   for (const [service, changes] of byService.entries()) {
     let last = null;
@@ -190,12 +201,9 @@ function buildFilledSeries({ headers, rows }) {
   return { series };
 }
 
-// Higher contrast
-const COLORS = ["#ecdc00", "#0016bd", "#d60000", "#00aeff", "#00c921", "#d55500"];
-
 function buildPath(points, xFor, yFor) {
   const pts = points.filter((p) => p.rate != null);
-  if (pts.length < 2) return "";
+  if (!pts.length) return "";
   let d = `M ${xFor(pts[0].date)} ${yFor(pts[0].rate)}`;
   for (let i = 1; i < pts.length; i++) {
     d += ` L ${xFor(pts[i].date)} ${yFor(pts[i].rate)}`;
@@ -217,8 +225,10 @@ export default function WageComparisonChart() {
       try {
         setLoading(true);
         setErr("");
+
         const res = await fetch(DATA_URL, { cache: "no-store" });
         if (!res.ok) throw new Error(`Failed to load wage data (${res.status})`);
+
         const text = await res.text();
         const parsed = parseCsv(text);
         if (!alive) return;
@@ -257,77 +267,86 @@ export default function WageComparisonChart() {
 
   const activeSeries = useMemo(
     () => ranked.filter((s) => selected.has(s.service)),
-    [ranked, selected],
+    [ranked, selected]
   );
 
-  // SVG sizing
+  const chart = useMemo(() => {
+    if (!activeSeries.length) return null;
 
-  const BASE_W = 760;          // visible “card” width target
-const PX_PER_POINT = 64;     // controls how “stretched” the timeline is
+    const allDates = new Set();
+    for (const s of activeSeries) for (const p of s.points) allDates.add(p.date);
+    const dates = [...allDates].sort();
+    if (!dates.length) return null;
 
-const chart = useMemo(() => {
-  if (!activeSeries.length) return null;
-
-  const allDates = new Set();
-  for (const s of activeSeries) for (const p of s.points) allDates.add(p.date);
-  const dates = [...allDates].sort();
-  if (!dates.length) return null;
-
-  let minY = Infinity;
-  let maxY = -Infinity;
-  for (const s of activeSeries) {
-    for (const p of s.points) {
-      if (p.rate == null) continue;
-      minY = Math.min(minY, p.rate);
-      maxY = Math.max(maxY, p.rate);
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (const s of activeSeries) {
+      for (const p of s.points) {
+        if (p.rate == null) continue;
+        minY = Math.min(minY, p.rate);
+        maxY = Math.max(maxY, p.rate);
+      }
     }
-  }
-  if (!Number.isFinite(minY) || !Number.isFinite(maxY)) return null;
+    if (!Number.isFinite(minY) || !Number.isFinite(maxY)) return null;
 
-  const pad = Math.max(0.25, (maxY - minY) * 0.08);
-  minY -= pad;
-  maxY += pad;
+    const pad = Math.max(0.25, (maxY - minY) * 0.08);
+    minY -= pad;
+    maxY += pad;
 
-  // ✅ Make SVG width depend on number of dates
-  const svgW = Math.max(
-    BASE_W,
-    PAD_L + PAD_R + Math.max(1, dates.length - 1) * PX_PER_POINT
-  );
+    // Dynamic SVG width (this is what enables horizontal scroll)
+    const svgW = Math.max(
+      BASE_W,
+      PAD_L + PAD_R + Math.max(1, dates.length - 1) * PX_PER_POINT
+    );
 
-  const x0 = PAD_L;
-  const x1 = svgW - PAD_R;
-  const y0 = H - PAD_B;
-  const y1 = PAD_T;
+    const x0 = PAD_L;
+    const x1 = svgW - PAD_R;
+    const y0 = H - PAD_B;
+    const y1 = PAD_T;
 
-  const dateIndex = new Map(dates.map((d, i) => [d, i]));
+    const dateIndex = new Map(dates.map((d, i) => [d, i]));
 
-  const xFor = (date) => {
-    const i = dateIndex.get(date) ?? 0;
-    const t = dates.length <= 1 ? 0 : i / (dates.length - 1);
-    return x0 + (x1 - x0) * t;
-  };
+    const xFor = (date) => {
+      const i = dateIndex.get(date) ?? 0;
+      const t = dates.length <= 1 ? 0 : i / (dates.length - 1);
+      return x0 + (x1 - x0) * t;
+    };
 
-  const yFor = (v) => {
-    const t = (v - minY) / (maxY - minY || 1);
-    return y0 - (y0 - y1) * t;
-  };
+    const yFor = (v) => {
+      const t = (v - minY) / (maxY - minY || 1);
+      return y0 - (y0 - y1) * t;
+    };
 
-  const yTicks = 5;
-  const tickVals = Array.from({ length: yTicks }, (_, i) => {
-    const t = yTicks === 1 ? 0 : i / (yTicks - 1);
-    return minY + (maxY - minY) * (1 - t);
-  });
+    const yTicks = 5;
+    const tickVals = Array.from({ length: yTicks }, (_, i) => {
+      const t = yTicks === 1 ? 0 : i / (yTicks - 1);
+      return minY + (maxY - minY) * (1 - t);
+    });
 
-  const xTickCount = Math.min(6, dates.length);
-  const xTickIdxs = Array.from({ length: xTickCount }, (_, i) => {
-    const t = xTickCount === 1 ? 0 : i / (xTickCount - 1);
-    return Math.round(t * (dates.length - 1));
-  });
+    const xTickCount = Math.min(6, dates.length);
+    const xTickIdxs = Array.from({ length: xTickCount }, (_, i) => {
+      const t = xTickCount === 1 ? 0 : i / (xTickCount - 1);
+      return Math.round(t * (dates.length - 1));
+    });
 
-  const hoverDate = hoverIdx != null && dates[hoverIdx] ? dates[hoverIdx] : null;
+    const hoverDate = hoverIdx != null && dates[hoverIdx] ? dates[hoverIdx] : null;
 
-  return { dates, xFor, yFor, tickVals, xTickIdxs, hoverDate, svgW, x0, x1, y0, y1 };
-}, [activeSeries, hoverIdx]);
+    return {
+      dates,
+      xFor,
+      yFor,
+      tickVals,
+      xTickIdxs,
+      hoverDate,
+      svgW,
+      minY,
+      maxY,
+      x0,
+      x1,
+      y0,
+      y1,
+    };
+  }, [activeSeries, hoverIdx]);
 
   function toggleService(name) {
     setSelected((prev) => {
@@ -348,10 +367,7 @@ const chart = useMemo(() => {
 
   if (loading) return <div style={mutedStyle}>Loading wage chart…</div>;
   if (err) return <div style={errorStyle}>Couldn’t load wage chart data. {err}</div>;
-
-  if (!ranked.length) {
-    return <div style={mutedStyle}>No PCP Level 2 wage data found in the CSV.</div>;
-  }
+  if (!ranked.length) return <div style={mutedStyle}>No PCP Level 2 wage data found in the CSV.</div>;
 
   return (
     <section style={{ display: "grid", gap: 12 }}>
@@ -397,41 +413,143 @@ const chart = useMemo(() => {
         </div>
       </div>
 
-      {/* FIXED: chartWrap closes properly, ternary closes properly */}
-<div style={chartWrapStyle}>
-  {!chart ? (
-    <div style={mutedStyle}>Select at least one service to display the chart.</div>
-  ) : (
-    <div style={chartScrollerStyle}>
-      <div style={{ width: chart.svgW }}>
-        <svg
-          width={chart.svgW}
-          height={H}
-          viewBox={`0 0 ${chart.svgW} ${H}`}
-          style={chartSvgStyle}
-          onMouseLeave={() => setHoverIdx(null)}
-          onMouseMove={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const x0 = PAD_L;
-            const x1 = chart.svgW - PAD_R;
-            const t = Math.min(1, Math.max(0, (x - x0) / (x1 - x0)));
-            const idx = Math.round(t * (chart.dates.length - 1));
-            setHoverIdx(idx);
-          }}
-        >
-          {/* your existing grid, ticks, paths, dots… */}
-        </svg>
+      <div style={chartWrapStyle}>
+        {!chart ? (
+          <div style={mutedStyle}>Select at least one service to display the chart.</div>
+        ) : (
+          <div style={chartScrollerStyle}>
+            {/* This inner div creates the actual scrollable width */}
+            <div style={{ width: chart.svgW }}>
+              <svg
+                width={chart.svgW}
+                height={H}
+                viewBox={`0 0 ${chart.svgW} ${H}`}
+                style={chartSvgStyle}
+                onMouseLeave={() => setHoverIdx(null)}
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+
+                  const x0 = PAD_L;
+                  const x1 = chart.svgW - PAD_R;
+
+                  const t = Math.min(1, Math.max(0, (x - x0) / (x1 - x0)));
+                  const idx = Math.round(t * (chart.dates.length - 1));
+                  setHoverIdx(idx);
+                }}
+              >
+                {/* Grid + Y-axis ticks */}
+                {chart.tickVals.map((v, i) => {
+                  const y = chart.yFor(v);
+                  return (
+                    <g key={`y-${i}`}>
+                      <line
+                        x1={chart.x0}
+                        x2={chart.x1}
+                        y1={y}
+                        y2={y}
+                        stroke="rgba(0,0,0,0.07)"
+                        strokeWidth="1"
+                      />
+                      <text
+                        x={chart.x0 - 10}
+                        y={y + 4}
+                        textAnchor="end"
+                        fontSize="11"
+                        fill="rgba(0,0,0,0.65)"
+                      >
+                        {formatMoney(v)}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {/* X-axis ticks */}
+                {chart.xTickIdxs.map((idx) => {
+                  const d = chart.dates[idx];
+                  const x = chart.xFor(d);
+                  return (
+                    <g key={`x-${d}`}>
+                      <line
+                        x1={x}
+                        x2={x}
+                        y1={chart.y0}
+                        y2={chart.y0 + 6}
+                        stroke="rgba(0,0,0,0.18)"
+                        strokeWidth="1"
+                      />
+                      <text
+                        x={x}
+                        y={chart.y0 + 22}
+                        textAnchor="middle"
+                        fontSize="11"
+                        fill="rgba(0,0,0,0.65)"
+                      >
+                        {formatDateLabel(d)}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {/* Axes */}
+                <line
+                  x1={chart.x0}
+                  x2={chart.x1}
+                  y1={chart.y0}
+                  y2={chart.y0}
+                  stroke="rgba(0,0,0,0.18)"
+                  strokeWidth="1"
+                />
+                <line
+                  x1={chart.x0}
+                  x2={chart.x0}
+                  y1={chart.y1}
+                  y2={chart.y0}
+                  stroke="rgba(0,0,0,0.18)"
+                  strokeWidth="1"
+                />
+
+                {/* Series lines */}
+                {activeSeries.map((s, si) => {
+                  const color = COLORS[si % COLORS.length];
+                  const d = buildPath(s.points, chart.xFor, chart.yFor);
+                  if (!d) return null;
+                  return (
+                    <path
+                      key={`line-${s.service}`}
+                      d={d}
+                      fill="none"
+                      stroke={color}
+                      strokeWidth="3"
+                      strokeLinejoin="round"
+                      strokeLinecap="round"
+                    />
+                  );
+                })}
+
+                {/* Hover vertical line */}
+                {chart.hoverDate ? (
+                  <line
+                    x1={chart.xFor(chart.hoverDate)}
+                    x2={chart.xFor(chart.hoverDate)}
+                    y1={chart.y1}
+                    y2={chart.y0}
+                    stroke="rgba(0,85,184,0.25)"
+                    strokeWidth="2"
+                  />
+                ) : null}
+              </svg>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-  )}
-</div>
 
       {chart?.hoverDate ? (
         <div style={hoverCardStyle}>
           <div style={{ fontWeight: 950, color: "#0b2b3a" }}>
             {formatDateLabel(chart.hoverDate)}
           </div>
+
           <div style={{ display: "grid", gap: 6, marginTop: 8 }}>
             {activeSeries.map((s, si) => {
               const color = COLORS[si % COLORS.length];
@@ -453,9 +571,7 @@ const chart = useMemo(() => {
   );
 }
 
-/* ****** */
-/* STYLES */
-/* ****** */
+/* ===== Styles ===== */
 
 const titleStyle = { fontSize: 16, fontWeight: 950, color: "#0055b8" };
 const mutedStyle = { margin: 0, opacity: 0.8, fontSize: 13, lineHeight: 1.45 };
@@ -498,6 +614,13 @@ const miniButtonStyle = {
   cursor: "pointer",
 };
 
+const chartWrapStyle = {
+  padding: 14,
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.10)",
+  background: "rgba(255,255,255,0.7)",
+};
+
 const chartScrollerStyle = {
   overflowX: "auto",
   overflowY: "hidden",
@@ -511,13 +634,6 @@ const chartSvgStyle = {
   display: "block",
   background: "rgba(255,255,255,0.7)",
   borderRadius: 14,
-};
-
-const chartWrapStyle = {
-  padding: 14,
-  borderRadius: 14,
-  border: "1px solid rgba(0,0,0,0.10)",
-  background: "rgba(255,255,255,0.7)",
 };
 
 const hoverCardStyle = {
