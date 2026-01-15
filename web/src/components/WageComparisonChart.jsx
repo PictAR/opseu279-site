@@ -91,7 +91,7 @@ function formatDateLabel(iso) {
 
 /* ----------------------------------------- */
 /* Extract PCP Level 2 series per service     */
-/* Forward-fill across the shared date grid   */
+/* Forward-fill across shared date grid       */
 /* ----------------------------------------- */
 function buildSeries(parsed) {
   const { headers, rows } = parsed || {};
@@ -105,11 +105,10 @@ function buildSeries(parsed) {
     return {
       series: [],
       dates: [],
-      reason: `Missing columns. Need service/local, class, step. Found: ${headers.join(", ")}`,
+      reason: "Missing required columns: service/local, class, step.",
     };
   }
 
-  // date columns = headers that parse as valid dates
   const dateCols = headers
     .map((h, i) => ({ h, i, d: new Date(h) }))
     .filter((x) => !Number.isNaN(x.d.getTime()))
@@ -117,7 +116,6 @@ function buildSeries(parsed) {
 
   if (!dateCols.length) return { series: [], dates: [], reason: "No date columns detected in CSV headers." };
 
-  // drop date columns that are completely blank
   const nonBlankDateCols = dateCols.filter((col) => {
     for (const r of rows) {
       if ((r[col.i] ?? "").trim()) return true;
@@ -127,7 +125,6 @@ function buildSeries(parsed) {
 
   const dateKeys = nonBlankDateCols.map((c) => c.d.toISOString().slice(0, 10));
 
-  // Gather changes per service
   const byService = new Map();
 
   for (const r of rows) {
@@ -136,7 +133,7 @@ function buildSeries(parsed) {
     const step = (r[idxStep] ?? "").trim().toUpperCase();
 
     if (!service) continue;
-    if (service.toLowerCase().includes("elgin")) continue; // safety, as requested earlier
+    if (service.toLowerCase().includes("elgin")) continue;
     if (!cls.includes("PCP")) continue;
     if (!step.includes("LEVEL 2")) continue;
 
@@ -150,7 +147,6 @@ function buildSeries(parsed) {
     byService.set(service, m);
   }
 
-  // Forward-fill onto shared grid
   const series = [];
   for (const [service, changes] of byService.entries()) {
     let last = null;
@@ -160,7 +156,6 @@ function buildSeries(parsed) {
       return { date, rate: last };
     });
 
-    // Trim leading nulls
     const first = points.findIndex((p) => p.rate != null);
     const trimmed = first >= 0 ? points.slice(first) : [];
 
@@ -173,14 +168,13 @@ function buildSeries(parsed) {
     });
   }
 
-  // Sort by latest (not visible yet, but stable ordering)
   series.sort((a, b) => (b.latestRate ?? -Infinity) - (a.latestRate ?? -Infinity));
 
   return { series, dates: dateKeys, reason: "" };
 }
 
 /* ------------------------- */
-/* SVG helpers               */
+/* SVG path builder          */
 /* ------------------------- */
 function buildPath(points, xFor, yFor) {
   let d = "";
@@ -197,12 +191,10 @@ function buildPath(points, xFor, yFor) {
       d += ` L ${x} ${y}`;
     }
   }
+
   return d || null;
 }
 
-/* ------------------------- */
-/* Component                 */
-/* ------------------------- */
 const COLORS = ["#ecdc00", "#0016bd", "#d60000", "#00aeff", "#00c921", "#d55500", "#6b4eff", "#0b2b3a"];
 
 export default function WageComparisonChart() {
@@ -236,16 +228,15 @@ export default function WageComparisonChart() {
 
   const built = useMemo(() => buildSeries(raw), [raw]);
 
-  // Chart sizing (scroll-first)
   const H = 360;
   const PAD_L = 64;
   const PAD_R = 20;
   const PAD_T = 18;
   const PAD_B = 52;
 
-  // width is based on date count, with a hard minimum so scrolling always exists
-  const PX_PER_POINT = 70; // bigger = more scroll
-  const MIN_W = 1200;
+  // Make it WIDE so scrolling is guaranteed
+  const PX_PER_POINT = 90;
+  const MIN_W = 1600;
 
   const chart = useMemo(() => {
     const series = built.series || [];
@@ -256,7 +247,6 @@ export default function WageComparisonChart() {
 
     const W = Math.max(MIN_W, PAD_L + PAD_R + (Math.max(1, dates.length - 1) * PX_PER_POINT));
 
-    // find min/max
     let minY = Infinity;
     let maxY = -Infinity;
     for (const s of series) {
@@ -288,14 +278,13 @@ export default function WageComparisonChart() {
       return y0 - (y0 - y1) * t;
     };
 
-    // ticks
     const yTicks = 5;
     const tickVals = Array.from({ length: yTicks }, (_, i) => {
       const t = yTicks === 1 ? 0 : i / (yTicks - 1);
       return minY + (maxY - minY) * (1 - t);
     });
 
-    const xTickCount = Math.min(6, dates.length);
+    const xTickCount = Math.min(7, dates.length);
     const xTickIdxs = Array.from({ length: xTickCount }, (_, i) => {
       const t = xTickCount === 1 ? 0 : i / (xTickCount - 1);
       return Math.round(t * (dates.length - 1));
@@ -314,100 +303,87 @@ export default function WageComparisonChart() {
       <header style={{ display: "grid", gap: 6 }}>
         <div style={titleStyle}>PCP Top Rate Level 2 wage comparison</div>
         <div style={mutedStyle}>
-          This is intentionally “scroll-first”. If you’re on mobile, swipe left and right on the chart.
+          Swipe left and right on the chart. This version forces the chart to be wider than the page, so scrolling must work.
         </div>
       </header>
 
-      {/* Scroll container (the whole point of this reset) */}
       <div style={chartWrapStyle}>
+        {/* SCROLLER */}
         <div style={chartScrollerStyle}>
-          <svg
-            width={chart.W}
-            height={H}
-            viewBox={`0 0 ${chart.W} ${H}`}
-            style={chartSvgStyle}
-          >
-            {/* grid + y axis labels */}
-            {chart.tickVals.map((v, i) => {
-              const y = chart.yFor(v);
-              return (
-                <g key={`y-${i}`}>
-                  <line x1={PAD_L} x2={chart.W - PAD_R} y1={y} y2={y} stroke="rgba(0,0,0,0.08)" />
-                  <text
-                    x={PAD_L - 10}
-                    y={y + 4}
-                    textAnchor="end"
-                    fontSize="12"
-                    fill="rgba(11,43,58,0.85)"
-                    style={{ fontWeight: 800 }}
-                  >
-                    {formatMoney(v)}
-                  </text>
-                </g>
-              );
-            })}
+          {/* This inner div is the key. It creates real scrollWidth. */}
+          <div style={{ width: chart.W, minWidth: chart.W, display: "inline-block" }}>
+            <svg
+              width={chart.W}
+              height={H}
+              viewBox={`0 0 ${chart.W} ${H}`}
+              style={chartSvgStyle}
+            >
+              {/* grid + y labels */}
+              {chart.tickVals.map((v, i) => {
+                const y = chart.yFor(v);
+                return (
+                  <g key={`y-${i}`}>
+                    <line x1={PAD_L} x2={chart.W - PAD_R} y1={y} y2={y} stroke="rgba(0,0,0,0.08)" />
+                    <text
+                      x={PAD_L - 10}
+                      y={y + 4}
+                      textAnchor="end"
+                      fontSize="12"
+                      fill="rgba(11,43,58,0.85)"
+                      style={{ fontWeight: 800 }}
+                    >
+                      {formatMoney(v)}
+                    </text>
+                  </g>
+                );
+              })}
 
-            {/* x ticks */}
-            {chart.xTickIdxs.map((idx) => {
-              const date = chart.dates[idx];
-              const x = chart.xFor(date);
-              return (
-                <g key={`x-${date}`}>
-                  <line x1={x} x2={x} y1={H - PAD_B} y2={PAD_T} stroke="rgba(0,0,0,0.04)" />
-                  <text
-                    x={x}
-                    y={H - 18}
-                    textAnchor="middle"
-                    fontSize="12"
-                    fill="rgba(11,43,58,0.85)"
-                    style={{ fontWeight: 800 }}
-                  >
-                    {formatDateLabel(date)}
-                  </text>
-                </g>
-              );
-            })}
+              {/* x ticks */}
+              {chart.xTickIdxs.map((idx) => {
+                const date = chart.dates[idx];
+                const x = chart.xFor(date);
+                return (
+                  <g key={`x-${date}`}>
+                    <line x1={x} x2={x} y1={H - PAD_B} y2={PAD_T} stroke="rgba(0,0,0,0.04)" />
+                    <text
+                      x={x}
+                      y={H - 18}
+                      textAnchor="middle"
+                      fontSize="12"
+                      fill="rgba(11,43,58,0.85)"
+                      style={{ fontWeight: 800 }}
+                    >
+                      {formatDateLabel(date)}
+                    </text>
+                  </g>
+                );
+              })}
 
-            {/* axes */}
-            <line x1={PAD_L} x2={PAD_L} y1={PAD_T} y2={H - PAD_B} stroke="rgba(0,0,0,0.25)" />
-            <line x1={PAD_L} x2={chart.W - PAD_R} y1={H - PAD_B} y2={H - PAD_B} stroke="rgba(0,0,0,0.25)" />
+              {/* axes */}
+              <line x1={PAD_L} x2={PAD_L} y1={PAD_T} y2={H - PAD_B} stroke="rgba(0,0,0,0.25)" />
+              <line x1={PAD_L} x2={chart.W - PAD_R} y1={H - PAD_B} y2={H - PAD_B} stroke="rgba(0,0,0,0.25)" />
 
-            {/* series lines */}
-            {chart.series.map((s, si) => {
-              const color = COLORS[si % COLORS.length];
-              const d = buildPath(s.points, chart.xFor, chart.yFor);
-              if (!d) return null;
-              return (
-                <path
-                  key={s.service}
-                  d={d}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth="3"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  opacity="0.95"
-                />
-              );
-            })}
-          </svg>
+              {/* lines */}
+              {chart.series.map((s, si) => {
+                const color = COLORS[si % COLORS.length];
+                const d = buildPath(s.points, chart.xFor, chart.yFor);
+                if (!d) return null;
+                return (
+                  <path
+                    key={s.service}
+                    d={d}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="3"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    opacity="0.95"
+                  />
+                );
+              })}
+            </svg>
+          </div>
         </div>
-      </div>
-
-      {/* minimal legend (optional but helps confirm it’s rendering) */}
-      <div style={legendStyle}>
-        {chart.series.map((s, si) => {
-          const color = COLORS[si % COLORS.length];
-          return (
-            <div key={s.service} style={legendRowStyle}>
-              <span style={{ width: 10, height: 10, borderRadius: 999, background: color, display: "inline-block" }} />
-              <span style={{ fontWeight: 900 }}>{s.service}</span>
-              <span style={{ marginLeft: "auto", fontWeight: 950, color: "#0055b8" }}>
-                {s.latestRate != null ? formatMoney(s.latestRate) : "—"}
-              </span>
-            </div>
-          );
-        })}
       </div>
     </section>
   );
@@ -417,7 +393,6 @@ export default function WageComparisonChart() {
 /* Styles                    */
 /* ------------------------- */
 const titleStyle = { fontSize: 16, fontWeight: 950, color: "#0055b8" };
-
 const mutedStyle = { margin: 0, opacity: 0.8, fontSize: 13, lineHeight: 1.45 };
 
 const errorStyle = {
@@ -436,38 +411,23 @@ const chartWrapStyle = {
   background: "rgba(255,255,255,0.7)",
 };
 
+// IMPORTANT: this is the scroll container
 const chartScrollerStyle = {
-  overflowX: "auto",
+  width: "100%",
+  maxWidth: "100%",
+  overflowX: "scroll", // force scrollbar behavior
   overflowY: "hidden",
   WebkitOverflowScrolling: "touch",
   touchAction: "pan-x",
   overscrollBehaviorX: "contain",
-  width: "100%",
-  maxWidth: "100%",
-  paddingBottom: 6,
+  paddingBottom: 8,
+  whiteSpace: "nowrap", // helps some layouts respect width
 };
 
+// IMPORTANT: prevent any global "svg { max-width: 100% }" from shrinking it
 const chartSvgStyle = {
   display: "block",
+  maxWidth: "none",
   background: "rgba(255,255,255,0.7)",
   borderRadius: 14,
-};
-
-const legendStyle = {
-  padding: 14,
-  borderRadius: 14,
-  border: "1px solid rgba(0,0,0,0.10)",
-  background: "rgba(255,255,255,0.7)",
-  display: "grid",
-  gap: 8,
-};
-
-const legendRowStyle = {
-  display: "flex",
-  gap: 10,
-  alignItems: "center",
-  padding: 10,
-  borderRadius: 12,
-  border: "1px solid rgba(0,0,0,0.08)",
-  background: "rgba(0,85,184,0.04)",
 };
