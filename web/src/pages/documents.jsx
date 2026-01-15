@@ -87,7 +87,7 @@ export default function Documents() {
 
       <section style={{ ...cardStyle, marginTop: 14 }}>
         <h2 style={h2Style}>Ontario E Laws</h2>
-        <p style={mutedStyle}>Official Ontario legislation lookup.</p>
+        <p style={pStyle}>Official Ontario legislation lookup.</p>
 
         <div style={linkRowStyle}>
           <a
