@@ -566,7 +566,7 @@ const pageStyle = {
   minHeight: "100vh",
   background: "#ffffff",
   color: "#0b2b3a",
-  overflowX: "clip",
+  overflowX: "false",
 };
 
 const navStyle = {
