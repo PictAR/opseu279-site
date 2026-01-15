@@ -1,3 +1,7 @@
+/* ******************* */
+/* WageComparisonChart */
+/* ******************* */
+
 import { useEffect, useMemo, useState } from "react";
 
 const DATA_URL = "/data/wages/wageCompChart-opseu_01.csv";
@@ -99,7 +103,6 @@ function isPcpTopRateRow(service, cls, step) {
 function buildFilledSeries({ headers, rows }) {
   if (!headers?.length || !rows?.length) return null;
 
-  // Detect columns by name (works with both "Local/Class./Step" and "service/class/step")
   const idxService = findColIndex(headers, ["service", "local"]);
   const idxClass = findColIndex(headers, ["class", "class_"]);
   const idxStep = findColIndex(headers, ["step"]);
@@ -117,21 +120,21 @@ function buildFilledSeries({ headers, rows }) {
   // Drop fully empty date columns
   const nonBlankDateCols = dateCols.filter((col) => {
     for (const r of rows) {
-      const v = (r[col.i] ?? "").trim();
+      const v = String(r[col.i] ?? "").trim();
       if (v) return true;
     }
     return false;
   });
 
-  // Forward-fill service/class if your sheet ever has blank repeated cells
+  // Forward-fill service/class if sheet has blank repeated cells
   let lastService = "";
   let lastClass = "";
 
   const filtered = [];
   for (const r of rows) {
-    const rawService = (r[idxService] ?? "").trim();
-    const rawClass = (r[idxClass] ?? "").trim();
-    const rawStep = (r[idxStep] ?? "").trim();
+    const rawService = String(r[idxService] ?? "").trim();
+    const rawClass = String(r[idxClass] ?? "").trim();
+    const rawStep = String(r[idxStep] ?? "").trim();
 
     const service = rawService || lastService;
     const cls = rawClass || lastClass;
@@ -159,8 +162,7 @@ function buildFilledSeries({ headers, rows }) {
     byService.set(item.service, m);
   }
 
-  const dates = nonBlankDateCols.map((c) => c.d);
-  const dateKeys = dates.map((d) => d.toISOString().slice(0, 10));
+  const dateKeys = nonBlankDateCols.map((c) => c.d.toISOString().slice(0, 10));
 
   // Forward-fill rates across the shared date grid
   const series = [];
@@ -188,7 +190,18 @@ function buildFilledSeries({ headers, rows }) {
   return { series };
 }
 
+// Higher contrast
 const COLORS = ["#ecdc00", "#0016bd", "#d60000", "#00aeff", "#00c921", "#d55500"];
+
+function buildPath(points, xFor, yFor) {
+  const pts = points.filter((p) => p.rate != null);
+  if (pts.length < 2) return "";
+  let d = `M ${xFor(pts[0].date)} ${yFor(pts[0].rate)}`;
+  for (let i = 1; i < pts.length; i++) {
+    d += ` L ${xFor(pts[i].date)} ${yFor(pts[i].rate)}`;
+  }
+  return d;
+}
 
 export default function WageComparisonChart() {
   const [raw, setRaw] = useState({ headers: [], rows: [] });
@@ -242,15 +255,18 @@ export default function WageComparisonChart() {
     });
   }, [ranked]);
 
-  const activeSeries = useMemo(() => ranked.filter((s) => selected.has(s.service)), [ranked, selected]);
+  const activeSeries = useMemo(
+    () => ranked.filter((s) => selected.has(s.service)),
+    [ranked, selected],
+  );
 
   // SVG sizing
   const W = 760;
   const H = 360;
-  const PAD_L = 52;
+  const PAD_L = 60;
   const PAD_R = 18;
   const PAD_T = 18;
-  const PAD_B = 44;
+  const PAD_B = 48;
 
   const chart = useMemo(() => {
     if (!activeSeries.length) return null;
@@ -280,8 +296,11 @@ export default function WageComparisonChart() {
     const y0 = H - PAD_B;
     const y1 = PAD_T;
 
+    // Precompute date->index for speed
+    const dateIndex = new Map(dates.map((d, i) => [d, i]));
+
     const xFor = (date) => {
-      const i = dates.indexOf(date);
+      const i = dateIndex.get(date) ?? 0;
       const t = dates.length <= 1 ? 0 : i / (dates.length - 1);
       return x0 + (x1 - x0) * t;
     };
@@ -303,9 +322,10 @@ export default function WageComparisonChart() {
       return Math.round(t * (dates.length - 1));
     });
 
-    const hoverDate = hoverIdx != null && dates[hoverIdx] ? dates[hoverIdx] : null;
+    const hoverDate =
+      hoverIdx != null && dates[hoverIdx] ? dates[hoverIdx] : null;
 
-    return { dates, xFor, yFor, tickVals, xTickIdxs, hoverDate };
+    return { dates, xFor, yFor, tickVals, xTickIdxs, hoverDate, x0, x1, y0, y1 };
   }, [activeSeries, hoverIdx]);
 
   function toggleService(name) {
@@ -356,7 +376,12 @@ export default function WageComparisonChart() {
             const color = COLORS[idx % COLORS.length];
             return (
               <label key={s.service} style={toggleRowStyle}>
-                <input type="checkbox" checked={on} onChange={() => toggleService(s.service)} style={{ transform: "scale(1.1)" }} />
+                <input
+                  type="checkbox"
+                  checked={on}
+                  onChange={() => toggleService(s.service)}
+                  style={{ transform: "scale(1.1)" }}
+                />
                 <span style={{ width: 10, height: 10, borderRadius: 999, background: color, display: "inline-block" }} />
                 <span style={{ fontWeight: 950 }}>{s.service}</span>
                 <span style={{ marginLeft: "auto", fontWeight: 950, color: "#0055b8" }}>
@@ -371,51 +396,157 @@ export default function WageComparisonChart() {
         </div>
       </div>
 
+      {/* FIXED: chartWrap closes properly, ternary closes properly */}
       <div style={chartWrapStyle}>
         {!chart ? (
           <div style={mutedStyle}>Select at least one service to display the chart.</div>
         ) : (
           <div
-  style={{
-    overflowX: "auto",
-    overflowY: "hidden",
-    WebkitOverflowScrolling: "touch",
-    touchAction: "pan-x",
-    overscrollBehaviorX: "contain",
-    paddingBottom: 6,
-  }}
->
-  <div style={{ minWidth: W }}>
-    <svg
-      width={W}
-      height={H}
-      viewBox={`0 0 ${W} ${H}`}
-      style={{
-        display: "block",
-        background: "rgba(255,255,255,0.7)",
-        borderRadius: 14,
-      }}
-      onMouseLeave={() => setHoverIdx(null)}
-      onMouseMove={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const dates = chart.dates;
-        const x0 = PAD_L;
-        const x1 = W - PAD_R;
-        const t = Math.min(1, Math.max(0, (x - x0) / (x1 - x0)));
-        const idx = Math.round(t * (dates.length - 1));
-        setHoverIdx(idx);
-      }}
-    >
-      {/* ...existing svg content unchanged... */}
-    </svg>
-  </div>
-</div>
+            style={{
+              overflowX: "auto",
+              overflowY: "hidden",
+              WebkitOverflowScrolling: "touch",
+              touchAction: "pan-x",
+              overscrollBehaviorX: "contain",
+              paddingBottom: 6,
+            }}
+          >
+            <div style={{ minWidth: W }}>
+              <svg
+                width={W}
+                height={H}
+                viewBox={`0 0 ${W} ${H}`}
+                style={{
+                  display: "block",
+                  background: "rgba(255,255,255,0.7)",
+                  borderRadius: 14,
+                }}
+                onMouseLeave={() => setHoverIdx(null)}
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const dates = chart.dates;
+                  const x0 = PAD_L;
+                  const x1 = W - PAD_R;
+                  const t = Math.min(1, Math.max(0, (x - x0) / (x1 - x0)));
+                  const idx = Math.round(t * (dates.length - 1));
+                  setHoverIdx(idx);
+                }}
+              >
+                {/* Y grid + labels */}
+                {chart.tickVals.map((v, i) => {
+                  const y = chart.yFor(v);
+                  return (
+                    <g key={`y-${i}`}>
+                      <line
+                        x1={chart.x0}
+                        x2={chart.x1}
+                        y1={y}
+                        y2={y}
+                        stroke="rgba(0,0,0,0.10)"
+                        strokeWidth="1"
+                      />
+                      <text
+                        x={chart.x0 - 10}
+                        y={y + 4}
+                        textAnchor="end"
+                        fontSize="11"
+                        fill="rgba(0,0,0,0.65)"
+                      >
+                        {formatMoney(v)}
+                      </text>
+                    </g>
+                  );
+                })}
 
+                {/* X ticks */}
+                {chart.xTickIdxs.map((di) => {
+                  const date = chart.dates[di];
+                  const x = chart.xFor(date);
+                  return (
+                    <g key={`x-${date}`}>
+                      <line
+                        x1={x}
+                        x2={x}
+                        y1={chart.y1}
+                        y2={chart.y0}
+                        stroke="rgba(0,0,0,0.06)"
+                        strokeWidth="1"
+                      />
+                      <text
+                        x={x}
+                        y={chart.y0 + 18}
+                        textAnchor="middle"
+                        fontSize="11"
+                        fill="rgba(0,0,0,0.65)"
+                      >
+                        {formatDateLabel(date)}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {/* Hover vertical line */}
+                {chart.hoverDate ? (
+                  <line
+                    x1={chart.xFor(chart.hoverDate)}
+                    x2={chart.xFor(chart.hoverDate)}
+                    y1={chart.y1}
+                    y2={chart.y0}
+                    stroke="rgba(0,85,184,0.25)"
+                    strokeWidth="2"
+                  />
+                ) : null}
+
+                {/* Lines */}
+                {activeSeries.map((s, si) => {
+                  const color = COLORS[si % COLORS.length];
+                  const d = buildPath(s.points, chart.xFor, chart.yFor);
+                  if (!d) return null;
+
+                  return (
+                    <path
+                      key={s.service}
+                      d={d}
+                      fill="none"
+                      stroke={color}
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  );
+                })}
+
+                {/* Hover dots */}
+                {chart.hoverDate
+                  ? activeSeries.map((s, si) => {
+                      const color = COLORS[si % COLORS.length];
+                      const p = s.points.find((x) => x.date === chart.hoverDate);
+                      if (!p || p.rate == null) return null;
+                      return (
+                        <circle
+                          key={`${s.service}-dot`}
+                          cx={chart.xFor(p.date)}
+                          cy={chart.yFor(p.rate)}
+                          r="5"
+                          fill={color}
+                          stroke="rgba(255,255,255,0.95)"
+                          strokeWidth="2"
+                        />
+                      );
+                    })
+                  : null}
+              </svg>
+            </div>
+          </div>
+        )}
+      </div>
 
       {chart?.hoverDate ? (
         <div style={hoverCardStyle}>
-          <div style={{ fontWeight: 950, color: "#0b2b3a" }}>{formatDateLabel(chart.hoverDate)}</div>
+          <div style={{ fontWeight: 950, color: "#0b2b3a" }}>
+            {formatDateLabel(chart.hoverDate)}
+          </div>
           <div style={{ display: "grid", gap: 6, marginTop: 8 }}>
             {activeSeries.map((s, si) => {
               const color = COLORS[si % COLORS.length];
