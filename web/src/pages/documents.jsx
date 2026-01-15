@@ -27,9 +27,7 @@ const ONTARIO_PUBLIC_DOCS = [
   {
     title: "Canadian Triage and Acuity Scale",
     short: "CTAS",
-    items: [
-      { label: "Open PDF", href: "/docs/ontario/ctas-V2_0.pdf" },
-    ],
+    items: [{ label: "Open PDF", href: "/docs/ontario/ctas-V2_0.pdf" }],
   },
   {
     title: "Ontario Ambulance Documentation Standards",
@@ -53,7 +51,8 @@ export default function Documents() {
       <header style={{ display: "grid", gap: 8 }}>
         <h1 style={h1Style}>Documents and Standards</h1>
         <p style={subStyle}>
-          Public Ontario reference documents. Open PDFs in a new tab for best mobile zoom and navigation.
+          Public Ontario reference documents. Open PDFs in a new tab for best
+          mobile zoom and navigation.
         </p>
       </header>
 
@@ -86,26 +85,29 @@ export default function Documents() {
         </div>
       </section>
 
-<section style={{ ...cardStyle, marginTop: 14 }}>
-  <h2 style={h2Style}>Ontario E Laws</h2>
-  <p style={pStyle}>Official Ontario legislation lookup.</p>
+      <section style={{ ...cardStyle, marginTop: 14 }}>
+        <h2 style={h2Style}>Ontario E Laws</h2>
+        <p style={MediaElementAudioSourceNodeStyle}>
+          Official Ontario legislation lookup.
+        </p>
 
-  <div style={linkRowStyle}>
-    <a
-      href="https://www.ontario.ca/laws/"
-      target="_blank"
-      rel="noreferrer"
-      style={buttonLinkStyle}
-    >
-      Open Ontario E Laws
-    </a>
-  </div>
-</section>
+        <div style={linkRowStyle}>
+          <a
+            href="https://www.ontario.ca/laws/"
+            target="_blank"
+            rel="noreferrer"
+            style={buttonLinkStyle}
+          >
+            Open Ontario E Laws
+          </a>
+        </div>
+      </section>
 
       <section style={noteStyle}>
         <div style={noteTitleStyle}>Note</div>
         <div style={noteTextStyle}>
-          This page intentionally does not include service specific SOPs or internal operational documents.
+          This page intentionally does not include service specific SOPs or
+          internal operational documents.
         </div>
       </section>
     </section>
