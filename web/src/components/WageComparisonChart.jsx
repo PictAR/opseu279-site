@@ -93,6 +93,7 @@ function formatDateLabel(iso) {
 /* Extract PCP Level 2 series per service     */
 /* Forward-fill across shared date grid       */
 /* ----------------------------------------- */
+
 function buildSeries(parsed) {
   const { headers, rows } = parsed || {};
   if (!headers?.length || !rows?.length) return { series: [], dates: [], reason: "Empty CSV." };
@@ -312,12 +313,19 @@ export default function WageComparisonChart() {
         <div style={chartScrollerStyle}>
           {/* This inner div is the key. It creates real scrollWidth. */}
           <div style={{ width: chart.W, minWidth: chart.W, display: "inline-block" }}>
-            <svg
-              width={chart.W}
-              height={H}
-              viewBox={`0 0 ${chart.W} ${H}`}
-              style={chartSvgStyle}
-            >
+<div style={chartWindowOuter}>
+  <div style={{ minWidth: chart.W }}>
+    <svg
+      width={chart.W}
+      height={H}
+      viewBox={`0 0 ${chart.W} ${H}`}
+      style={chartSvgStyle}
+    >
+      {/* svg content */}
+    </svg>
+  </div>
+</div>
+
               {/* grid + y labels */}
               {chart.tickVals.map((v, i) => {
                 const y = chart.yFor(v);
@@ -409,6 +417,17 @@ const chartWrapStyle = {
   borderRadius: 14,
   border: "1px solid rgba(0,0,0,0.10)",
   background: "rgba(255,255,255,0.7)",
+};
+
+const chartWindowOuter = {
+  width: "100%",
+  maxWidth: "100%",
+  overflowX: "auto",
+  overflowY: "hidden",
+  WebkitOverflowScrolling: "touch",
+  overscrollBehaviorX: "contain",
+  touchAction: "pan-x",
+  paddingBottom: 6,
 };
 
 // IMPORTANT: this is the scroll container
