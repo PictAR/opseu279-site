@@ -232,6 +232,14 @@ export default function WageComparisonChart() {
     });
   }, [ranked]);
 
+const colorByService = useMemo(() => {
+  const m = new Map();
+  ranked.forEach((s, i) => {
+    m.set(s.service, COLORS[i % COLORS.length]);
+  });
+  return m;
+}, [ranked]);
+
   const activeSeries = useMemo(() => ranked.filter((s) => selected.has(s.service)), [ranked, selected]);
 
   function toggleService(name) {
@@ -330,28 +338,29 @@ export default function WageComparisonChart() {
         </div>
 
         <div style={{ display: "grid", gap: 8 }}>
-          {ranked.map((s, idx) => {
-            const on = selected.has(s.service);
-            const color = COLORS[idx % COLORS.length];
-            return (
-              <label key={s.service} style={toggleRowStyle}>
-                <input
-                  type="checkbox"
-                  checked={on}
-                  onChange={() => toggleService(s.service)}
-                  style={{ transform: "scale(1.1)" }}
-                />
-                <span style={{ width: 10, height: 10, borderRadius: 999, background: color, display: "inline-block" }} />
-                <span style={{ fontWeight: 950 }}>{s.service}</span>
-                <span style={{ marginLeft: "auto", fontWeight: 950, color: "#0055b8" }}>
-                  {s.latestRate != null ? formatMoney(s.latestRate) : "—"}
-                </span>
-                <span style={{ fontSize: 12, opacity: 0.75 }}>
-                  {s.latestDate ? formatDateLabel(s.latestDate) : ""}
-                </span>
-              </label>
-            );
-          })}
+{ranked.map((s) => {
+  const on = selected.has(s.service);
+  const color = colorByService.get(s.service) ?? "#0055b8";
+
+  return (
+    <label key={s.service} style={toggleRowStyle}>
+      <input
+        type="checkbox"
+        checked={on}
+        onChange={() => toggleService(s.service)}
+        style={{ transform: "scale(1.1)" }}
+      />
+      <span style={{ width: 10, height: 10, borderRadius: 999, background: color, display: "inline-block" }} />
+      <span style={{ fontWeight: 950 }}>{s.service}</span>
+      <span style={{ marginLeft: "auto", fontWeight: 950, color: "#0055b8" }}>
+        {s.latestRate != null ? formatMoney(s.latestRate) : "—"}
+      </span>
+      <span style={{ fontSize: 12, opacity: 0.75 }}>
+        {s.latestDate ? formatDateLabel(s.latestDate) : ""}
+      </span>
+    </label>
+  );
+})}
         </div>
       </div>
 
@@ -390,8 +399,8 @@ export default function WageComparisonChart() {
                 })}
 
                 {/* lines */}
-                {activeSeries.map((s, si) => {
-                  const color = COLORS[si % COLORS.length];
+                {activeSeries.map((s) => {
+                const color = colorByService.get(s.service) ?? "#0055b8";
 
                   // build points aligned to chart.dates
                   const byDate = new Map(s.points.map((p) => [p.date, p.rate]));
@@ -409,19 +418,19 @@ export default function WageComparisonChart() {
                     .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
                     .join(" ");
 
-                  return (
-                    <path
-                      key={s.service}
-                      d={d}
-                      fill="none"
-                      stroke={color}
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      opacity="0.95"
-                    />
-                  );
-                })}
+                 return (
+    <path
+      key={s.service}
+      d={d}
+      fill="none"
+      stroke={color}
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      opacity="0.95"
+    />
+  );
+})}
               </svg>
             </div>
           </div>
