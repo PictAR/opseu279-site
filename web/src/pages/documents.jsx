@@ -87,7 +87,7 @@ export default function Documents() {
 
       <section style={{ ...cardStyle, marginTop: 14 }}>
         <h2 style={h2Style}>Ontario E Laws</h2>
-        <p style={pStyle}>Official Ontario legislation lookup.</p>
+        <p style={subStyle}>Official Ontario legislation lookup.</p>
 
         <div style={linkRowStyle}>
           <a
@@ -132,6 +132,19 @@ const cardStyle = {
 };
 
 const h2Style = { margin: 0, fontSize: 16, fontWeight: 950, color: "#0055b8" };
+
+const buttonLinkStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(0,85,184,0.25)",
+  background: "rgba(0,85,184,0.10)",
+  color: "#0055b8",
+  fontWeight: 950,
+  textDecoration: "none",
+};
 
 const itemStyle = {
   display: "grid",
