@@ -261,72 +261,73 @@ export default function WageComparisonChart() {
   );
 
   // SVG sizing
-  const W = 760;
-  const H = 360;
-  const PAD_L = 60;
-  const PAD_R = 18;
-  const PAD_T = 18;
-  const PAD_B = 48;
 
-  const chart = useMemo(() => {
-    if (!activeSeries.length) return null;
+  const BASE_W = 760;          // visible “card” width target
+const PX_PER_POINT = 64;     // controls how “stretched” the timeline is
 
-    const allDates = new Set();
-    for (const s of activeSeries) for (const p of s.points) allDates.add(p.date);
-    const dates = [...allDates].sort();
-    if (!dates.length) return null;
+const chart = useMemo(() => {
+  if (!activeSeries.length) return null;
 
-    let minY = Infinity;
-    let maxY = -Infinity;
-    for (const s of activeSeries) {
-      for (const p of s.points) {
-        if (p.rate == null) continue;
-        minY = Math.min(minY, p.rate);
-        maxY = Math.max(maxY, p.rate);
-      }
+  const allDates = new Set();
+  for (const s of activeSeries) for (const p of s.points) allDates.add(p.date);
+  const dates = [...allDates].sort();
+  if (!dates.length) return null;
+
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (const s of activeSeries) {
+    for (const p of s.points) {
+      if (p.rate == null) continue;
+      minY = Math.min(minY, p.rate);
+      maxY = Math.max(maxY, p.rate);
     }
-    if (!Number.isFinite(minY) || !Number.isFinite(maxY)) return null;
+  }
+  if (!Number.isFinite(minY) || !Number.isFinite(maxY)) return null;
 
-    const pad = Math.max(0.25, (maxY - minY) * 0.08);
-    minY -= pad;
-    maxY += pad;
+  const pad = Math.max(0.25, (maxY - minY) * 0.08);
+  minY -= pad;
+  maxY += pad;
 
-    const x0 = PAD_L;
-    const x1 = W - PAD_R;
-    const y0 = H - PAD_B;
-    const y1 = PAD_T;
+  // ✅ Make SVG width depend on number of dates
+  const svgW = Math.max(
+    BASE_W,
+    PAD_L + PAD_R + Math.max(1, dates.length - 1) * PX_PER_POINT
+  );
 
-    // Precompute date->index for speed
-    const dateIndex = new Map(dates.map((d, i) => [d, i]));
+  const x0 = PAD_L;
+  const x1 = svgW - PAD_R;
+  const y0 = H - PAD_B;
+  const y1 = PAD_T;
 
-    const xFor = (date) => {
-      const i = dateIndex.get(date) ?? 0;
-      const t = dates.length <= 1 ? 0 : i / (dates.length - 1);
-      return x0 + (x1 - x0) * t;
-    };
+  const dateIndex = new Map(dates.map((d, i) => [d, i]));
 
-    const yFor = (v) => {
-      const t = (v - minY) / (maxY - minY || 1);
-      return y0 - (y0 - y1) * t;
-    };
+  const xFor = (date) => {
+    const i = dateIndex.get(date) ?? 0;
+    const t = dates.length <= 1 ? 0 : i / (dates.length - 1);
+    return x0 + (x1 - x0) * t;
+  };
 
-    const yTicks = 5;
-    const tickVals = Array.from({ length: yTicks }, (_, i) => {
-      const t = yTicks === 1 ? 0 : i / (yTicks - 1);
-      return minY + (maxY - minY) * (1 - t);
-    });
+  const yFor = (v) => {
+    const t = (v - minY) / (maxY - minY || 1);
+    return y0 - (y0 - y1) * t;
+  };
 
-    const xTickCount = Math.min(6, dates.length);
-    const xTickIdxs = Array.from({ length: xTickCount }, (_, i) => {
-      const t = xTickCount === 1 ? 0 : i / (xTickCount - 1);
-      return Math.round(t * (dates.length - 1));
-    });
+  const yTicks = 5;
+  const tickVals = Array.from({ length: yTicks }, (_, i) => {
+    const t = yTicks === 1 ? 0 : i / (yTicks - 1);
+    return minY + (maxY - minY) * (1 - t);
+  });
 
-    const hoverDate =
-      hoverIdx != null && dates[hoverIdx] ? dates[hoverIdx] : null;
+  const xTickCount = Math.min(6, dates.length);
+  const xTickIdxs = Array.from({ length: xTickCount }, (_, i) => {
+    const t = xTickCount === 1 ? 0 : i / (xTickCount - 1);
+    return Math.round(t * (dates.length - 1));
+  });
 
-    return { dates, xFor, yFor, tickVals, xTickIdxs, hoverDate, x0, x1, y0, y1 };
-  }, [activeSeries, hoverIdx]);
+  const hoverDate = hoverIdx != null && dates[hoverIdx] ? dates[hoverIdx] : null;
+
+  return { dates, xFor, yFor, tickVals, xTickIdxs, hoverDate, svgW, x0, x1, y0, y1 };
+}, [activeSeries, hoverIdx]);
 
   function toggleService(name) {
     setSelected((prev) => {
@@ -397,150 +398,34 @@ export default function WageComparisonChart() {
       </div>
 
       {/* FIXED: chartWrap closes properly, ternary closes properly */}
-      <div style={chartWrapStyle}>
-        {!chart ? (
-          <div style={mutedStyle}>Select at least one service to display the chart.</div>
-        ) : (
-          <div
-            style={{
-              overflowX: "auto",
-              overflowY: "hidden",
-              WebkitOverflowScrolling: "touch",
-              touchAction: "pan-x",
-              overscrollBehaviorX: "contain",
-              paddingBottom: 6,
-            }}
-          >
-            <div style={{ minWidth: W }}>
-              <svg
-                width={W}
-                height={H}
-                viewBox={`0 0 ${W} ${H}`}
-                style={{
-                  display: "block",
-                  background: "rgba(255,255,255,0.7)",
-                  borderRadius: 14,
-                }}
-                onMouseLeave={() => setHoverIdx(null)}
-                onMouseMove={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const x = e.clientX - rect.left;
-                  const dates = chart.dates;
-                  const x0 = PAD_L;
-                  const x1 = W - PAD_R;
-                  const t = Math.min(1, Math.max(0, (x - x0) / (x1 - x0)));
-                  const idx = Math.round(t * (dates.length - 1));
-                  setHoverIdx(idx);
-                }}
-              >
-                {/* Y grid + labels */}
-                {chart.tickVals.map((v, i) => {
-                  const y = chart.yFor(v);
-                  return (
-                    <g key={`y-${i}`}>
-                      <line
-                        x1={chart.x0}
-                        x2={chart.x1}
-                        y1={y}
-                        y2={y}
-                        stroke="rgba(0,0,0,0.10)"
-                        strokeWidth="1"
-                      />
-                      <text
-                        x={chart.x0 - 10}
-                        y={y + 4}
-                        textAnchor="end"
-                        fontSize="11"
-                        fill="rgba(0,0,0,0.65)"
-                      >
-                        {formatMoney(v)}
-                      </text>
-                    </g>
-                  );
-                })}
-
-                {/* X ticks */}
-                {chart.xTickIdxs.map((di) => {
-                  const date = chart.dates[di];
-                  const x = chart.xFor(date);
-                  return (
-                    <g key={`x-${date}`}>
-                      <line
-                        x1={x}
-                        x2={x}
-                        y1={chart.y1}
-                        y2={chart.y0}
-                        stroke="rgba(0,0,0,0.06)"
-                        strokeWidth="1"
-                      />
-                      <text
-                        x={x}
-                        y={chart.y0 + 18}
-                        textAnchor="middle"
-                        fontSize="11"
-                        fill="rgba(0,0,0,0.65)"
-                      >
-                        {formatDateLabel(date)}
-                      </text>
-                    </g>
-                  );
-                })}
-
-                {/* Hover vertical line */}
-                {chart.hoverDate ? (
-                  <line
-                    x1={chart.xFor(chart.hoverDate)}
-                    x2={chart.xFor(chart.hoverDate)}
-                    y1={chart.y1}
-                    y2={chart.y0}
-                    stroke="rgba(0,85,184,0.25)"
-                    strokeWidth="2"
-                  />
-                ) : null}
-
-                {/* Lines */}
-                {activeSeries.map((s, si) => {
-                  const color = COLORS[si % COLORS.length];
-                  const d = buildPath(s.points, chart.xFor, chart.yFor);
-                  if (!d) return null;
-
-                  return (
-                    <path
-                      key={s.service}
-                      d={d}
-                      fill="none"
-                      stroke={color}
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  );
-                })}
-
-                {/* Hover dots */}
-                {chart.hoverDate
-                  ? activeSeries.map((s, si) => {
-                      const color = COLORS[si % COLORS.length];
-                      const p = s.points.find((x) => x.date === chart.hoverDate);
-                      if (!p || p.rate == null) return null;
-                      return (
-                        <circle
-                          key={`${s.service}-dot`}
-                          cx={chart.xFor(p.date)}
-                          cy={chart.yFor(p.rate)}
-                          r="5"
-                          fill={color}
-                          stroke="rgba(255,255,255,0.95)"
-                          strokeWidth="2"
-                        />
-                      );
-                    })
-                  : null}
-              </svg>
-            </div>
-          </div>
-        )}
+<div style={chartWrapStyle}>
+  {!chart ? (
+    <div style={mutedStyle}>Select at least one service to display the chart.</div>
+  ) : (
+    <div style={chartScrollerStyle}>
+      <div style={{ width: chart.svgW }}>
+        <svg
+          width={chart.svgW}
+          height={H}
+          viewBox={`0 0 ${chart.svgW} ${H}`}
+          style={chartSvgStyle}
+          onMouseLeave={() => setHoverIdx(null)}
+          onMouseMove={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const x0 = PAD_L;
+            const x1 = chart.svgW - PAD_R;
+            const t = Math.min(1, Math.max(0, (x - x0) / (x1 - x0)));
+            const idx = Math.round(t * (chart.dates.length - 1));
+            setHoverIdx(idx);
+          }}
+        >
+          {/* your existing grid, ticks, paths, dots… */}
+        </svg>
       </div>
+    </div>
+  )}
+</div>
 
       {chart?.hoverDate ? (
         <div style={hoverCardStyle}>
@@ -567,6 +452,10 @@ export default function WageComparisonChart() {
     </section>
   );
 }
+
+/* ****** */
+/* STYLES */
+/* ****** */
 
 const titleStyle = { fontSize: 16, fontWeight: 950, color: "#0055b8" };
 const mutedStyle = { margin: 0, opacity: 0.8, fontSize: 13, lineHeight: 1.45 };
@@ -607,6 +496,21 @@ const miniButtonStyle = {
   color: "#0055b8",
   fontWeight: 950,
   cursor: "pointer",
+};
+
+const chartScrollerStyle = {
+  overflowX: "auto",
+  overflowY: "hidden",
+  WebkitOverflowScrolling: "touch",
+  touchAction: "pan-x",
+  overscrollBehaviorX: "contain",
+  paddingBottom: 6,
+};
+
+const chartSvgStyle = {
+  display: "block",
+  background: "rgba(255,255,255,0.7)",
+  borderRadius: 14,
 };
 
 const chartWrapStyle = {
