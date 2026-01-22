@@ -7,3 +7,11 @@ node_modules/
 dist/
 .open-next/
 .vscode/
+web/clerk-react/
+
+# local env files
+web/.env*
+web/**/.env*
+
+# large CA library not stored in repo
+web/public/cas/
