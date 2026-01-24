@@ -179,9 +179,18 @@ function buildFilledSeries({ headers, rows }) {
   return { series };
 }
 
-const COLORS = ["#ecdc00", "#0016bd", "#d60000", "#00aeff", "#00c921", "#d55500"];
+const COLORS = [
+  "#0072B2", // blue
+  "#E69F00", // orange
+  "#009E73", // bluish green
+  "#D55E00", // vermillion
+  "#CC79A7", // reddish purple
+  "#56B4E9", // sky blue
+  "#F0E442", // yellow (use sparingly on white)
+  "#000000", // black (optional extra)
+];
 
-export default function WageComparisonChart() {
+function WageComparisonChart() {
   const [raw, setRaw] = useState({ headers: [], rows: [] });
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -195,7 +204,8 @@ export default function WageComparisonChart() {
         setLoading(true);
         setErr("");
         const res = await fetch(DATA_URL, { cache: "no-store" });
-        if (!res.ok) throw new Error(`Failed to load wage data (${res.status})`);
+        if (!res.ok)
+          throw new Error(`Failed to load wage data (${res.status})`);
         const text = await res.text();
         const parsed = parseCsv(text);
         if (!alive) return;
@@ -204,8 +214,7 @@ export default function WageComparisonChart() {
         if (!alive) return;
         setErr(e?.message || "Failed to load wage data.");
       } finally {
-        if (!alive) return;
-        setLoading(false);
+        if (alive) setLoading(false);
       }
     }
 
@@ -221,7 +230,9 @@ export default function WageComparisonChart() {
     if (!built?.series?.length) return [];
     return [...built.series]
       .filter((s) => s.latestRate != null)
-      .sort((a, b) => (b.latestRate ?? -Infinity) - (a.latestRate ?? -Infinity));
+      .sort(
+        (a, b) => (b.latestRate ?? -Infinity) - (a.latestRate ?? -Infinity),
+      );
   }, [built]);
 
   useEffect(() => {
@@ -232,15 +243,16 @@ export default function WageComparisonChart() {
     });
   }, [ranked]);
 
-const colorByService = useMemo(() => {
-  const m = new Map();
-  ranked.forEach((s, i) => {
-    m.set(s.service, COLORS[i % COLORS.length]);
-  });
-  return m;
-}, [ranked]);
+  const colorByService = useMemo(() => {
+    const m = new Map();
+    ranked.forEach((s, i) => m.set(s.service, COLORS[i % COLORS.length]));
+    return m;
+  }, [ranked]);
 
-  const activeSeries = useMemo(() => ranked.filter((s) => selected.has(s.service)), [ranked, selected]);
+  const activeSeries = useMemo(
+    () => ranked.filter((s) => selected.has(s.service)),
+    [ranked, selected],
+  );
 
   function toggleService(name) {
     setSelected((prev) => {
@@ -257,10 +269,10 @@ const colorByService = useMemo(() => {
     setSelected(new Set());
   }
 
-  // Layout constants (kept local so nothing is “not defined”)
-  const H = 360;
+  // SVG layout
+  const H = 320; // smaller on mobile
   const PAD_L = 56;
-  const PAD_R = 20;
+  const PAD_R = 18;
   const PAD_T = 18;
   const PAD_B = 46;
 
@@ -268,7 +280,8 @@ const colorByService = useMemo(() => {
     if (!activeSeries.length) return null;
 
     const allDates = new Set();
-    for (const s of activeSeries) for (const p of s.points) allDates.add(p.date);
+    for (const s of activeSeries)
+      for (const p of s.points) allDates.add(p.date);
     const dates = [...allDates].sort();
     if (!dates.length) return null;
 
@@ -287,9 +300,8 @@ const colorByService = useMemo(() => {
     minY -= pad;
     maxY += pad;
 
-    // Make it *wider than the card*, so the inner container actually scrolls.
-    const DX = 72; // pixels per time step
-    const W = Math.max(760, PAD_L + PAD_R + Math.max(0, (dates.length - 1) * DX));
+    const DX = 64; // tighter steps so it’s not “giant” on phones
+    const W = PAD_L + PAD_R + Math.max(0, (dates.length - 1) * DX);
 
     const xForIdx = (i) => PAD_L + i * DX;
     const y0 = H - PAD_B;
@@ -306,78 +318,124 @@ const colorByService = useMemo(() => {
       return minY + (maxY - minY) * (1 - t);
     });
 
-    const xTickCount = Math.min(7, dates.length);
+    const xTickCount = Math.min(6, dates.length);
     const xTickIdxs = Array.from({ length: xTickCount }, (_, i) => {
       const t = xTickCount === 1 ? 0 : i / (xTickCount - 1);
       return Math.round(t * (dates.length - 1));
     });
 
-    return { dates, W, xForIdx, yFor, tickVals, xTickIdxs, y0, y1 };
+    return { dates, W, xForIdx, yFor, tickVals, xTickIdxs };
   }, [activeSeries]);
 
-  if (loading) return <div style={mutedStyle}>Loading wage chart…</div>;
-  if (err) return <div style={errorStyle}>Couldn’t load wage chart data. {err}</div>;
-  if (!ranked.length) return <div style={mutedStyle}>No PCP Level 2 wage data found in the CSV.</div>;
+  if (loading) return <div style={mutedStyle}>Loading chart…</div>;
+  if (err) return <div style={errorStyle}>Couldn’t load wage data. {err}</div>;
+  if (!ranked.length)
+    return (
+      <div style={mutedStyle}>No PCP Level 2 wage data found in the CSV.</div>
+    );
 
   return (
     <section style={{ display: "grid", gap: 12 }}>
       <div style={{ display: "grid", gap: 6 }}>
         <div style={titleStyle}>PCP Top Rate (Level 2) wage comparison</div>
         <div style={mutedStyle}>
-          Toggle services and compare base hourly rates over time. Ranking is based on each service’s latest listed rate.
+          Toggle services and compare base hourly rates over time. On mobile you
+          can swipe the chart left and right.
         </div>
       </div>
 
       <div style={toggleCardStyle}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-          <div style={{ fontWeight: 950, color: "#0b2b3a" }}>Services (highest to lowest)</div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 10,
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ fontWeight: 950, color: "#0b2b3a" }}>
+            Services (highest to lowest)
+          </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button type="button" onClick={selectAll} style={miniButtonStyle}>Select all</button>
-            <button type="button" onClick={clearAll} style={miniButtonStyle}>Clear</button>
+            <button type="button" onClick={selectAll} style={miniButtonStyle}>
+              Select all
+            </button>
+            <button type="button" onClick={clearAll} style={miniButtonStyle}>
+              Clear
+            </button>
           </div>
         </div>
 
         <div style={{ display: "grid", gap: 8 }}>
-{ranked.map((s) => {
-  const on = selected.has(s.service);
-  const color = colorByService.get(s.service) ?? "#0055b8";
+          {ranked.map((s) => {
+            const on = selected.has(s.service);
+            const color = colorByService.get(s.service) ?? "#0055b8";
 
-  return (
-    <label key={s.service} style={toggleRowStyle}>
-      <input
-        type="checkbox"
-        checked={on}
-        onChange={() => toggleService(s.service)}
-        style={{ transform: "scale(1.1)" }}
-      />
-      <span style={{ width: 10, height: 10, borderRadius: 999, background: color, display: "inline-block" }} />
-      <span style={{ fontWeight: 950 }}>{s.service}</span>
-      <span style={{ marginLeft: "auto", fontWeight: 950, color: "#0055b8" }}>
-        {s.latestRate != null ? formatMoney(s.latestRate) : "—"}
-      </span>
-      <span style={{ fontSize: 12, opacity: 0.75 }}>
-        {s.latestDate ? formatDateLabel(s.latestDate) : ""}
-      </span>
-    </label>
-  );
-})}
+            return (
+              <label key={s.service} style={toggleRowStyle}>
+                <input
+                  type="checkbox"
+                  checked={on}
+                  onChange={() => toggleService(s.service)}
+                  style={{ transform: "scale(1.05)" }}
+                />
+
+                <span style={dotStyle(color)} />
+
+                <span style={serviceNameStyle}>{s.service}</span>
+
+                <span style={rateStyle}>
+                  {s.latestRate != null ? formatMoney(s.latestRate) : "—"}
+                </span>
+
+                <span style={dateStyle}>
+                  {s.latestDate ? formatDateLabel(s.latestDate) : ""}
+                </span>
+              </label>
+            );
+          })}
         </div>
       </div>
 
       <div style={chartCardStyle}>
         {!chart ? (
-          <div style={mutedStyle}>Select at least one service to display the chart.</div>
+          <div style={mutedStyle}>
+            Select at least one service to display the chart.
+          </div>
         ) : (
           <div style={chartScrollOuterStyle}>
-            <div style={{ minWidth: chart.W }}>
-              <svg width={chart.W} height={H} viewBox={`0 0 ${chart.W} ${H}`} style={chartSvgStyle}>
+            <div
+              style={{
+                minWidth: chart.W,
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <svg
+                width={chart.W}
+                height={H}
+                viewBox={`0 0 ${chart.W} ${H}`}
+                style={chartSvgStyle}
+              >
                 {/* grid + y labels */}
                 {chart.tickVals.map((v, i) => {
                   const y = chart.yFor(v);
                   return (
                     <g key={`y-${i}`}>
-                      <line x1={PAD_L} y1={y} x2={chart.W - PAD_R} y2={y} stroke="rgba(0,0,0,0.08)" />
-                      <text x={PAD_L - 10} y={y + 4} textAnchor="end" fontSize="11" fill="rgba(0,0,0,0.65)">
+                      <line
+                        x1={PAD_L}
+                        y1={y}
+                        x2={chart.W - PAD_R}
+                        y2={y}
+                        stroke="rgba(0,0,0,0.08)"
+                      />
+                      <text
+                        x={PAD_L - 10}
+                        y={y + 4}
+                        textAnchor="end"
+                        fontSize="11"
+                        fill="rgba(0,0,0,0.65)"
+                      >
                         {formatMoney(v)}
                       </text>
                     </g>
@@ -390,8 +448,20 @@ const colorByService = useMemo(() => {
                   const label = formatDateLabel(chart.dates[di]);
                   return (
                     <g key={`x-${di}`}>
-                      <line x1={x} y1={PAD_T} x2={x} y2={H - PAD_B} stroke="rgba(0,0,0,0.06)" />
-                      <text x={x} y={H - 18} textAnchor="middle" fontSize="11" fill="rgba(0,0,0,0.65)">
+                      <line
+                        x1={x}
+                        y1={PAD_T}
+                        x2={x}
+                        y2={H - PAD_B}
+                        stroke="rgba(0,0,0,0.06)"
+                      />
+                      <text
+                        x={x}
+                        y={H - 18}
+                        textAnchor="middle"
+                        fontSize="11"
+                        fill="rgba(0,0,0,0.65)"
+                      >
                         {label}
                       </text>
                     </g>
@@ -400,10 +470,9 @@ const colorByService = useMemo(() => {
 
                 {/* lines */}
                 {activeSeries.map((s) => {
-                const color = colorByService.get(s.service) ?? "#0055b8";
-
-                  // build points aligned to chart.dates
+                  const color = colorByService.get(s.service) ?? "#0055b8";
                   const byDate = new Map(s.points.map((p) => [p.date, p.rate]));
+
                   const pts = chart.dates
                     .map((d, i) => {
                       const r = byDate.get(d);
@@ -418,19 +487,19 @@ const colorByService = useMemo(() => {
                     .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
                     .join(" ");
 
-                 return (
-    <path
-      key={s.service}
-      d={d}
-      fill="none"
-      stroke={color}
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      opacity="0.95"
-    />
-  );
-})}
+                  return (
+                    <path
+                      key={s.service}
+                      d={d}
+                      fill="none"
+                      stroke={color}
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      opacity="0.95"
+                    />
+                  );
+                })}
               </svg>
             </div>
           </div>
@@ -453,22 +522,54 @@ const errorStyle = {
 };
 
 const toggleCardStyle = {
-  padding: 14,
+  padding: 12,
   borderRadius: 14,
   border: "1px solid rgba(0,0,0,0.10)",
   background: "rgba(255,255,255,0.7)",
   display: "grid",
   gap: 10,
+  overflow: "hidden",
 };
 
 const toggleRowStyle = {
   display: "flex",
-  gap: 10,
   alignItems: "center",
+  gap: 10,
+  flexWrap: "wrap", // key fix: no horizontal overflow on phones
+  rowGap: 6,
   padding: 10,
   borderRadius: 12,
   border: "1px solid rgba(0,0,0,0.08)",
   background: "rgba(0,85,184,0.04)",
+};
+
+const dotStyle = (color) => ({
+  width: 10,
+  height: 10,
+  borderRadius: 999,
+  background: color,
+  display: "inline-block",
+  flex: "0 0 auto",
+});
+
+const serviceNameStyle = {
+  fontWeight: 950,
+  flex: "1 1 160px",
+  minWidth: 120,
+};
+
+const rateStyle = {
+  fontWeight: 950,
+  color: "#0055b8",
+  whiteSpace: "nowrap",
+  flex: "0 0 auto",
+};
+
+const dateStyle = {
+  width: "100%", // pushes date to its own line on small screens
+  fontSize: 12,
+  opacity: 0.75,
+  marginLeft: 32, // aligns under the service name-ish
 };
 
 const miniButtonStyle = {
@@ -482,10 +583,11 @@ const miniButtonStyle = {
 };
 
 const chartCardStyle = {
-  padding: 14,
+  padding: 12,
   borderRadius: 14,
   border: "1px solid rgba(0,0,0,0.10)",
   background: "rgba(255,255,255,0.7)",
+  overflow: "hidden", // key fix: card border stays visible
 };
 
 const chartScrollOuterStyle = {
@@ -506,3 +608,5 @@ const chartSvgStyle = {
   background: "rgba(255,255,255,0.7)",
   borderRadius: 14,
 };
+
+export default WageComparisonChart;

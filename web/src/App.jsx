@@ -3,7 +3,6 @@
 // ******* //
 
 import { useEffect, useRef, useState } from "react";
-
 import {
   BrowserRouter,
   Routes,
@@ -11,8 +10,6 @@ import {
   Link,
   Outlet,
   useLocation,
-  useNavigate,
-  Navigate,
 } from "react-router-dom";
 
 import {
@@ -28,7 +25,7 @@ import {
   faXmark,
   faNewspaper,
   faCircleInfo,
-  faEnvelope,
+  faShieldHalved,
   faFileLines,
   faRightToBracket,
   faArrowUpRightFromSquare,
@@ -36,26 +33,26 @@ import {
 
 import EnvBadge from "./components/EnvBadge.jsx";
 
-// ***** //
-// PAGES //
-// ***** //
-
+// Pages
 import Contact from "./pages/contact.jsx";
+import PublicContact from "./pages/contactPublic.jsx";
 import Faq from "./pages/faq.jsx";
 import Documents from "./pages/documents.jsx";
 import Agreement from "./pages/agreement.jsx";
+import Member from "./pages/member.jsx";
 import Discounts from "./pages/discounts.jsx";
-import Wages from "./pages/wages-benefits.jsx";
+import DataCharts from "./pages/data-charts.jsx";
 import PeerSupport from "./pages/peer-support.jsx";
 import TakeAction from "./pages/take-action.jsx";
-import MembersLayout from "./pages/members/MembersLayout";
-import MembersHome from "./pages/members/MembersHome";
-import Seniority from "./pages/seniority.jsx";
-import Profile from "./pages/members/Profile.jsx";
-import ReleaseNotes from "./components/ReleaseNotes.jsx";
-
+import NewsPost from "./pages/news-post.jsx";
+import About from "./pages/about.jsx";
+import Privacy from "./pages/privacy.jsx";
 import { POSTS } from "./data/posts.js";
-/* import { APP_VERSION, RELEASE_NOTES } from "./data/releaseNotes.js"; */
+import Local279 from "./pages/local279.jsx";
+
+import PublicPost from "./components/PublicPost.jsx";
+import OpseuNewsCarousel from "./components/OpseuNewsCarousel.jsx";
+import MemberFabMenu from "./components/MemberFabMenu.jsx";
 
 import opseuUnderCon from "./assets/opseuUnderCon.png";
 
@@ -66,28 +63,95 @@ export default function App() {
         <Route element={<Shell />}>
           {/* Public */}
           <Route index element={<Home />} />
+          <Route path="/news/:id" element={<NewsPost />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/contact" element={<PublicContact />} />
 
           {/* Members (protected) */}
           <Route
             path="/members"
             element={
               <MemberGate>
-                <MembersLayout />
+                <Member />
               </MemberGate>
             }
-          >
-            <Route index element={<MembersHome />} />
-            <Route path="collective-agreement" element={<Agreement />} />
-            <Route path="wages-benefits" element={<Wages />} />
-            <Route path="documents" element={<Documents />} />
-            <Route path="peer-support" element={<PeerSupport />} />
-            <Route path="faq" element={<Faq />} />
-            <Route path="take-action" element={<TakeAction />} />
-            <Route path="discounts" element={<Discounts />} />
-            <Route path="contact" element={<Contact />} />
-            <Route path="seniority" element={<Seniority />} />
-            <Route path="profile" element={<Profile />} />
-          </Route>
+          />
+          <Route
+            path="/members/agreement"
+            element={
+              <MemberGate>
+                <Documents />
+              </MemberGate>
+            }
+          />
+          <Route
+            path="/members/data-charts"
+            element={
+              <MemberGate>
+                <DataCharts />
+              </MemberGate>
+            }
+          />
+          <Route
+            path="/members/documents"
+            element={
+              <MemberGate>
+                <Documents />
+              </MemberGate>
+            }
+          />
+          <Route
+            path="/members/peer-support"
+            element={
+              <MemberGate>
+                <PeerSupport />
+              </MemberGate>
+            }
+          />
+          <Route
+            path="/members/faq"
+            element={
+              <MemberGate>
+                <Faq />
+              </MemberGate>
+            }
+          />
+          <Route
+            path="/members/take-action"
+            element={
+              <MemberGate>
+                <TakeAction />
+              </MemberGate>
+            }
+          />
+          <Route
+            path="/members/discounts"
+            element={
+              <MemberGate>
+                <Discounts />
+              </MemberGate>
+            }
+          />
+          <Route
+            path="/members/contact"
+            element={
+              <MemberGate>
+                <Contact />
+              </MemberGate>
+            }
+          />
+
+          <Route path="/contact" element={<PublicContact />} />
+
+          <Route
+            path="/members/local279"
+            element={
+              <MemberGate>
+                <Local279 />
+              </MemberGate>
+            }
+          />
 
           <Route path="*" element={<NotFound />} />
         </Route>
@@ -96,13 +160,12 @@ export default function App() {
   );
 }
 
-/* Layout: navbar // content // footer */
 function Shell() {
   return (
-    <div style={pageStyle}>
+    <div className="appShell" style={pageStyle}>
       <EnvBadge />
       <NavBar />
-      <main style={mainStyle}>
+      <main className="appMain" style={mainStyle}>
         <Outlet />
       </main>
       <Footer />
@@ -114,24 +177,12 @@ function Shell() {
 function MemberGate({ children }) {
   return (
     <>
-      <SignedIn>{children}</SignedIn>
+      <SignedIn>
+        <MemberFabMenu />
+        {children}
+      </SignedIn>
 
-      <SignedOut>
-        <section style={cardStyle}>
-          <h2 style={h2Style}>Members Area</h2>
-          <p style={pStyle}>
-            This section is for OPSEU Local 279 members. Please sign in to
-            continue.
-          </p>
-          <SignInButton
-            mode="modal"
-            afterSignInUrl="/members"
-            afterSignUpUrl="/members"
-          >
-            <button style={primaryButtonStyle}>Member Login</button>
-          </SignInButton>
-        </section>
-      </SignedOut>
+      <SignedOut>{/* existing signed-out card */}</SignedOut>
     </>
   );
 }
@@ -144,28 +195,12 @@ function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuWrapRef = useRef(null);
 
-  const navigate = useNavigate();
-  const location = useLocation();
-
+  const { pathname } = useLocation();
   function closeMenu() {
     setMenuOpen(false);
   }
 
-  function goHomeAndScroll(sectionId) {
-    closeMenu();
-
-    if (location.pathname !== "/") {
-      navigate("/");
-      setTimeout(() => {
-        const el = document.getElementById(sectionId);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 60);
-      return;
-    }
-
-    const el = document.getElementById(sectionId);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+  const inMembers = pathname.startsWith("/members");
 
   useEffect(() => {
     function onDocMouseDown(e) {
@@ -187,111 +222,117 @@ function NavBar() {
 
   return (
     <header style={navStyle}>
-      <style>{`
-  .nav-logo {
-    transform: scale(1);
-    transition: transform 160ms ease;
-    will-change: transform;
-    transform-origin: center;
-    max-width: 60vw;
-    height: auto;
-  }
-
-  /* Only apply hover scale on real hover devices (mouse/trackpad) */
-  @media (hover: hover) and (pointer: fine) {
-    .nav-logo:hover {
-      transform: scale(1.12);
-    }
-  }
-`}</style>
       {/* Left */}
       <div style={navLeftStyle} ref={menuWrapRef}>
-        <button
-          type="button"
-          style={iconButtonStyle}
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          <FontAwesomeIcon
-            icon={menuOpen ? faXmark : faBars}
-            style={iconStyle}
-          />
-        </button>
-
-        {menuOpen && (
-          <div style={dropdownStyle} role="menu" aria-label="Site menu">
-            {/* 1) News */}
-            <Link
-              to="/"
-              style={dropdownItemStyle}
-              role="menuitem"
-              onClick={closeMenu}
-            >
-              <FontAwesomeIcon icon={faNewspaper} style={dropdownIconStyle} />
-              News
-            </Link>
-
-            {/* 2) About */}
+        {/* Hide the top-left menu button entirely on /members routes */}
+        {!inMembers && (
+          <>
             <button
               type="button"
-              style={dropdownButtonStyle}
-              role="menuitem"
-              onClick={() => goHomeAndScroll("about")}
-            >
-              <FontAwesomeIcon icon={faCircleInfo} style={dropdownIconStyle} />
-              About
-            </button>
-
-            {/* 3) Members Area */}
-            <SignedIn>
-              <Link
-                to="/members"
-                style={dropdownItemStyle}
-                role="menuitem"
-                onClick={closeMenu}
-              >
-                <FontAwesomeIcon icon={faFileLines} style={dropdownIconStyle} />
-                Members Area
-              </Link>
-            </SignedIn>
-
-            <SignedOut>
-              <SignInButton
-                mode="modal"
-                afterSignInUrl="/members"
-                afterSignUpUrl="s"
-              >
-                <button
-                  type="button"
-                  style={dropdownButtonStyle}
-                  role="menuitem"
-                >
-                  <FontAwesomeIcon
-                    icon={faRightToBracket}
-                    style={dropdownIconStyle}
-                  />
-                  Members Area
-                </button>
-              </SignInButton>
-            </SignedOut>
-
-            {/* 4) OPSEU.org */}
-            <a
-              href="https://opseu.org"
-              target="_blank"
-              rel="noreferrer"
-              style={dropdownItemStyle}
-              role="menuitem"
-              onClick={closeMenu}
+              style={iconButtonStyle}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((v) => !v)}
             >
               <FontAwesomeIcon
-                icon={faArrowUpRightFromSquare}
-                style={dropdownIconStyle}
+                icon={menuOpen ? faXmark : faBars}
+                style={iconStyle}
               />
-              OPSEU.org
-            </a>
-          </div>
+            </button>
+
+            {menuOpen && (
+              <div style={dropdownStyle} role="menu" aria-label="Site menu">
+                <Link
+                  to="/"
+                  style={dropdownItemStyle}
+                  role="menuitem"
+                  onClick={closeMenu}
+                >
+                  <FontAwesomeIcon
+                    icon={faNewspaper}
+                    style={dropdownIconStyle}
+                  />
+                  News
+                </Link>
+
+                <Link
+                  to="/about"
+                  style={dropdownItemStyle}
+                  role="menuitem"
+                  onClick={closeMenu}
+                >
+                  <FontAwesomeIcon
+                    icon={faCircleInfo}
+                    style={dropdownIconStyle}
+                  />
+                  About Local 279
+                </Link>
+
+                <Link
+                  to="/privacy"
+                  style={dropdownItemStyle}
+                  role="menuitem"
+                  onClick={closeMenu}
+                >
+                  <FontAwesomeIcon
+                    icon={faShieldHalved}
+                    style={dropdownIconStyle}
+                  />
+                  Privacy Policy
+                </Link>
+
+                <SignedIn>
+                  <Link
+                    to="/members"
+                    style={dropdownItemStyle}
+                    role="menuitem"
+                    onClick={closeMenu}
+                  >
+                    <FontAwesomeIcon
+                      icon={faFileLines}
+                      style={dropdownIconStyle}
+                    />
+                    Members Area
+                  </Link>
+                </SignedIn>
+
+                <SignedOut>
+                  <SignInButton
+                    mode="modal"
+                    fallbackRedirectUrl="/members"
+                    signUpFallbackRedirectUrl="/members"
+                  >
+                    <button
+                      type="button"
+                      style={dropdownButtonStyle}
+                      role="menuitem"
+                    >
+                      <FontAwesomeIcon
+                        icon={faRightToBracket}
+                        style={dropdownIconStyle}
+                      />
+                      Members Area
+                    </button>
+                  </SignInButton>
+                </SignedOut>
+
+                <a
+                  href="https://opseu.org"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={dropdownItemStyle}
+                  role="menuitem"
+                  onClick={closeMenu}
+                >
+                  <FontAwesomeIcon
+                    icon={faArrowUpRightFromSquare}
+                    style={dropdownIconStyle}
+                  />
+                  OPSEU.org
+                </a>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -305,7 +346,7 @@ function NavBar() {
         />
       </Link>
 
-      {/* Right (signed-in only): user menu */}
+      {/* Right */}
       <div style={navRightStyle}>
         <SignedIn>
           <UserButton />
@@ -321,69 +362,88 @@ function NavBar() {
 
 function Footer() {
   const year = new Date().getFullYear();
-  const navigate = useNavigate();
   const location = useLocation();
-
-  function goHomeAndScroll(sectionId) {
-    if (location.pathname !== "/") {
-      navigate("/");
-      setTimeout(() => {
-        const el = document.getElementById(sectionId);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 60);
-      return;
-    }
-    const el = document.getElementById(sectionId);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+  const inMembers = location.pathname.startsWith("/members");
 
   return (
-    <footer style={footerOuterStyle}>
+    <footer className="appFooter" style={footerOuterStyle}>
+      <style>{footerCss}</style>
+
       <div style={footerInnerStyle}>
-        <div style={footerTopRowStyle}>
-          <div style={footerLinksStyle}>
-            <button
-              type="button"
-              style={footerLinkButtonStyle}
-              onClick={() => goHomeAndScroll("contact")}
-            >
+        <div style={footerGridStyle}>
+          {/* Left: address */}
+          <div style={footerAddressColStyle}>
+            <div style={footerColTitleStyle}>Hamilton (Region 2)</div>
+            <div style={footerLineStyle}>505 York Blvd., 2nd Floor</div>
+            <div style={footerLineStyle}>Hamilton, ON L8R 3K4</div>
+            <div style={footerLineStyle}>905-538-0601 1-844-765-1405</div>
+            <div style={footerLineStyle}>Fax: (905) 525-2377</div>
+          </div>
+
+          {/* Middle: links */}
+          <div style={footerLinksColStyle}>
+            <Link className="footerNavLink" to="/contact">
               Contact
-            </button>
+            </Link>
+
+            <Link className="footerNavLink" to="/privacy">
+              Privacy
+            </Link>
+
+            <Link className="footerNavLink" to="/version-notes">
+              Version Notes
+            </Link>
+
+            <a
+              className="footerNavLink"
+              href="mailto:tristanbritt@gmail.com?subject=OPSEU%20Local%20279%20Bug%20Report"
+            >
+              Report a Bug
+            </a>
+
+            {/* Optional: keep login visible for signed-out users only */}
+            <SignedOut>
+              <div style={{ marginTop: 10 }}>
+                <SignInButton
+                  mode="modal"
+                  fallbackRedirectUrl="/members"
+                  signUpFallbackRedirectUrl="/members"
+                >
+                  <button style={footerButtonStyle}>Member Login</button>
+                </SignInButton>
+              </div>
+            </SignedOut>
+
+            {/* If you are signed in AND already in /members, we show nothing here */}
+            <SignedIn>{!inMembers ? null : null}</SignedIn>
+          </div>
+
+          {/* Right: OPSEU icon */}
+          <div style={footerLogoColStyle}>
             <a
               href="https://opseu.org"
               target="_blank"
               rel="noreferrer"
-              style={footerLinkStyle}
+              aria-label="OPSEU.org"
+              style={footerLogoLinkStyle}
             >
-              OPSEU.org
+              {/* Swap this src to your real OPSEU icon file when you add it */}
+              <img
+                src="/opseuLogo.svg"
+                alt="OPSEU"
+                style={footerLogoImgStyle}
+                loading="lazy"
+              />
             </a>
-          </div>
-
-          <div style={footerCtaStyle}>
-            <SignedOut>
-              <SignInButton
-                mode="modal"
-                afterSignInUrl="/members"
-                afterSignUpUrl="/members"
-              >
-                <button style={footerButtonStyle}>Member Login</button>
-              </SignInButton>
-            </SignedOut>
-
-            <SignedIn>
-              <Link to="/members" style={footerMemberLinkStyle}>
-                Go to Members Area
-              </Link>
-            </SignedIn>
           </div>
         </div>
 
-        {/* ✅ Release notes live here */}
-        <ReleaseNotes />
+        {/* Divider */}
+        <div style={footerDividerStyle} />
 
-        <div style={footerMetaStyle}>
-          <div style={footerSmallStyle}>© {year} OPSEU Local 279</div>
-          <div style={footerSmallStyle}>Website by TJ3D</div>
+        {/* Bottom meta */}
+        <div style={footerBottomMetaStyle}>
+          © {year} OPSEU Local 279 · Website by TJ3D
         </div>
       </div>
     </footer>
@@ -440,40 +500,56 @@ function Home() {
     return new Date(b.date) - new Date(a.date);
   });
 
+  const featured = posts[0];
+  const more = posts.slice(1);
+
   return (
     <>
-      <section style={cardStyle}>
-        <h1 style={h1Style}>OPSEU Local 279</h1>
-        <p style={pStyle}>
-          We represent Norfolk County Paramedics. This page shares public union
-          news and initiatives. Members can sign in for internal resources.
+      {/* Welcome */}
+      <section style={heroCardStyle}>
+        <h1 style={heroTitleStyle}>OPSEU Local 279</h1>
+        <p style={heroTextStyle}>
+          Welcome to the public page for Local 279. Below you’ll find our latest
+          updates and announcements. Members can sign in to access the full
+          Member Portal.
         </p>
       </section>
 
-      <section style={cardStyle}>
-        <h2 style={h2Style}>News</h2>
+      {/* Featured post */}
+      {featured ? (
+        <PublicPost post={featured} variant="full" showTags={false} />
+      ) : null}
 
-        <div style={{ display: "grid", gap: 12 }}>
-          {posts.map((post) => (
-            <article key={post.id} style={postStyle}>
-              <div
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                }}
-              >
-                {post.pinned ? <span style={pinStyle}>Pinned</span> : null}
-                <div style={postTitleStyle}>{post.title}</div>
-              </div>
+      {more.length ? (
+        <section style={cardStyle}>
+          <h2 style={h2Style}>More News</h2>
 
-              <div style={postMetaStyle}>{formatDate(post.date)}</div>
-              <p style={postSummaryStyle}>{post.summary}</p>
+          <div style={{ display: "grid", gap: 12 }}>
+            {more.map((post) => (
+              <article key={post.id} style={postStyle}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 10,
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {post.pinned ? <span style={pinStyle}>Pinned</span> : null}
+                  <div style={postTitleStyle}>{post.title}</div>
+                </div>
 
-              {post.links?.length ? (
+                <div style={postMetaStyle}>{formatDate(post.date)}</div>
+                {post.summary ? (
+                  <p style={postSummaryStyle}>{post.summary}</p>
+                ) : null}
+
                 <div style={linkRowStyle}>
-                  {post.links.map((l) => (
+                  <Link to={`/news/${post.id}`} style={postLinkStyle}>
+                    Read article
+                  </Link>
+
+                  {post.links?.map((l) => (
                     <a
                       key={l.href}
                       href={l.href}
@@ -485,27 +561,17 @@ function Home() {
                     </a>
                   ))}
                 </div>
-              ) : null}
-            </article>
-          ))}
-        </div>
-      </section>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
-      <section id="about" style={cardStyle}>
-        <h2 style={h2Style}>About Local 279</h2>
-        <p style={pStyle}>
-          OPSEU Local 279 represents paramedics working for Norfolk County
-          Paramedic Services. We advocate for fair working conditions, safe
-          practice, and a healthy workplace.
-        </p>
-      </section>
-
-      <section id="contact" style={cardStyle}>
-        <h2 style={h2Style}>Contact</h2>
-        <p style={pStyle}>
-          Public questions and community initiatives can be shared here. Members
-          needing support should sign in and use the members contact options.
-        </p>
+      {/* OPSEU news carousel */}
+      <section style={cardStyle}>
+        <h2 style={h2Style}>Latest from OPSEU/SEFPO</h2>
+        <p style={pStyle}>Headlines pulled from opseu.org.</p>
+        <OpseuNewsCarousel />
       </section>
     </>
   );
@@ -589,7 +655,7 @@ const pageStyle = {
   minHeight: "100vh",
   background: "#ffffff",
   color: "#0b2b3a",
-  overflowX: "false",
+  overflowX: "hidden",
 };
 
 const navStyle = {
@@ -724,13 +790,6 @@ const cardStyle = {
   boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
 };
 
-const h1Style = {
-  margin: 0,
-  fontSize: 22,
-  fontWeight: 950,
-  color: "#0055b8",
-};
-
 const h2Style = {
   margin: "0 0 8px",
   fontSize: 18,
@@ -744,29 +803,10 @@ const pStyle = {
   fontSize: 15,
 };
 
-const mutedStyle = {
-  margin: 0,
-  opacity: 0.75,
-  fontSize: 14,
-  lineHeight: 1.5,
-};
-
 const inlineLinkStyle = {
   color: "#0055b8",
   fontWeight: 900,
   textDecoration: "none",
-};
-
-const primaryButtonStyle = {
-  marginTop: 10,
-  padding: "12px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(14,110,166,0.35)",
-  background: "rgba(14,110,166,0.10)",
-  color: "#0055b8",
-  fontSize: 14,
-  fontWeight: 950,
-  cursor: "pointer",
 };
 
 /* ****************************** */
@@ -819,74 +859,10 @@ const heroImageStyle = {
 /* Footer styles */
 /* ************* */
 
-const footerNotesWrapStyle = {
-  border: "1px solid rgba(255,255,255,0.25)",
-  background: "rgba(255,255,255,0.08)",
-  borderRadius: 14,
-  padding: 12,
-  display: "grid",
-  gap: 10,
-};
-
-const footerNotesTopStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "baseline",
-  gap: 10,
-  flexWrap: "wrap",
-};
-
-const footerNotesTitleStyle = {
-  color: "#ffffff",
-  fontWeight: 950,
-  fontSize: 14,
-};
-
-const footerNotesMetaStyle = {
-  color: "#ffffff",
-  opacity: 0.85,
-  fontSize: 12,
-  fontWeight: 800,
-};
-
-const footerDetailsStyle = {
-  color: "#ffffff",
-};
-
-const footerSummaryStyle = {
-  cursor: "pointer",
-  fontWeight: 950,
-  color: "#ffffff",
-  listStyle: "none",
-};
-
-const footerNotesBodyStyle = {
-  marginTop: 10,
-  color: "#ffffff",
-};
-
-const footerNotesListStyle = {
-  margin: "8px 0 0",
-  paddingLeft: 18,
-  display: "grid",
-  gap: 6,
-};
-
-const footerNotesItemStyle = {
-  lineHeight: 1.35,
-  opacity: 0.95,
-};
-
-const footerNotesHintStyle = {
-  marginTop: 10,
-  fontSize: 12,
-  opacity: 0.8,
-};
-
 const footerOuterStyle = {
   borderTop: "1px solid rgba(255,255,255,0.18)",
   background: "#0055b8",
-  padding: "18px 0 28px",
+  padding: "18px 0 18px",
 };
 
 const footerInnerStyle = {
@@ -895,45 +871,75 @@ const footerInnerStyle = {
   margin: "0 auto",
   padding: "0 20px",
   display: "grid",
-  gap: 12,
-};
-
-const footerTopRowStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 12,
-  flexWrap: "wrap",
-};
-
-const footerLinksStyle = {
-  display: "flex",
   gap: 14,
-  flexWrap: "wrap",
-  alignItems: "center",
 };
 
-const footerLinkStyle = {
-  color: "#ffffff",
-  fontWeight: 900,
-  textDecoration: "none",
+const footerGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "1fr auto auto",
+  gap: 18,
+  alignItems: "start",
 };
 
-const footerLinkButtonStyle = {
+const footerAddressColStyle = {
+  display: "grid",
+  gap: 4,
+  justifyItems: "start",
+};
+
+const footerLinksColStyle = {
+  display: "grid",
+  gap: 8,
+  justifyItems: "start",
+};
+
+const footerLogoColStyle = {
+  justifySelf: "end",
+  display: "grid",
+  alignItems: "start",
+};
+
+const footerColTitleStyle = {
   color: "#ffffff",
-  fontWeight: 900,
-  textDecoration: "none",
-  border: "none",
-  background: "transparent",
-  padding: 0,
-  cursor: "pointer",
+  fontWeight: 950,
   fontSize: 14,
+  marginBottom: 4,
 };
 
-const footerCtaStyle = {
-  display: "flex",
+const footerLineStyle = {
+  color: "rgba(255,255,255,0.92)",
+  fontWeight: 500,
+  fontSize: 13,
+  lineHeight: 1.45,
+};
+
+const footerLogoLinkStyle = {
+  display: "inline-flex",
   alignItems: "center",
-  gap: 12,
+  justifyContent: "center",
+  padding: 8,
+  borderRadius: 12,
+};
+
+const footerLogoImgStyle = {
+  width: 64,
+  height: "auto",
+  display: "block",
+};
+
+const footerDividerStyle = {
+  height: 1,
+  width: "min(640px, calc(100% - 60px))",
+  background: "rgba(255,255,255,0.35)",
+  margin: "4px auto 0",
+};
+
+const footerBottomMetaStyle = {
+  marginTop: 12,
+  textAlign: "center",
+  color: "rgba(255,255,255,0.92)",
+  fontSize: 13,
+  fontWeight: 600,
 };
 
 const footerButtonStyle = {
@@ -947,24 +953,44 @@ const footerButtonStyle = {
   cursor: "pointer",
 };
 
-const footerMemberLinkStyle = {
-  textDecoration: "none",
-  padding: "12px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.35)",
-  background: "rgba(255,255,255,0.10)",
-  color: "#ffffff",
-  fontWeight: 950,
-  fontSize: 14,
-};
+const footerCss = `
+.footerNavLink{
+  color: rgba(255,255,255,0.92);
+  font-weight: 400;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-block;
+  position: relative;
+  padding: 2px 0;
+  transform: translateZ(0);
+  transition: transform 220ms cubic-bezier(0.22,1,0.36,1);
+}
 
-const footerMetaStyle = {
-  display: "grid",
-  gap: 4,
-};
+.footerNavLink::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 1px;
+  width: 100%;
+  background: rgba(255,255,255,0.85);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms cubic-bezier(0.22,1,0.36,1);
+}
 
-const footerSmallStyle = {
-  fontSize: 13,
-  opacity: 0.9,
-  color: "#ffffff",
-};
+@media (hover:hover) and (pointer:fine){
+  .footerNavLink:hover{
+    transform: scale(1.03);
+  }
+  .footerNavLink:hover::after{
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 720px){
+  .appFooter .footerGrid{
+    grid-template-columns: 1fr;
+  }
+}
+`;

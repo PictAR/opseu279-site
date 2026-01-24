@@ -1,0 +1,7 @@
+# OPSEU279 SPA + route redirects
+# Canonical members route
+/member /members 301
+/member/* /members/:splat 301
+
+# SPA fallback
+/* /index.html 200

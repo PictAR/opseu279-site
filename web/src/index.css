@@ -54,3 +54,106 @@ a {
 button {
   font-family: inherit;
 }
+
+/* Blog hero share reveal */
+
+.hero-reveal{
+  --reveal-x: 60px;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.hero-reveal__icons{
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--reveal-x);
+  padding: 4px;              /* tight */
+  display: flex;
+  align-items: center;        /* vertical center */
+  justify-content: center;    /* horizontal center */
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(0,0,0,0.08);
+  opacity: 0;
+  transform: translate3d(-6px,0,0);
+  transition: opacity 200ms ease, transform 360ms cubic-bezier(0.22,1,0.36,1);
+}
+
+
+.hero-reveal__img{
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: auto;
+  display: block;
+
+  transform: translate3d(0,0,0);
+  transition: transform 520ms cubic-bezier(0.22,1,0.36,1);
+  will-change: transform;
+}
+
+.hero-reveal:hover .hero-reveal__img,
+.hero-reveal:focus-within .hero-reveal__img,
+.hero-reveal.is-open .hero-reveal__img{
+  transform: translate3d(var(--reveal-x),0,0);
+}
+
+.hero-reveal:hover .hero-reveal__icons,
+.hero-reveal:focus-within .hero-reveal__icons,
+.hero-reveal.is-open .hero-reveal__icons{
+  opacity: 1;
+  transform: translate3d(0,0,0);
+}
+
+.hero-reveal__toggle{
+  display: none;
+}
+
+@media (hover: none){
+  .hero-reveal__toggle{
+    display: inline-flex;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 3;
+
+    border: 1px solid rgba(0,0,0,0.12);
+    background: rgba(255,255,255,0.85);
+    border-radius: 999px;
+    padding: 10px 12px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .hero-reveal__img,
+  .hero-reveal__icons{
+    transition: none !important;
+  }
+}
+
+#root{
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.appMain{
+  flex: 1;
+}
+
+.appFooter{
+  margin-top: auto;
+  flex: 0 0 auto;
+}
+
+.appShell{
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

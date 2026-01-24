@@ -2,9 +2,7 @@
 /* Agreements Library Page */
 /* *********************** */
 
-import MemberHeader from "../components/MemberHeader";
 import AskCaBox from "../components/AskCaBox";
-
 
 const LIBRARY = [
   {
@@ -208,33 +206,12 @@ const TYPE_BADGE = { ca: "CA", moa: "MOA", mou: "MOU", ia: "IA" };
 export default function Agreement() {
   return (
     <section style={{ display: "grid", gap: 14 }}>
-      <MemberHeader title="Collective Agreement Library" />
+      <header style={{ display: "grid", gap: 8 }}>
+        <h1 style={h1Style}>Agreements Library</h1>
+        <p style={subStyle}>Open PDFs in a new tab for full scrolling and pinch zoom on mobile.</p>
+      </header>
 
-<div
-  style={{
-    padding: 14,
-    borderRadius: 14,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "rgba(255,255,255,0.7)",
-    display: "grid",
-    gap: 10,
-  }}
->
-  <AskCaBox />
-
-  <div
-    style={{
-      fontSize: 12,
-      lineHeight: 1.4,
-      opacity: 0.8,
-      borderTop: "1px solid rgba(0,0,0,0.10)",
-      paddingTop: 10,
-    }}
-  >
-    <b>Note:</b> Right now, this tool can only answer questions about the <b>current</b> Norfolk County Paramedics
-    Collective Agreement. We’ll expand it later to include other services.
-  </div>
-</div>
+      <AskCaBox />
 
       {groupBy(LIBRARY, (x) => x.group).map(([groupName, services]) => (
         <section key={groupName} style={cardStyle}>
@@ -275,21 +252,6 @@ export default function Agreement() {
           </div>
         </section>
       ))}
-                <section style={cardStyle}>
-  <h2 style={h2Style}>Collective Agreement Lookup</h2>
-  <p style={mutedStyle}>Ontario Ministry searchable collective agreement database.</p>
-
-  <div style={linkRowStyle}>
-    <a
-      href="https://www.lr.labour.gov.on.ca/en-CA/Collective-Agreements/"
-      target="_blank"
-      rel="noreferrer"
-      style={pdfLinkStyle}
-    >
-      Open CA Lookup
-    </a>
-  </div>
-</section>
     </section>
   );
 }

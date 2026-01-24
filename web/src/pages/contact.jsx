@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import MemberHeader from "../components/MemberHeader";
 
-// Replace with your real exec emails
 const EXEC = [
   { name: "President", email: "tristanbritt@gmail.com" },
   { name: "Vice President", email: "dostal.carol@hotmail.com" },
@@ -37,27 +36,32 @@ export default function Contact() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
-  // If TO changes, ensure it is not in CC/BCC
-  useEffect(() => {
-    setCc((prev) => prev.filter((x) => x !== toEmail));
-    setBcc((prev) => prev.filter((x) => x !== toEmail));
+  function onToChange(nextEmail) {
+    setToEmail(nextEmail);
+    setCc((prev) => prev.filter((x) => x !== nextEmail));
+    setBcc((prev) => prev.filter((x) => x !== nextEmail));
     setCcPick("");
     setBccPick("");
-  }, [toEmail]);
+  }
 
   const options = useMemo(
-    () => EXEC.map((x) => ({ label: `${x.name} (${x.email})`, value: x.email, name: x.name })),
-    []
+    () =>
+      EXEC.map((x) => ({
+        label: `${x.name} (${x.email})`,
+        value: x.email,
+        name: x.name,
+      })),
+    [],
   );
 
   const availableCc = useMemo(
     () => options.filter((o) => o.value !== toEmail && !cc.includes(o.value)),
-    [options, toEmail, cc]
+    [options, toEmail, cc],
   );
 
   const availableBcc = useMemo(
     () => options.filter((o) => o.value !== toEmail && !bcc.includes(o.value)),
-    [options, toEmail, bcc]
+    [options, toEmail, bcc],
   );
 
   const toLabel = useMemo(() => {
@@ -96,21 +100,31 @@ export default function Contact() {
         <div style={{ display: "grid", gap: 12 }}>
           <div style={{ display: "grid", gap: 6 }}>
             <div style={labelTitleStyle}>To</div>
-            <select value={toEmail} onChange={(e) => setToEmail(e.target.value)} style={inputStyle}>
+            <select
+              value={toEmail}
+              onChange={(e) => onToChange(e.target.value)}
+              style={inputStyle}
+            >
               {options.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}
                 </option>
               ))}
             </select>
-            <div style={{ fontSize: 12, opacity: 0.75 }}>Selected: {toLabel}</div>
+            <div style={{ fontSize: 12, opacity: 0.75 }}>
+              Selected: {toLabel}
+            </div>
           </div>
 
           <div style={twoColStyle}>
             <div style={{ display: "grid", gap: 8 }}>
               <div style={labelTitleStyle}>CC</div>
               <div style={{ display: "flex", gap: 8 }}>
-                <select value={ccPick} onChange={(e) => setCcPick(e.target.value)} style={inputStyle}>
+                <select
+                  value={ccPick}
+                  onChange={(e) => setCcPick(e.target.value)}
+                  style={inputStyle}
+                >
                   <option value="">Add CC...</option>
                   {availableCc.map((o) => (
                     <option key={o.value} value={o.value}>
@@ -125,7 +139,13 @@ export default function Contact() {
               {cc.length ? (
                 <div style={chipRowStyle}>
                   {cc.map((email) => (
-                    <Chip key={email} text={email} onRemove={() => setCc((p) => p.filter((x) => x !== email))} />
+                    <Chip
+                      key={email}
+                      text={email}
+                      onRemove={() =>
+                        setCc((p) => p.filter((x) => x !== email))
+                      }
+                    />
                   ))}
                 </div>
               ) : (
@@ -136,7 +156,11 @@ export default function Contact() {
             <div style={{ display: "grid", gap: 8 }}>
               <div style={labelTitleStyle}>BCC</div>
               <div style={{ display: "flex", gap: 8 }}>
-                <select value={bccPick} onChange={(e) => setBccPick(e.target.value)} style={inputStyle}>
+                <select
+                  value={bccPick}
+                  onChange={(e) => setBccPick(e.target.value)}
+                  style={inputStyle}
+                >
                   <option value="">Add BCC...</option>
                   {availableBcc.map((o) => (
                     <option key={o.value} value={o.value}>
@@ -151,7 +175,13 @@ export default function Contact() {
               {bcc.length ? (
                 <div style={chipRowStyle}>
                   {bcc.map((email) => (
-                    <Chip key={email} text={email} onRemove={() => setBcc((p) => p.filter((x) => x !== email))} />
+                    <Chip
+                      key={email}
+                      text={email}
+                      onRemove={() =>
+                        setBcc((p) => p.filter((x) => x !== email))
+                      }
+                    />
                   ))}
                 </div>
               ) : (
@@ -162,7 +192,11 @@ export default function Contact() {
 
           <div style={{ display: "grid", gap: 6 }}>
             <div style={labelTitleStyle}>Subject</div>
-            <input value={subject} onChange={(e) => setSubject(e.target.value)} style={inputStyle} />
+            <input
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              style={inputStyle}
+            />
           </div>
 
           <div style={{ display: "grid", gap: 6 }}>
