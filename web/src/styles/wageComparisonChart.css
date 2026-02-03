@@ -1,0 +1,333 @@
+/* web/src/styles/components/wageComparisonChart.css */
+
+.wcc{
+  display: grid;
+  gap: 12px;
+}
+
+.wccHeader{
+  display: grid;
+  gap: 8px;
+}
+
+.wccTitle{
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.wccSubtitle{
+  margin: 0;
+}
+
+.wccControls{
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.wccControl{
+  display: grid;
+  gap: 6px;
+}
+
+.wccControlLabel{
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wccControlActions{
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.wccCard{
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 14px;
+  background: #fff;
+  padding: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  overflow: hidden; /* keeps borders visible when chart scrolls */
+}
+
+.wccCardTop{
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.wccCardLabel{
+  font-weight: 700;
+  color: rgba(11,43,58,0.95);
+}
+
+.wccHint{
+  font-size: 13px;
+}
+
+.wccList{
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.wccRow{
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+
+  padding: 10px 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.02);
+  border: 1px solid rgba(0,0,0,0.06);
+
+  cursor: pointer;
+  user-select: none;
+}
+
+.wccRow.isOn{
+  background: rgba(0,85,184,0.06);
+  border-color: rgba(0,85,184,0.12);
+}
+
+.wccLeft{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wccDot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.wccServiceBlock{
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wccService{
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wccMeta{
+  font-size: 12px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wccRight{
+  justify-self: end;
+  text-align: right;
+  display: grid;
+  gap: 2px;
+}
+
+.wccRate{
+  font-weight: 700;
+  color: var(--brand);
+  white-space: nowrap;
+}
+
+.wccDate{
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.wccScroll{
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+  padding-bottom: 6px;
+  padding-right: 12px;
+}
+
+.wccSvg{
+  display: block;
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+
+.wccGrid{ stroke: rgba(0,0,0,0.08); }
+.wccGridLight{ stroke: rgba(0,0,0,0.06); }
+.wccAxisText{ font-size: 11px; fill: rgba(0,0,0,0.65); }
+
+@media (max-width: 560px){
+  .wccControls{
+    grid-template-columns: 1fr;
+  }
+}
+
+.wccTypeToggles{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.wccTypeToggle{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--hairline);
+  background: rgba(0,0,0,0.02);
+  user-select: none;
+}
+
+.wccTypeToggle.isDisabled{
+  opacity: 0.45;
+}
+
+.wccTypePickers{
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.wccTypePicker{
+  border: 1px solid var(--hairline);
+  background: rgba(0,0,0,0.02);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.wccTypePickerTitle{
+  font-weight: 650;
+  color: var(--brand);
+  letter-spacing: 0.2px;
+}
+
+.wccTypePickerGrid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 520px){
+  .wccTypePickerGrid{ grid-template-columns: 1fr; }
+}
+
+.wccActionsRow{
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wccServiceLine{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wccType{
+  font-size: 12px;
+  line-height: 1;
+  padding: 3px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--hairline);
+  background: rgba(0,0,0,0.03);
+  color: var(--muted);
+}
+
+.wccPad{ padding: 12px; }
+
+.wccServicePickers{
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.wccDropdown{
+  border: 1px solid var(--hairline, rgba(0,0,0,.12));
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  overflow: hidden;
+}
+
+.wccDropdown > summary{
+  cursor: pointer;
+  padding: 10px 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.wccSummaryRight{
+  font-weight: 700;
+  opacity: 0.75;
+  font-size: 13px;
+}
+
+.wccDropdownBody{
+  padding: 10px 12px;
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid var(--hairline, rgba(0,0,0,.12));
+}
+
+.wccDropdownBtns{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wccPickRow{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  border-radius: 10px;
+}
+
+.wccPickRow:hover{
+  background: rgba(0,0,0,0.03);
+}
+
+.wccPickDot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.wccPickName{
+  font-weight: 600;
+}
+
+.wccMinWageRow{
+  padding: 10px 12px;
+  border: 1px dashed var(--hairline, rgba(0,0,0,.12));
+  border-radius: 14px;
+  margin: 0 12px 12px;
+}
