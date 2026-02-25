@@ -7,6 +7,13 @@ export default function OpseuNewsCarousel({ limit = 10 }) {
   const [loading, setLoading] = useState(true);
   const rowRef = useRef(null);
 
+  console.log("OpseuNewsCarousel render");
+
+  useEffect(() => {
+    console.log("OpseuNewsCarousel effect fired");
+    // existing fetch logic...
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
 
