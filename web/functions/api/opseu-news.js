@@ -3,8 +3,8 @@
 export async function onRequestGet({ request }) {
   const url = new URL(request.url);
   const limit = Math.min(
-    20,
-    Math.max(1, Number(url.searchParams.get("limit") || 10)),
+    Math.max(Number(url.searchParams.get("limit") || 10), 1),
+    25,
   );
 
   const FEEDS = [
@@ -13,19 +13,12 @@ export async function onRequestGet({ request }) {
     "https://opseu.org/category/news/feed/",
   ];
 
-  const upstream = await fetch(FEED_URL, {
-    headers: {
-      "user-agent": "opseu279-site/1.0 (+https://opseu279.com)",
-      accept: "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8",
-    },
-  });
-
   let upstream = null;
   let lastErr = "";
 
   for (const FEED_URL of FEEDS) {
     try {
-      upstream = await fetch(FEED_URL, {
+      const res = await fetch(FEED_URL, {
         headers: {
           "user-agent": "opseu279-site/1.0 (+https://opseu279.com)",
           accept:
@@ -33,27 +26,25 @@ export async function onRequestGet({ request }) {
         },
       });
 
-      if (upstream.ok) break;
+      if (res.ok) {
+        upstream = res;
+        break;
+      }
 
-      lastErr = `${FEED_URL} -> ${upstream.status} ${upstream.statusText}`;
-      upstream = null;
+      lastErr = `${FEED_URL} -> ${res.status} ${res.statusText}`;
     } catch (e) {
       lastErr = `${FEED_URL} -> ${e?.message || "fetch failed"}`;
-      upstream = null;
     }
   }
 
   if (!upstream) {
     return json(
-      { items: [], error: `All OPSEU feeds failed. Last error: ${lastErr}` },
+      {
+        items: [],
+        error: `All OPSEU feeds failed. Last error: ${lastErr}`,
+      },
       502,
-    );
-  }
-
-  if (!upstream.ok) {
-    return json(
-      { items: [], error: `Upstream feed failed (${upstream.status})` },
-      502,
+      0,
     );
   }
 
@@ -87,7 +78,8 @@ export async function onRequestGet({ request }) {
     });
   }
 
-  return json({ items }, 200, 600); // cache 10 min
+  // cache 10 min
+  return json({ items }, 200, 600);
 }
 
 function json(data, status = 200, maxAge = 0) {
