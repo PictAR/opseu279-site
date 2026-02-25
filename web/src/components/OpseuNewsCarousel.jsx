@@ -1,194 +1,121 @@
-// web/src/components/OpseuNewsCarousel.jsx
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+// If you have a Pages Function/Worker endpoint, use it.
+// If not, set VITE_OPSEU_NEWS_ENDPOINT to something you control.
+const ENDPOINT = import.meta.env.VITE_OPSEU_NEWS_ENDPOINT || "/api/opseu-news";
+
+function safeText(v) {
+  return typeof v === "string" ? v : "";
+}
 
 export default function OpseuNewsCarousel({ limit = 10 }) {
-  const [items, setItems] = useState([]);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const rowRef = useRef(null);
-
-  console.log("OpseuNewsCarousel render");
-
-  useEffect(() => {
-    console.log("OpseuNewsCarousel effect fired");
-    // existing fetch logic...
-  }, []);
+  const [err, setErr] = useState("");
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
 
-    async function load() {
-      setLoading(true);
-      setError("");
-
+    async function run() {
       try {
-        const url = new URL("/api/opseu-news", window.location.origin);
-        url.searchParams.set("limit", String(limit));
+        setLoading(true);
+        setErr("");
 
-        const res = await fetch(url.toString(), {
-          headers: { Accept: "application/json" },
+        const url = `${ENDPOINT}?limit=${encodeURIComponent(limit)}`;
+        const res = await fetch(url, {
+          headers: { accept: "application/json" },
         });
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
 
-        const data = await res.json();
-        if (!cancelled) setItems(Array.isArray(data.items) ? data.items : []);
-      } catch {
-        try {
-          const fallback = await fetch(
-            `https://opseu.org/wp-json/wp/v2/posts?per_page=${Math.min(
-              12,
-              Number(limit) || 10,
-            )}&_embed=1`,
-            { headers: { Accept: "application/json" } },
-          );
-          if (!fallback.ok) throw new Error(`HTTP ${fallback.status}`);
-          const json = await fallback.json();
-          const mapped = Array.isArray(json)
-            ? json.map(mapWpPost).filter(Boolean)
-            : [];
-          if (!cancelled) setItems(mapped);
-        } catch {
-          if (!cancelled)
-            setError(
-              "OPSEU news could not be loaded in this environment. In production this is served via a Pages Function.",
-            );
-        }
+        const json = await res.json();
+
+        // Expect { items: [...] } or { posts: [...] } or raw array
+        const arr =
+          (Array.isArray(json) && json) ||
+          (Array.isArray(json?.items) && json.items) ||
+          (Array.isArray(json?.posts) && json.posts) ||
+          [];
+
+        if (!cancelled) setItems(arr);
+      } catch (e) {
+        if (!cancelled) setErr(e?.message || "OPSEU news failed to load");
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
 
-    load();
+    run();
     return () => {
       cancelled = true;
     };
   }, [limit]);
 
-  function scrollByCards(dir) {
-    const row = rowRef.current;
-    if (!row) return;
-    const card = row.querySelector("[data-card='1']");
-    const width = card ? card.getBoundingClientRect().width : 280;
-    row.scrollBy({ left: dir * (width + 12), behavior: "smooth" });
+  const normalized = useMemo(() => {
+    return items
+      .map((it, idx) => ({
+        id: it.id || it.guid || it.link || `opn-${idx}`,
+        title: safeText(it.title) || "Untitled",
+        link: safeText(it.link) || safeText(it.url),
+        date: safeText(it.date) || safeText(it.pubDate) || "",
+        excerpt: safeText(it.excerpt) || safeText(it.summary) || "",
+        image: safeText(it.image) || safeText(it.imageUrl) || "",
+        source: safeText(it.source) || "",
+      }))
+      .filter((x) => x.link);
+  }, [items]);
+
+  if (loading) {
+    return (
+      <div className="opn">
+        <div className="opnRow" aria-label="Loading OPSEU news">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="opnCard opnCardSkeleton" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (err) {
+    return <div className="opnError">OPSEU news failed to load: {err}</div>;
+  }
+
+  if (!normalized.length) {
+    return <div className="opnEmpty">No OPSEU news found.</div>;
   }
 
   return (
-    <div className="opn">
-      <div className="opnTop">
-        <a
-          href="https://opseu.org/news-page/"
-          target="_blank"
-          rel="noreferrer"
-          className="opnAllBtn"
-        >
-          All OPSEU news
-        </a>
-      </div>
+    <div className="opn" aria-label="OPSEU news carousel">
+      <div className="opnRow">
+        {normalized.slice(0, limit).map((p) => (
+          <a
+            key={p.id}
+            className="opnCard"
+            href={p.link}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Open OPSEU news: ${p.title}`}
+          >
+            <div className="opnImgWrap">
+              {p.image ? (
+                <img src={p.image} alt="" className="opnImg" loading="lazy" />
+              ) : (
+                <div className="opnImg" aria-hidden="true" />
+              )}
+            </div>
 
-      {error ? <div className="opnError">{error}</div> : null}
-
-      <div className="opnRail" aria-label="OPSEU news carousel">
-        <button
-          type="button"
-          className="opnEdgeBtn opnNavBtn"
-          onClick={() => scrollByCards(-1)}
-          aria-label="Scroll left"
-        >
-          ‹
-        </button>
-
-        <div ref={rowRef} className="opnRow">
-          {loading ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="opnCard opnCardSkeleton" data-card="1" />
-            ))
-          ) : items.length ? (
-            items.map((it, idx) => (
-              <a
-                key={it.link || idx}
-                href={it.link}
-                target="_blank"
-                rel="noreferrer"
-                className="opnCard"
-                data-card="1"
-              >
-                {it.image ? (
-                  <div className="opnImgWrap">
-                    <img
-                      src={it.image}
-                      alt=""
-                      className="opnImg"
-                      loading="lazy"
-                    />
-                  </div>
-                ) : null}
-
-                <div className="opnBody">
-                  <div className="opnTitle">{it.title}</div>
-                  {it.date ? (
-                    <div className="opnMeta">{formatDate(it.date)}</div>
-                  ) : null}
-                  {it.excerpt ? (
-                    <div className="opnExcerpt">{it.excerpt}</div>
-                  ) : null}
-                </div>
-              </a>
-            ))
-          ) : (
-            <div className="opnEmpty">No items found.</div>
-          )}
-        </div>
-
-        <button
-          type="button"
-          className="opnEdgeBtn opnNavBtn"
-          onClick={() => scrollByCards(1)}
-          aria-label="Scroll right"
-        >
-          ›
-        </button>
+            <div className="opnBody">
+              <div className="opnTitle">{p.title}</div>
+              <div className="opnMeta">
+                {p.date ? p.date : ""}
+                {p.source ? ` · ${p.source}` : ""}
+              </div>
+              {p.excerpt ? <div className="opnExcerpt">{p.excerpt}</div> : null}
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   );
-}
-
-function formatDate(iso) {
-  try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return iso;
-  }
-}
-
-function stripHtml(str) {
-  return String(str || "")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function mapWpPost(post) {
-  try {
-    const title = stripHtml(post?.title?.rendered);
-    const excerpt = stripHtml(post?.excerpt?.rendered);
-    const link = post?.link;
-    const date = post?.date || post?.date_gmt;
-
-    const media = post?._embedded?.["wp:featuredmedia"]?.[0];
-    const image =
-      media?.media_details?.sizes?.medium?.source_url ||
-      media?.media_details?.sizes?.large?.source_url ||
-      media?.source_url ||
-      "";
-
-    if (!title || !link) return null;
-    return { title, excerpt, link, date, image };
-  } catch {
-    return null;
-  }
 }
