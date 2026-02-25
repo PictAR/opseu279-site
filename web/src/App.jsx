@@ -42,6 +42,26 @@ function formatDate(iso) {
   }
 }
 
+function TopbarAuth() {
+  const { isLoaded, isSignedIn } = useUser();
+
+  if (!isLoaded) return null; // prevents weird interim UI
+
+  return isSignedIn ? (
+    <UserButton />
+  ) : (
+    <SignInButton
+      mode="modal"
+      afterSignInUrl="/members"
+      afterSignUpUrl="/members"
+    >
+      <button type="button" className="mhBtn" aria-label="Sign in">
+        Sign in
+      </button>
+    </SignInButton>
+  );
+}
+
 /* =========================
    Public home bits
 ========================= */
@@ -892,20 +912,7 @@ export default function App() {
           </div>
 
           <div className="navRight">
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-            <SignedOut>
-              <SignInButton
-                mode="modal"
-                afterSignInUrl="/members"
-                afterSignUpUrl="/members"
-              >
-                <button type="button" className="mhBtn" aria-label="Sign in">
-                  Sign in
-                </button>
-              </SignInButton>
-            </SignedOut>
+            <TopbarAuth />
           </div>
         </div>
       </header>
