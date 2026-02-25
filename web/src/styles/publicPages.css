@@ -1,0 +1,254 @@
+/* web/src/styles/publicPages.css */
+
+.pubWrap{
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+}
+
+.pubCard{
+  width: 100%;
+  background: var(--surface, #fff);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  box-sizing: border-box;
+}
+
+.pubHero{
+  background: linear-gradient(135deg, rgba(0,85,184,0.10), rgba(0,85,184,0.02));
+}
+
+.pubH1{
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 950;
+  color: var(--brand, #0055b8);
+}
+
+.pubLead{
+  margin: 8px 0 0;
+  line-height: 1.65;
+  font-size: 15px;
+  opacity: 0.92;
+  color: var(--ink, #0b2b3a);
+}
+
+.pubH2{
+  margin: 0;
+  font-size: 18px;
+  font-weight: 950;
+  color: var(--brand, #0055b8);
+}
+
+.pubP{
+  margin: 0;
+  line-height: 1.6;
+  font-size: 15px;
+  color: var(--ink, #0b2b3a);
+}
+
+.pubList{
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.pubLi{
+  line-height: 1.55;
+  font-size: 15px;
+}
+
+.pubCtaRow{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pubBtn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,85,184,0.25);
+  background: rgba(0,85,184,0.08);
+  color: var(--brand, #0055b8);
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pubBtn:hover{
+  background: rgba(0,85,184,0.10);
+  border-color: rgba(0,85,184,0.32);
+}
+
+.pubBtnPrimary{
+  background: var(--brand, #0055b8);
+  color: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.pubBtnPrimary:hover{
+  filter: brightness(0.98);
+}
+
+/* ===== About page ===== */
+
+.aboutHero{
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1.3fr 0.7fr;
+  align-items: center;
+}
+
+.aboutHeroText{
+  display: grid;
+  gap: 10px;
+}
+
+.aboutHeroMedia{
+  width: 100%;
+}
+
+.aboutHeroImg{
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.7);
+  object-fit: cover;
+}
+
+.aboutLogoCard{
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.7);
+  padding: 14px;
+  box-sizing: border-box;
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  justify-items: center;
+}
+
+.aboutLogoImg{
+  width: min(240px, 100%);
+  height: auto;
+  display: block;
+}
+
+.aboutDetails{
+  margin-top: 2px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(0,85,184,0.03);
+  padding: 10px;
+}
+
+.aboutSummary{
+  cursor: pointer;
+  font-weight: 950;
+  color: var(--brand, #0055b8);
+}
+
+.aboutDetailsBody{
+  margin-top: 10px;
+}
+
+@media (max-width: 720px){
+  .aboutHero{
+    grid-template-columns: 1fr;
+  }
+  .aboutHeroMedia{
+    order: -1;
+  }
+}
+
+/* ===== Contact page ===== */
+
+.pcForm{
+  display: grid;
+  gap: 12px;
+}
+
+.pcHoneypot{
+  position: absolute;
+  left: -9999px;
+  height: 0;
+  width: 0;
+  opacity: 0;
+}
+
+.pcLabel{
+  display: grid;
+  gap: 6px;
+  font-weight: 800;
+  color: rgba(0,0,0,0.78);
+}
+
+.pcInput{
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  padding: 12px;
+  font-size: 15px;
+  outline: none;
+  font-family: inherit;
+}
+
+.pcTextarea{
+  resize: vertical;
+  min-height: 140px;
+}
+
+.pcSubmit{
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: var(--brand, #0055b8);
+  color: #fff;
+  padding: 12px 14px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.pcSubmit:disabled{
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.pcFinePrint{
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.pcError{
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(180,0,0,0.18);
+  background: rgba(180,0,0,0.06);
+  color: rgba(120,0,0,0.95);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.pcThanks{
+  display: grid;
+  gap: 8px;
+}
+
+/* ===== Privacy page ===== */
+
+.privacyHeader{
+  display: grid;
+  gap: 10px;
+}

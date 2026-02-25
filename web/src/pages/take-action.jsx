@@ -6,14 +6,16 @@ export default function TakeAction() {
       <header style={{ display: "grid", gap: 8 }}>
         <h1 style={h1Style}>Take Action</h1>
         <p style={subStyle}>
-          Member tools for contacting elected representatives. Copy a template, personalize it, and send it.
+          Member tools for contacting elected representatives. Copy a template,
+          personalize it, and send it.
         </p>
       </header>
 
       <section style={cardStyle}>
         <h2 style={h2Style}>Presumptive Cancer Coverage for Paramedics</h2>
         <p style={pStyle}>
-          Ask your MPP to support presumptive legislation for paramedics diagnosed with cancer.
+          Ask your MPP to support presumptive legislation for paramedics
+          diagnosed with cancer.
         </p>
 
         <div style={linkRowStyle}>
@@ -25,14 +27,41 @@ export default function TakeAction() {
           >
             Open Lobby Sheet PDF
           </a>
+        </div>
+      </section>
 
+      <section style={cardStyle}>
+        <h2 style={h2Style}>Ontario Health Care</h2>
+        <p style={pStyle}>
+          Support OPSEU advocacy related to public health care enforcement.
+        </p>
+
+        <div style={linkRowStyle}>
+          <a
+            href="https://opseu.org/news/sign-this-petition-to-demand-the-federal-government-enforce-the-canada-health-act-in-ontario/304296/"
+            target="_blank"
+            rel="noreferrer"
+            style={buttonLinkStyle}
+          >
+            Sign the Canada Health Act petition
+          </a>
+        </div>
+      </section>
+
+      <section style={cardStyle}>
+        <h2 style={h2Style}>Find your MPP</h2>
+        <p style={pStyle}>
+          Use Elections Ontario to find your riding and contact information.
+        </p>
+
+        <div style={linkRowStyle}>
           <a
             href="https://www.elections.on.ca/en/voting-in-ontario/electoral-districts.html"
             target="_blank"
             rel="noreferrer"
             style={buttonLinkStyle}
           >
-            Find your MPP
+            Open MPP Lookup
           </a>
         </div>
       </section>

@@ -1,386 +1,1020 @@
 // web/src/App.jsx
-import { useMemo } from "react";
-import {
-  BrowserRouter,
-  Link,
-  Outlet,
-  Route,
-  Routes,
-  useLocation,
-} from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
 import {
   SignedIn,
   SignedOut,
   SignInButton,
   UserButton,
+  useUser,
 } from "@clerk/clerk-react";
 
-import EnvBadge from "./components/EnvBadge.jsx";
+import norfolkCountySvg from "./assets/norfolkCounty.svg";
 
-// Public pages
 import About from "./pages/about.jsx";
 import Privacy from "./pages/privacy.jsx";
 import PublicContact from "./pages/contactPublic.jsx";
 import NewsPost from "./pages/news-post.jsx";
-import { POSTS } from "./data/posts.js";
-
-// Members pages (protected)
-import MembersLayout from "./pages/members/MembersLayout.jsx";
-import MembersHome from "./pages/members/MembersHome.jsx";
-import Profile from "./pages/members/Profile.jsx";
-import ContactExec from "./pages/members/ContactExec.jsx";
-import Seniority from "./pages/seniority.jsx";
-import Documents from "./pages/documents.jsx";
-import DataCharts from "./pages/data-charts.jsx";
-import PeerSupport from "./pages/peer-support.jsx";
-import Faq from "./pages/faq.jsx";
-import TakeAction from "./pages/take-action.jsx";
+import NewsIndex from "./pages/news-index.jsx";
 import Local279 from "./pages/local279.jsx";
-import Discounts from "./pages/discounts.jsx";
 
-import ShareBar from "./components/ShareBar.jsx";
+import OpseuNewsCarousel from "./components/OpseuNewsCarousel.jsx";
 import MemberHamburgerMenu from "./components/MemberHamburgerMenu.jsx";
+import WageComparisonChart from "./components/WageComparisonChart.jsx";
 
-function Shell() {
-  const { pathname } = useLocation();
-  const inMembers = pathname.startsWith("/members");
-  const containerClass = inMembers ? "main mainMembers" : "container main";
+import { PUBLIC_POSTS } from "./data/posts.js";
+import * as localDiscountsMod from "./data/localDiscounts.js";
+
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xzddqyzn";
+
+/* =========================
+   Small helpers
+========================= */
+function formatDate(iso) {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return iso;
+  }
+}
+
+/* =========================
+   Public home bits
+========================= */
+function OlderPostsCarousel({ posts }) {
+  const rowRef = useRef(null);
+  const items = Array.isArray(posts) ? posts.slice(0, 3) : [];
+
+  function scrollByCards(dir) {
+    const row = rowRef.current;
+    if (!row) return;
+    const card = row.querySelector("[data-card='1']");
+    const width = card ? card.getBoundingClientRect().width : 240;
+    row.scrollBy({ left: dir * (width + 12), behavior: "smooth" });
+  }
+
+  if (!items.length) return <div className="opcEmpty">No news found.</div>;
 
   return (
-    <div className="appShell">
-      <EnvBadge />
-      <NavBar />
+    <div className="opc">
+      <div className="opcTop">
+        <Link to="/news" className="opcAllBtn" aria-label="View all news">
+          All news
+        </Link>
+      </div>
 
-      <main className={containerClass}>
-        <Outlet />
-      </main>
+      <div className="opcRail" aria-label="More news carousel">
+        <button
+          type="button"
+          className="opcEdgeBtn opcNavBtn"
+          onClick={() => scrollByCards(-1)}
+          aria-label="Scroll left"
+        >
+          ‹
+        </button>
 
-      <Footer />
+        <div ref={rowRef} className="opcRow">
+          {items.map((p) => {
+            const href = p.permalink || `/news/${p.id}`;
+
+            const rawImg = p.heroSrc || p.thumbnailSrc || "";
+            const img = rawImg
+              ? rawImg.startsWith("/")
+                ? rawImg
+                : `/${rawImg}`
+              : "/l279-logo-blue.png";
+
+            return (
+              <Link
+                key={p.id || href}
+                to={href}
+                className="opcCard"
+                data-card="1"
+                aria-label={`Open post: ${p.title}`}
+              >
+                <div className="opcImgWrap">
+                  <img src={img} alt="" className="opcImg" loading="lazy" />
+                </div>
+                <div className="opcBody">
+                  <div className="opcTitle">{p.title}</div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          className="opcEdgeBtn opcNavBtn"
+          onClick={() => scrollByCards(1)}
+          aria-label="Scroll right"
+        >
+          ›
+        </button>
+      </div>
     </div>
   );
 }
 
-function MemberGate({ children }) {
+function Home() {
+  const posts = Array.isArray(PUBLIC_POSTS) ? PUBLIC_POSTS : [];
+
+  const sorted = useMemo(() => {
+    return [...posts].sort(
+      (a, b) => Number(new Date(b.date)) - Number(new Date(a.date)),
+    );
+  }, [posts]);
+
+  const featured = useMemo(
+    () => sorted.find((p) => p?.pinned) || sorted[0] || null,
+    [sorted],
+  );
+
+  const older = useMemo(() => {
+    if (!featured) return sorted.slice(0, 12);
+    return sorted.filter((p) => p !== featured).slice(0, 12);
+  }, [sorted, featured]);
+
+  if (!featured) {
+    return (
+      <section className="home">
+        <div className="card">
+          <h1 className="h1">OPSEU Local 279</h1>
+          <p className="muted">
+            No posts found. Check your PUBLIC_POSTS data source.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  const featuredHref = featured.permalink || `/news/${featured.id}`;
+
+  return (
+    <section className="home">
+      <section className="card" aria-label="Welcome">
+        <div className="sectionHead">
+          <h1 className="h1">Welcome to OPSEU279.com</h1>
+          <p className="muted">
+            OPSEU Local 279 represents Norfolk County Paramedics.
+          </p>
+          <p className="muted">
+            This public page shares news and information relevant to our members
+            and the public.
+          </p>
+        </div>
+      </section>
+
+      <article className="card homeFeatured">
+        <div className="homeFeaturedStage">
+          {featured.heroSrc ? (
+            <Link
+              to={featuredHref}
+              className="homeFeaturedStageLink"
+              aria-label="Open featured post"
+            >
+              <img
+                src={featured.heroSrc}
+                alt=""
+                className="homeFeaturedBgImg"
+                loading="lazy"
+              />
+            </Link>
+          ) : (
+            <div className="homeFeaturedBgFallback" aria-hidden="true" />
+          )}
+
+          <div className="homeFeaturedOverlay">
+            <div className="homeFeaturedBody">
+              <div className="homeFeaturedTop">
+                {featured.thumbnailSrc ? (
+                  <img
+                    src={featured.thumbnailSrc}
+                    alt=""
+                    className="homeFeaturedThumb"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div
+                    className="homeFeaturedThumb isBlank"
+                    aria-hidden="true"
+                  />
+                )}
+
+                <div className="homeFeaturedHead">
+                  <Link to={featuredHref} className="homeFeaturedTitle">
+                    {featured.title}
+                  </Link>
+
+                  <div className="homeFeaturedMeta">
+                    <span>{formatDate(featured.date)}</span>
+                    {featured.author ? <span>· {featured.author}</span> : null}
+                    {featured.pinned ? (
+                      <span
+                        className="badge"
+                        aria-label="Pinned"
+                        title="Pinned"
+                      >
+                        📌
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+
+              {featured.summary ? (
+                <div className="homeFeaturedSummary">{featured.summary}</div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <section className="card" aria-label="Older posts">
+        <div className="sectionHead">
+          <h2 className="h2">More Posts</h2>
+        </div>
+        <OlderPostsCarousel posts={older} />
+      </section>
+
+      <section className="card who" aria-label="Local info">
+        <details className="whoDetails">
+          <summary className="whoSummary" aria-label="Who is OPSEU279?">
+            <span className="whoTitle">Who is OPSEU279?</span>
+            <span className="whoChevron" aria-hidden="true">
+              ›
+            </span>
+          </summary>
+
+          <div className="whoPanel">
+            <div className="whoPanelInner">
+              <div className="whoMedia" aria-hidden="true">
+                <img
+                  src="/l279-logo-blue.png"
+                  alt=""
+                  className="whoMediaImg"
+                  loading="lazy"
+                />
+              </div>
+
+              <div className="whoCopy">
+                <p className="whoText">
+                  OPSEU Local 279 represents Norfolk County Paramedics. This
+                  public page shares local updates, resources, and news that
+                  matters to our members.
+                </p>
+
+                <div className="whoActions">
+                  <Link to="/members" className="whoMemberBtn">
+                    Members Area
+                  </Link>
+
+                  <Link to="/contact" className="whoContactLink">
+                    Contact Local 279
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section className="card" aria-label="OPSEU news">
+        <div className="sectionHead">
+          <h2 className="h2">OPSEU news</h2>
+          <p className="muted">Latest from OPSEU/SEFPO.</p>
+        </div>
+        <OpseuNewsCarousel limit={10} />
+      </section>
+    </section>
+  );
+}
+
+/* =========================
+   Members gate + pages
+========================= */
+function MembersGate({ children }) {
   return (
     <>
       <SignedIn>{children}</SignedIn>
-
       <SignedOut>
-        <section className="card">
-          <h1 className="h1">Members Area</h1>
-          <p className="muted">Sign in to access member resources.</p>
-          <SignInButton
-            mode="modal"
-            afterSignInUrl="/members"
-            afterSignUpUrl="/members"
-          >
-            <button type="button" className="textBtn">
-              Sign in
-            </button>
-          </SignInButton>
+        <section className="page">
+          <section className="card">
+            <h1 className="pageTitle">Members Area</h1>
+            <p className="muted">Sign in to access member resources.</p>
+
+            <SignInButton
+              mode="modal"
+              afterSignInUrl="/members"
+              afterSignUpUrl="/members"
+            >
+              <button type="button" className="primaryBtn">
+                Sign in
+              </button>
+            </SignInButton>
+          </section>
         </section>
       </SignedOut>
     </>
   );
 }
 
-function normalizePublicSrc(src) {
-  if (!src) return "";
-  let s = String(src).trim();
-  if (s.startsWith("public/")) s = s.slice("public/".length);
-  if (!s.startsWith("/")) s = `/${s}`;
-  return s;
+function MembersHome() {
+  const { user } = useUser();
+  const name = user?.firstName || user?.username || user?.fullName || "member";
+
+  return (
+    <MembersGate>
+      <section className="page membersHome">
+        <section className="card membersWelcome">
+          <h1 className="pageTitle">
+            Hello {name}! Welcome to the Local279 Members Portal
+          </h1>
+          <p className="pageSub">
+            Here you'll find member resources, local info, and tools to help you
+            navigate your collective agreement and workplace rights.
+          </p>
+        </section>
+
+        <section className="card">
+          <p className="muted">
+            Use the menu to navigate. This website/App is a work in progress.
+          </p>
+        </section>
+      </section>
+    </MembersGate>
+  );
 }
 
-function makePostUrl(id) {
-  if (typeof window === "undefined") return `/news/${id}`;
-  return `${window.location.origin}/news/${id}`;
+function MembersPeerSupport() {
+  return (
+    <MembersGate>
+      <section className="page">
+        <div className="pageHeader">
+          <h1 className="pageTitle">Peer Support</h1>
+          <p className="pageSub">Placeholder page.</p>
+        </div>
+
+        <section className="card">
+          <p className="muted">Content coming soon.</p>
+        </section>
+      </section>
+    </MembersGate>
+  );
 }
 
-function Home() {
-  const posts = useMemo(() => {
-    return [...POSTS].sort((a, b) => {
-      const ap = a.pinned ? 1 : 0;
-      const bp = b.pinned ? 1 : 0;
-      if (bp !== ap) return bp - ap;
-      return String(b.date || "").localeCompare(String(a.date || ""));
+function MembersDataCharts() {
+  return (
+    <MembersGate>
+      <section className="page">
+        <div className="pageHeader">
+          <h1 className="pageTitle">Data & Charts</h1>
+          <p className="pageSub">Wage comparison chart.</p>
+        </div>
+
+        <section className="card">
+          <WageComparisonChart />
+        </section>
+      </section>
+    </MembersGate>
+  );
+}
+
+function MembersTakeAction() {
+  return (
+    <MembersGate>
+      <section className="page">
+        <div className="pageHeader">
+          <h1 className="pageTitle">Take Action</h1>
+          <p className="pageSub">Placeholder page.</p>
+        </div>
+
+        <section className="card">
+          <p className="muted">Content coming soon.</p>
+        </section>
+      </section>
+    </MembersGate>
+  );
+}
+
+/* =========================
+   Local discounts (single copy)
+========================= */
+function pickDiscountArray(mod) {
+  if (!mod) return [];
+  if (Array.isArray(mod.LOCAL_DISCOUNTS)) return mod.LOCAL_DISCOUNTS;
+  if (Array.isArray(mod.default)) return mod.default;
+  const firstArr = Object.values(mod).find((v) => Array.isArray(v));
+  return Array.isArray(firstArr) ? firstArr : [];
+}
+
+function parseDateMaybe(v) {
+  if (!v) return null;
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function normalizeDiscount(d, idx) {
+  const raw = d || {};
+  const id = raw.id || raw.slug || raw.key || `discount-${idx}`;
+
+  const title =
+    raw.title ||
+    raw.name ||
+    raw.business ||
+    raw.vendor ||
+    raw.company ||
+    "Discount";
+
+  const subtitle =
+    raw.subtitle || raw.location || raw.where || raw.category || "";
+  const description =
+    raw.description || raw.desc || raw.details || raw.text || "";
+  const instructions = raw.instructions || raw.specialInstructions || "";
+
+  const href = raw.href || raw.url || raw.link || "";
+  const code = raw.code || raw.promoCode || raw.coupon || "";
+
+  const end =
+    raw.expiresAt ||
+    raw.expires ||
+    raw.validUntil ||
+    raw.endDate ||
+    raw.ends ||
+    raw.until ||
+    "";
+
+  const endDate = parseDateMaybe(end);
+
+  const activeFlag =
+    typeof raw.active === "boolean"
+      ? raw.active
+      : typeof raw.isActive === "boolean"
+        ? raw.isActive
+        : null;
+
+  const expiredByDate = endDate ? endDate.getTime() < Date.now() : false;
+  const expiredByFlag = activeFlag === false;
+
+  const expired =
+    raw.status === "expired" ||
+    raw.available === false ||
+    expiredByFlag ||
+    expiredByDate;
+
+  const image =
+    raw.image || raw.imageSrc || raw.heroSrc || raw.thumbnailSrc || "";
+
+  return {
+    id,
+    title,
+    subtitle,
+    description,
+    instructions,
+    href,
+    code,
+    endDate,
+    expired,
+    image,
+  };
+}
+
+function fmtShortDate(d) {
+  if (!d) return "";
+  try {
+    return d.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
+  } catch {
+    return "";
+  }
+}
+
+function DiscountSubmissionForm() {
+  return (
+    <details className="ldcForm">
+      <summary className="ldcFormSummary">Submit a discount</summary>
+
+      <form action={FORMSPREE_ENDPOINT} method="POST" className="ldcFormGrid">
+        <input
+          type="text"
+          name="_gotcha"
+          tabIndex="-1"
+          autoComplete="off"
+          className="honeypot"
+          aria-hidden="true"
+        />
+
+        <input
+          type="hidden"
+          name="form_type"
+          value="local_discount_submission"
+        />
+
+        <label className="fieldLabel">
+          Business name
+          <input
+            name="business_name"
+            type="text"
+            required
+            className="textInput"
+            placeholder="Business offering the discount"
+          />
+        </label>
+
+        <div className="ldcFormTwoCol">
+          <label className="fieldLabel">
+            Contact person
+            <input
+              name="contact_person"
+              type="text"
+              required
+              className="textInput"
+              placeholder="Name"
+            />
+          </label>
+
+          <label className="fieldLabel">
+            Contact title
+            <input
+              name="contact_title"
+              type="text"
+              className="textInput"
+              placeholder="Owner, Manager, etc (optional)"
+            />
+          </label>
+        </div>
+
+        <div className="ldcFormTwoCol">
+          <label className="fieldLabel">
+            Contact email
+            <input
+              name="contact_email"
+              type="email"
+              className="textInput"
+              placeholder="email@example.com"
+            />
+          </label>
+
+          <label className="fieldLabel">
+            Contact phone
+            <input
+              name="contact_phone"
+              type="tel"
+              className="textInput"
+              placeholder="(optional)"
+            />
+          </label>
+        </div>
+
+        <div className="ldcFormTwoCol">
+          <label className="fieldLabel">
+            Start date
+            <input name="start_date" type="date" className="textInput" />
+          </label>
+
+          <label className="fieldLabel">
+            End date
+            <input name="end_date" type="date" className="textInput" />
+          </label>
+        </div>
+
+        <label className="fieldLabel">
+          Image URL (optional)
+          <input
+            name="image_url"
+            type="url"
+            className="textInput"
+            placeholder="https://... (or leave blank for default image)"
+          />
+        </label>
+
+        <label className="fieldLabel">
+          Discount details
+          <textarea
+            name="discount_details"
+            rows={4}
+            className="textInput textArea"
+            placeholder="What is the discount? Any rules or limitations?"
+          />
+        </label>
+
+        <label className="fieldLabel">
+          Special instructions (optional)
+          <textarea
+            name="special_instructions"
+            rows={3}
+            className="textInput textArea"
+            placeholder='Example: "Ask for manager Sarah to sign up"'
+          />
+        </label>
+
+        <button type="submit" className="primaryBtn">
+          Send submission
+        </button>
+
+        <p className="finePrint">
+          Only submit business contact info you have permission to share.
+        </p>
+      </form>
+    </details>
+  );
+}
+
+function LocalDiscountsCarousel() {
+  const rowRef = useRef(null);
+
+  const items = useMemo(() => {
+    const arr = pickDiscountArray(localDiscountsMod)
+      .map(normalizeDiscount)
+      .filter(Boolean);
+
+    return [...arr].sort((a, b) => Number(a.expired) - Number(b.expired));
   }, []);
 
+  function scrollByCards(dir) {
+    const row = rowRef.current;
+    if (!row) return;
+    const card = row.querySelector("[data-card='1']");
+    const width = card ? card.getBoundingClientRect().width : 280;
+    row.scrollBy({ left: dir * (width + 12), behavior: "smooth" });
+  }
+
   return (
-    <section className="card">
-      <h1 className="h1">Updates</h1>
-      <p className="muted">Posts and portal updates from OPSEU Local 279.</p>
+    <div className="ldc" aria-label="Local discounts">
+      <div className="ldcTop">
+        <div className="ldcHint">Swipe or scroll</div>
 
-      <div className="postList">
-        {posts.map((p) => {
-          const thumb = normalizePublicSrc(
-            p.thumbnailSrc || "blog/l279-logo-blue.png",
-          );
-          const hero = normalizePublicSrc(p.heroSrc);
-          const postUrl = makePostUrl(p.id);
+        <div className="ldcNav">
+          <button
+            type="button"
+            className="ldcNavBtn"
+            onClick={() => scrollByCards(-1)}
+            aria-label="Scroll left"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            className="ldcNavBtn"
+            onClick={() => scrollByCards(1)}
+            aria-label="Scroll right"
+          >
+            ›
+          </button>
+        </div>
+      </div>
 
-          return (
-            <article key={p.id} className="postCard">
-              {hero ? (
-                <Link
-                  to={`/news/${p.id}`}
-                  className="postHeroLink"
-                  aria-label={p.title}
-                >
-                  <img
-                    className="postHeroImg"
-                    src={hero}
-                    alt=""
-                    loading="lazy"
-                  />
-                </Link>
-              ) : null}
+      {!items.length ? (
+        <div className="l279DiscEmpty">No discounts loaded yet.</div>
+      ) : (
+        <div className="ldcRow" ref={rowRef}>
+          {items.map((it) => {
+            const img = it.image
+              ? it.image.startsWith("http")
+                ? it.image
+                : it.image.startsWith("/")
+                  ? it.image
+                  : `/${it.image}`
+              : "/l279-logo-blue.png";
 
-              <div className="postBody">
-                <div className="postRow">
-                  {thumb ? (
-                    <img
-                      className="postRowThumb"
-                      src={thumb}
-                      alt=""
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="postRowThumb" aria-hidden="true" />
-                  )}
+            const CardTag = it.href ? "a" : "div";
+            const cardProps = it.href
+              ? { href: it.href, target: "_blank", rel: "noreferrer" }
+              : {};
 
-                  <div className="postHead">
-                    <Link className="postItemTitle" to={`/news/${p.id}`}>
-                      {p.title}
-                    </Link>
+            return (
+              <CardTag
+                key={it.id}
+                className={`ldcCard${it.expired ? " isExpired" : ""}`}
+                data-card="1"
+                aria-label={it.title}
+                {...cardProps}
+              >
+                <div className="ldcImgWrap">
+                  <img src={img} alt="" className="ldcImg" loading="lazy" />
+                </div>
 
-                    <div className="postItemMeta">
-                      {p.pinned ? (
-                        <span className="postItemPinned">Pinned</span>
-                      ) : null}
-                      {p.date ? <span>{p.date}</span> : null}
-                      {p.author ? <span>• {p.author}</span> : null}
-                    </div>
+                <div className="ldcBody">
+                  <div className="ldcTitleRow">
+                    <div className="ldcTitle">{it.title}</div>
+                    {it.expired ? (
+                      <span className="ldcBadge isExpired">Expired</span>
+                    ) : (
+                      <span className="ldcBadge">Active</span>
+                    )}
+                  </div>
+
+                  {it.subtitle ? (
+                    <div className="ldcSub">{it.subtitle}</div>
+                  ) : null}
+                  {it.description ? (
+                    <div className="ldcDesc">{it.description}</div>
+                  ) : null}
+                  {it.instructions ? (
+                    <div className="ldcInst">{it.instructions}</div>
+                  ) : null}
+
+                  <div className="ldcMeta">
+                    {it.code ? (
+                      <span className="ldcCode">Code: {it.code}</span>
+                    ) : null}
+                    {it.endDate ? (
+                      <span>Valid until {fmtShortDate(it.endDate)}</span>
+                    ) : null}
                   </div>
                 </div>
+              </CardTag>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
-                {p.summary ? (
-                  <div className="postItemSummary">{p.summary}</div>
-                ) : null}
+/* =========================
+   Local 279 pages (use existing local279.jsx)
+========================= */
+function MembersLocal279Page() {
+  return (
+    <MembersGate>
+      <Local279 />
+    </MembersGate>
+  );
+}
 
-                <div className="postShareRow" aria-label="Share this post">
-                  <ShareBar
-                    title={p.title}
-                    text={p.summary || ""}
-                    url={postUrl}
-                  />
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
+function MembersLocal279Discounts() {
+  return (
+    <MembersGate>
+      <section className="page">
+        <div className="pageHeader">
+          <h1 className="pageTitle">Local discounts</h1>
+          <p className="pageSub">
+            Submit a discount and we’ll review and publish it.
+          </p>
+        </div>
 
-      <div className="mt14">
-        <SignedIn>
-          <Link className="link" to="/members">
-            Go to Members Area
-          </Link>
-        </SignedIn>
+        <section className="card">
+          <DiscountSubmissionForm />
+          <LocalDiscountsCarousel />
+        </section>
+      </section>
+    </MembersGate>
+  );
+}
 
-        <SignedOut>
-          <SignInButton
-            mode="modal"
-            afterSignInUrl="/members"
-            afterSignUpUrl="/members"
-          >
-            <button type="button" className="textBtn">
-              Sign in to Members Area
+function MembersContactExec() {
+  return (
+    <MembersGate>
+      <section className="page">
+        <div className="pageHeader">
+          <h1 className="pageTitle">Contact Executive and Committees</h1>
+          <p className="pageSub">
+            This goes to the Local 279 inbox via Formspree.
+          </p>
+        </div>
+
+        <section className="card">
+          <form action={FORMSPREE_ENDPOINT} method="POST" className="formGrid">
+            <input
+              type="text"
+              name="_gotcha"
+              tabIndex="-1"
+              autoComplete="off"
+              className="honeypot"
+              aria-hidden="true"
+            />
+
+            <input type="hidden" name="form_type" value="members_contact" />
+
+            <label className="fieldLabel">
+              Your email
+              <input
+                name="email"
+                type="email"
+                required
+                className="textInput"
+                placeholder="you@example.com"
+              />
+            </label>
+
+            <label className="fieldLabel">
+              Your name
+              <input
+                name="name"
+                type="text"
+                required
+                className="textInput"
+                placeholder="First and last name"
+              />
+            </label>
+
+            <label className="fieldLabel">
+              Subject
+              <input
+                name="subject"
+                type="text"
+                required
+                className="textInput"
+                placeholder="What is this about?"
+              />
+            </label>
+
+            <label className="fieldLabel">
+              Message
+              <textarea
+                name="message"
+                required
+                rows={6}
+                className="textInput textArea"
+                placeholder="Write your message here…"
+              />
+            </label>
+
+            <button type="submit" className="primaryBtn">
+              Send message
             </button>
-          </SignInButton>
-        </SignedOut>
-      </div>
-    </section>
+
+            <p className="finePrint">
+              Please avoid including personal health information.
+            </p>
+          </form>
+        </section>
+      </section>
+    </MembersGate>
   );
 }
 
-function NotFound() {
-  return (
-    <section className="card">
-      <h1 className="h1">Not found</h1>
-      <p className="muted">That page doesn’t exist.</p>
-      <div className="mt12">
-        <Link className="link" to="/">
-          Back to home
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-// Small “coming soon” pages so your menu links don’t 404
-function ComingSoon({ title }) {
-  return (
-    <section className="card">
-      <h1 className="h1">{title}</h1>
-      <p className="muted">Coming soon.</p>
-    </section>
-  );
-}
-
-function NavBar() {
-  return (
-    <header className="topbar">
-      <div className="topbarInner">
-        <div className="navLeft">
-          <MemberHamburgerMenu />
-        </div>
-
-        <Link to="/" className="brand" aria-label="OPSEU Local 279 Home">
-          <img
-            className="brandLogo"
-            src="/l279-logo-blue.svg"
-            alt="OPSEU Local 279"
-          />
-        </Link>
-
-        <div className="navRight">
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-
-          <SignedOut>
-            <SignInButton
-              mode="modal"
-              afterSignInUrl="/members"
-              afterSignUpUrl="/members"
-            >
-              <button type="button" className="textBtn">
-                Sign in
-              </button>
-            </SignInButton>
-          </SignedOut>
-        </div>
-      </div>
-    </header>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="appFooter">
-      <div className="footerInner">
-        <div className="footerGrid">
-          <div className="footerAddress">
-            <div className="footerLine">505 York Blvd., 2nd Floor</div>
-            <div className="footerLine">Hamilton, ON&nbsp;&nbsp;L8R 3K4</div>
-            <div className="footerLine">
-              905-538-0601&nbsp;&nbsp;1-844-765-1405
-            </div>
-            <div className="footerLine">Fax: (905) 525-2377</div>
-          </div>
-
-          <nav className="footerLinks" aria-label="Footer">
-            <Link to="/privacy">Privacy</Link>
-            <Link to="/contact">Contact</Link>
-          </nav>
-
-          <div className="footerLogo">
-            <a
-              href="https://opseu.org"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="OPSEU website"
-            >
-              <img src="/opseuLogo.svg" alt="OPSEU" />
-            </a>
-          </div>
-        </div>
-
-        <div className="footerDivider" />
-
-        <div className="footerBottom">
-          <Link className="footerBottomLink" to="/contact">
-            Report a bug
-          </Link>
-
-          <div className="footerCredit">TJ3D | 2026</div>
-
-          <div className="footerCopyright">
-            © {new Date().getFullYear()} OPSEU Local 279
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
+/* =========================
+   App shell + routes
+========================= */
 export default function App() {
+  const { pathname } = useLocation();
+  const inMembers = pathname.startsWith("/members");
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Shell />}>
-          {/* Public */}
-          <Route index element={<Home />} />
-          <Route path="/news/:id" element={<NewsPost />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/contact" element={<PublicContact />} />
+    <div className="appShell">
+      <header className="topbar">
+        <div className="topbarInner">
+          <div className="navLeft">
+            <MemberHamburgerMenu />
+          </div>
 
-          {/* Members (protected) */}
-          <Route
-            path="/members"
-            element={
-              <MemberGate>
-                <MembersLayout />
-              </MemberGate>
-            }
-          >
-            <Route index element={<MembersHome />} />
+          <div className="navCenter">
+            <Link
+              to="/"
+              className="topbarLogoLink"
+              aria-label="OPSEU Local 279 Home"
+              onClick={(e) => {
+                if (pathname === "/") {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+                }
+              }}
+            >
+              <img
+                src="/l279-logo-blue.png"
+                alt="OPSEU Local 279"
+                className="topbarLogo"
+              />
+            </Link>
+          </div>
 
-            {/* Keep Documents route if you still want it, even if it’s not in menu */}
-            <Route path="documents" element={<Documents />} />
-            <Route path="collective-agreement" element={<Documents />} />
-            <Route path="agreement" element={<Documents />} />
+          <div className="navRight">
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+            <SignedOut>
+              <SignInButton
+                mode="modal"
+                afterSignInUrl="/members"
+                afterSignUpUrl="/members"
+              >
+                <button type="button" className="mhBtn" aria-label="Sign in">
+                  Sign in
+                </button>
+              </SignInButton>
+            </SignedOut>
+          </div>
+        </div>
+      </header>
 
-            {/* Main items */}
-            <Route path="peer-support" element={<PeerSupport />} />
-            <Route path="data-charts" element={<DataCharts />} />
-            <Route path="wages-benefits" element={<DataCharts />} />
-            <Route path="take-action" element={<TakeAction />} />
+      <main
+        className={inMembers ? "main mainMembers" : "main"}
+        style={
+          inMembers
+            ? { ["--members-bg"]: `url(${norfolkCountySvg})` }
+            : undefined
+        }
+      >
+        <div className={inMembers ? "" : "container"}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/contact" element={<PublicContact />} />
+            <Route path="/news" element={<NewsIndex />} />
+            <Route path="/news/:id" element={<NewsPost />} />
 
-            {/* Local 279 hub + subpages */}
-            <Route path="local279" element={<Local279 />} />
-            <Route path="local279/seniority" element={<Seniority />} />
-            <Route path="local279/discounts" element={<Discounts />} />
+            <Route path="/members" element={<MembersHome />} />
             <Route
-              path="local279/grievances"
-              element={<ComingSoon title="Local 279 — Grievances" />}
+              path="/members/peer-support"
+              element={<MembersPeerSupport />}
             />
             <Route
-              path="local279/polls"
-              element={<ComingSoon title="Local 279 — Polls & Surveys" />}
+              path="/members/data-charts"
+              element={<MembersDataCharts />}
             />
             <Route
-              path="local279/meetings"
-              element={<ComingSoon title="Local 279 — Meetings" />}
+              path="/members/take-action"
+              element={<MembersTakeAction />}
             />
 
-            {/* Still accessible (even if not in main menu) */}
-            <Route path="discounts" element={<Discounts />} />
-            <Route path="seniority" element={<Seniority />} />
-            <Route path="faq" element={<Faq />} />
-            <Route path="contact" element={<ContactExec />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="/members/local279" element={<MembersLocal279Page />} />
+            <Route
+              path="/members/local279/discounts"
+              element={<MembersLocal279Discounts />}
+            />
+            <Route path="/members/contact" element={<MembersContactExec />} />
+          </Routes>
+        </div>
+      </main>
 
-            <Route path="*" element={<NotFound />} />
-          </Route>
+      <footer className="appFooter">
+        <div className="footerInner">
+          <div className="footerTopGrid">
+            <div className="footerAddress">
+              <div className="footerTitle">OPSEU Hamilton</div>
+              <div className="footerLine">505 York Blvd</div>
+              <div className="footerLine">Hamilton, ON</div>
+              <div className="footerLine">L8R 3K4</div>
+              <div className="footerLine">Ontario, Canada</div>
+            </div>
 
-          {/* Catch-all for public */}
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+            <div className="footerLinks">
+              <Link className="footerLink" to="/about">
+                About
+              </Link>
+              <Link className="footerLink" to="/privacy">
+                Privacy
+              </Link>
+              <Link className="footerLink" to="/contact">
+                Contact
+              </Link>
+            </div>
+
+            <div className="footerBrandTop">
+              <a
+                className="footerLogoLink"
+                href="https://opseu.org"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <img
+                  src="/l279-logo-blue.png"
+                  alt="OPSEU"
+                  className="footerLogo"
+                />
+              </a>
+            </div>
+          </div>
+
+          <div className="footerRuleFull" />
+
+          <div className="footerBottom">
+            <div className="footerBottomLine">
+              © {new Date().getFullYear()} OPSEU Local 279
+            </div>
+
+            <div className="footerCredits">
+              <a
+                className="footerCreditLink"
+                href="mailto:tristanjames3d@gmail.com"
+              >
+                Site design by: Tristan Britt | TJ3D
+              </a>
+
+              <a
+                className="footerCreditLink"
+                href="mailto:tristanjames3d@gmail.com?subject=OPSEU279%20Bug%20Report"
+              >
+                Report a bug
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }

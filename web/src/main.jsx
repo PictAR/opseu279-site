@@ -1,28 +1,21 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+// web/src/main.jsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import { ClerkProvider } from "@clerk/clerk-react";
 
 import App from "./App.jsx";
 import "./index.css";
+import "./styles/ui.css";
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const clerkKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-const APP_ENV = import.meta.env.VITE_APP_ENV || "unknown";
-document.documentElement.setAttribute("data-app-env", APP_ENV);
-
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY");
-}
-
-const rootEl = document.getElementById("root");
-if (!rootEl) {
-  throw new Error('Root element "#root" not found');
-}
-
-createRoot(rootEl).render(
-  <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <App />
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <ClerkProvider publishableKey={clerkKey}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </ClerkProvider>
-  </StrictMode>
+  </React.StrictMode>,
 );

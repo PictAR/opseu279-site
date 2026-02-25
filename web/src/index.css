@@ -113,7 +113,7 @@ button {
 }
 
 .hero-reveal__toggle{
-  display: none;
+  border-radius: 12px;
 }
 
 @media (hover: none){

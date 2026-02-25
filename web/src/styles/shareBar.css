@@ -1,0 +1,37 @@
+/* web/src/styles/shareBar.css */
+
+.shareBar{
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.shareBar.isRow{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.shareBar.isCol{
+  display: grid;
+  justify-items: start;
+}
+
+.shareBtn{
+  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(255,255,255,0.85);
+  border-radius: 14px;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.shareBtn:hover{
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.16);
+}

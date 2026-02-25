@@ -1,12 +1,7 @@
 // web/src/components/ShareBar.jsx
 import { useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faEnvelope,
-  faCopy,
-  faCheck,
-  faLink,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEnvelope, faCopy, faCheck } from "@fortawesome/free-solid-svg-icons";
 import {
   faXTwitter,
   faFacebook,
@@ -86,14 +81,14 @@ export default function ShareBar({
   const isColumn = layout === "column";
 
   return (
-    <div style={isColumn ? wrapColStyle : wrapRowStyle} aria-label="Share">
+    <div className={`shareBar${isColumn ? " isCol" : ""}`} aria-label="Share">
       {items.map((it) => (
         <a
           key={it.key}
           href={it.href}
           target="_blank"
           rel="noreferrer"
-          style={isColumn ? iconBtnColStyle : iconBtnRowStyle}
+          className="shareBtn"
           title={it.label}
           aria-label={it.label}
         >
@@ -104,63 +99,12 @@ export default function ShareBar({
       <button
         type="button"
         onClick={onCopy}
-        style={isColumn ? iconBtnColStyle : iconBtnRowStyle}
+        className="shareBtn"
         title={copied ? "Copied" : "Copy link"}
         aria-label={copied ? "Copied" : "Copy link"}
       >
         <FontAwesomeIcon icon={copied ? faCheck : faCopy} />
       </button>
-
-      {!isColumn ? (
-        <a
-          href={shareUrl}
-          target="_blank"
-          rel="noreferrer"
-          style={iconBtnRowStyle}
-          title="Open link"
-          aria-label="Open link"
-        >
-          <FontAwesomeIcon icon={faLink} />
-        </a>
-      ) : null}
     </div>
   );
 }
-
-const wrapRowStyle = {
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const wrapColStyle = {
-  display: "grid",
-  gap: 10,
-  alignItems: "start",
-  justifyItems: "start",
-};
-
-const baseBtn = {
-  border: "1px solid rgba(0,0,0,0.10)",
-  background: "rgba(255,255,255,0.85)",
-  borderRadius: 14,
-  width: 44,
-  height: 44,
-  cursor: "pointer",
-  fontSize: 18,
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: "#0055b8",
-  textDecoration: "none",
-};
-
-const iconBtnRowStyle = {
-  ...baseBtn,
-};
-
-const iconBtnColStyle = {
-  ...baseBtn,
-};

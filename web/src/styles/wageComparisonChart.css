@@ -1,4 +1,4 @@
-/* web/src/styles/components/wageComparisonChart.css */
+/* web/src/styles/wageComparisonChart.css */
 
 .wcc{
   display: grid;
@@ -13,12 +13,19 @@
 .wccTitle{
   margin: 0;
   font-size: 16px;
-  font-weight: 700;
-  color: var(--ink);
+  font-weight: 800;
+  color: var(--ink, #0b2b3a);
 }
 
 .wccSubtitle{
   margin: 0;
+}
+
+.wccHint{
+  font-size: 13px;
+  opacity: 0.85;
+  line-height: 1.45;
+  color: var(--muted, rgba(11,43,58,0.78));
 }
 
 .wccControls{
@@ -34,17 +41,30 @@
 
 .wccControlLabel{
   font-size: 12px;
-  color: var(--muted);
+  color: var(--muted, rgba(11,43,58,0.70));
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-.wccControlActions{
-  grid-column: 1 / -1;
-  display: flex;
+.wccTwoCol{
+  display: grid;
   gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
+}
+
+@media (min-width: 640px){
+  .wccTwoCol{
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+  }
+}
+
+.wcc select{
+  border: 1px solid var(--hairline, rgba(0,0,0,.12));
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: var(--surface, #fff);
+  color: var(--ink, #0b2b3a);
+  font-weight: 650;
 }
 
 .wccCard{
@@ -53,7 +73,7 @@
   background: #fff;
   padding: 12px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-  overflow: hidden; /* keeps borders visible when chart scrolls */
+  overflow: hidden;
 }
 
 .wccCardTop{
@@ -65,12 +85,8 @@
 }
 
 .wccCardLabel{
-  font-weight: 700;
+  font-weight: 800;
   color: rgba(11,43,58,0.95);
-}
-
-.wccHint{
-  font-size: 13px;
 }
 
 .wccList{
@@ -81,7 +97,7 @@
 
 .wccRow{
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   gap: 10px;
   align-items: center;
 
@@ -89,9 +105,6 @@
   border-radius: 12px;
   background: rgba(0,0,0,0.02);
   border: 1px solid rgba(0,0,0,0.06);
-
-  cursor: pointer;
-  user-select: none;
 }
 
 .wccRow.isOn{
@@ -102,15 +115,8 @@
 .wccLeft{
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-}
-
-.wccDot{
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  display: inline-block;
-  flex: 0 0 auto;
+  gap: 10px;
+  min-width: 0;
 }
 
 .wccServiceBlock{
@@ -120,7 +126,7 @@
 }
 
 .wccService{
-  font-weight: 600;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -128,7 +134,7 @@
 
 .wccMeta{
   font-size: 12px;
-  color: var(--muted);
+  color: var(--muted, rgba(11,43,58,0.70));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -142,14 +148,14 @@
 }
 
 .wccRate{
-  font-weight: 700;
-  color: var(--brand);
+  font-weight: 800;
+  color: var(--brand, #0055b8);
   white-space: nowrap;
 }
 
 .wccDate{
   font-size: 12px;
-  color: var(--muted);
+  color: var(--muted, rgba(11,43,58,0.70));
   white-space: nowrap;
 }
 
@@ -161,8 +167,7 @@
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
   touch-action: pan-x;
-  padding-bottom: 6px;
-  padding-right: 12px;
+  padding-bottom: 10px;
 }
 
 .wccSvg{
@@ -176,94 +181,54 @@
 .wccGridLight{ stroke: rgba(0,0,0,0.06); }
 .wccAxisText{ font-size: 11px; fill: rgba(0,0,0,0.65); }
 
-@media (max-width: 560px){
-  .wccControls{
-    grid-template-columns: 1fr;
-  }
-}
-
+/* Type toggles: single horizontal line, no button look */
 .wccTypeToggles{
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  gap: 16px;
   margin-top: 10px;
+
+  flex-wrap: nowrap;          /* single line */
+  overflow-x: auto;           /* if screen is tiny, allow swipe */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+
+  padding: 2px 0 6px;
 }
 
 .wccTypeToggle{
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--hairline);
-  background: rgba(0,0,0,0.02);
+
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+
   user-select: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  color: var(--ink, #0b2b3a);
+  font-weight: 700;
 }
 
-.wccTypeToggle.isDisabled{
-  opacity: 0.45;
+.wccTypeToggle input{
+  width: 16px;
+  height: 16px;
+  accent-color: var(--brand, #0055b8);
 }
 
-.wccTypePickers{
-  margin-top: 12px;
-  display: grid;
-  gap: 12px;
+.wccTypeToggle:hover{
+  color: var(--brand, #0055b8);
+animation: ease-in-out .5s;
 }
 
-.wccTypePicker{
-  border: 1px solid var(--hairline);
-  background: rgba(0,0,0,0.02);
-  border-radius: var(--radius);
-  padding: 12px;
-  display: grid;
-  gap: 10px;
-}
-
-.wccTypePickerTitle{
-  font-weight: 650;
-  color: var(--brand);
-  letter-spacing: 0.2px;
-}
-
-.wccTypePickerGrid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-@media (max-width: 520px){
-  .wccTypePickerGrid{ grid-template-columns: 1fr; }
-}
-
-.wccActionsRow{
-  margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.wccServiceLine{
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.wccType{
-  font-size: 12px;
-  line-height: 1;
-  padding: 3px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--hairline);
-  background: rgba(0,0,0,0.03);
-  color: var(--muted);
-}
-
-.wccPad{ padding: 12px; }
-
-.wccServicePickers{
-  display: grid;
-  gap: 10px;
-  padding: 12px;
+.wccTypeToggle:focus-within{
+  outline: 2px solid rgba(0,85,184,0.22);
+  outline-offset: 4px;
+  border-radius: 10px;
 }
 
 .wccDropdown{
@@ -296,38 +261,127 @@
   border-top: 1px solid var(--hairline, rgba(0,0,0,.12));
 }
 
-.wccDropdownBtns{
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.wccServicePickers{
+    display: grid !important;
+  grid-auto-flow: row;
+  justify-items: start;
+  gap: 6px;        
+  padding: 2px 0;
 }
 
 .wccPickRow{
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 4px;
-  border-radius: 10px;
+  width: 100%;
+  gap: 8px;        
+  padding: 3px 2px;
 }
 
-.wccPickRow:hover{
-  background: rgba(0,0,0,0.03);
+.wccPickRow input{
+  width: 14px;
+  height: 14px;
 }
 
-.wccPickDot{
+.wccPickRow svg{
   width: 10px;
   height: 10px;
-  border-radius: 999px;
-  flex: 0 0 auto;
 }
 
 .wccPickName{
-  font-weight: 600;
+  font-weight: 500;
+  font-size: 13px;
+}
+.wccPickRow.isDisabled{ opacity: 0.45; }
+.wccPickRow input:disabled{ cursor: not-allowed; }
+
+@media (max-width: 560px){
+  .wccControls{ grid-template-columns: 1fr; }
 }
 
-.wccMinWageRow{
-  padding: 10px 12px;
-  border: 1px dashed var(--hairline, rgba(0,0,0,.12));
-  border-radius: 14px;
-  margin: 0 12px 12px;
+@media (max-width: 420px){
+  .wccAxisText{ font-size: 10px; }
 }
+
+.wccLine{
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  background: rgba(0,0,0,0.015);
+  overflow: hidden;
+}
+
+.wccLineSummary{
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  padding: 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wccLineSummary::-webkit-details-marker{ display: none; }
+.wccLineSummary::marker{ content: ""; }
+
+.wccLineLeft{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.wccLineName{
+  font-weight: 750;
+  color: var(--ink, #0b2b3a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wccLineRight{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wccLineRate{
+  font-weight: 850;
+  color: var(--brand, #0055b8);
+  white-space: nowrap;
+}
+
+.wccLineBody{
+  padding: 10px 12px 12px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  display: grid;
+  gap: 10px;
+}
+
+.wccLineMeta{
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted, rgba(11,43,58,0.78));
+}
+
+.wccLineMiniTitle{
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted, rgba(11,43,58,0.70));
+  margin-bottom: 6px;
+}
+
+.wccLineMiniGrid{
+  display: grid;
+  gap: 6px;
+}
+
+.wccLineMiniRow{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.wccLineMiniDate{ color: var(--muted, rgba(11,43,58,0.75)); }
+.wccLineMiniVal{ color: var(--ink, #0b2b3a); font-weight: 700; }
