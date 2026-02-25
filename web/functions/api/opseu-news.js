@@ -1,119 +1,107 @@
 // web/functions/api/opseu-news.js
-// Cloudflare Pages Function: /api/opseu-news
 
-export async function onRequestGet(context) {
-  const { request } = context;
+export async function onRequestGet({ request }) {
   const url = new URL(request.url);
+  const limit = Math.min(
+    20,
+    Math.max(1, Number(url.searchParams.get("limit") || 10)),
+  );
 
-  const limitRaw = url.searchParams.get("limit") || "10";
-  const limit = clamp(parseInt(limitRaw, 10) || 10, 1, 12);
+  // OPSEU is WordPress-y and typically exposes RSS.
+  // If you decide to use a different feed later, change this one line.
+  const FEED_URL = "https://opseu.org/sector/mental-health/feed/";
 
-  try {
-    // 1) Try to pull the dedicated "news" category first
-    const newsCategoryId = await findCategoryIdBySlug("news");
+  const upstream = await fetch(FEED_URL, {
+    headers: {
+      "user-agent": "opseu279-site/1.0 (+https://opseu279.com)",
+      accept: "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8",
+    },
+  });
 
-    const postsUrl = new URL("https://opseu.org/wp-json/wp/v2/posts");
-    postsUrl.searchParams.set("per_page", String(limit));
-    postsUrl.searchParams.set("_embed", "1");
-    if (newsCategoryId)
-      postsUrl.searchParams.set("categories", String(newsCategoryId));
-
-    const res = await fetch(postsUrl.toString(), {
-      headers: {
-        Accept: "application/json",
-        // Set a normal UA to avoid some edge filtering.
-        "User-Agent": "opseu279.com (Local 279 News Carousel)",
-      },
-    });
-
-    if (!res.ok) {
-      throw new Error(`OPSEU fetch failed: ${res.status}`);
-    }
-
-    const json = await res.json();
-    const items = Array.isArray(json)
-      ? json.map(mapWpPost).filter(Boolean)
-      : [];
-
-    return jsonResponse(
-      {
-        items,
-        source: "wp-json",
-        fetchedAt: new Date().toISOString(),
-      },
-      200,
-    );
-  } catch {
-    return jsonResponse(
-      {
-        items: [],
-        error: "Unable to load OPSEU news right now.",
-      },
-      200,
+  if (!upstream.ok) {
+    return json(
+      { items: [], error: `Upstream feed failed (${upstream.status})` },
+      502,
     );
   }
-}
 
-async function findCategoryIdBySlug(slug) {
-  try {
-    const u = new URL("https://opseu.org/wp-json/wp/v2/categories");
-    u.searchParams.set("slug", slug);
-    u.searchParams.set("per_page", "1");
+  const xml = await upstream.text();
 
-    const res = await fetch(u.toString(), {
-      headers: {
-        Accept: "application/json",
-        "User-Agent": "opseu279.com (Local 279 News Carousel)",
-      },
+  // Very light RSS parsing (good enough for WP feeds)
+  const items = [];
+  const itemBlocks = xml.match(/<item[\s\S]*?<\/item>/gim) || [];
+
+  for (const block of itemBlocks.slice(0, limit)) {
+    const title = pick(block, "title");
+    const link = pick(block, "link");
+    const pubDate = pick(block, "pubDate");
+
+    // WP often uses content:encoded or description
+    const desc =
+      pick(block, "content:encoded") || pick(block, "description") || "";
+
+    // Try a couple common image patterns
+    const enclosureUrl = pickAttr(block, "enclosure", "url");
+    const mediaUrl = pickAttr(block, "media:content", "url");
+    const image = enclosureUrl || mediaUrl || "";
+
+    items.push({
+      title: decodeHtml(stripCdata(title)).trim(),
+      link: decodeHtml(stripCdata(link)).trim(),
+      date: decodeHtml(stripCdata(pubDate)).trim(),
+      excerpt: truncateText(stripTags(decodeHtml(stripCdata(desc))), 220),
+      image: decodeHtml(stripCdata(image)).trim(),
+      source: "OPSEU/SEFPO",
     });
-    if (!res.ok) return null;
-    const json = await res.json();
-    if (!Array.isArray(json) || !json[0]?.id) return null;
-    return json[0].id;
-  } catch {
-    return null;
   }
+
+  return json({ items }, 200, 600); // cache 10 min
 }
 
-function mapWpPost(post) {
-  try {
-    const title = stripHtml(post?.title?.rendered);
-    const excerpt = stripHtml(post?.excerpt?.rendered);
-    const link = post?.link;
-    const date = post?.date || post?.date_gmt;
-
-    const media = post?._embedded?.["wp:featuredmedia"]?.[0];
-    const image =
-      media?.media_details?.sizes?.medium?.source_url ||
-      media?.media_details?.sizes?.large?.source_url ||
-      media?.source_url ||
-      "";
-
-    if (!title || !link) return null;
-    return { title, excerpt, link, date, image };
-  } catch {
-    return null;
-  }
+function json(data, status = 200, maxAge = 0) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": maxAge ? `public, max-age=${maxAge}` : "no-store",
+    },
+  });
 }
 
-function stripHtml(str) {
-  return String(str || "")
-    .replace(/<[^>]*>/g, " ")
+function pick(xml, tag) {
+  const re = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i");
+  const m = xml.match(re);
+  return m ? m[1] : "";
+}
+
+function pickAttr(xml, tag, attr) {
+  const re = new RegExp(`<${tag}[^>]*\\s${attr}="([^"]+)"[^>]*\\/?>`, "i");
+  const m = xml.match(re);
+  return m ? m[1] : "";
+}
+
+function stripCdata(s) {
+  return (s || "").replace(/^<!\[CDATA\[(.*)\]\]>$/s, "$1");
+}
+
+function stripTags(s) {
+  return (s || "")
+    .replace(/<\/?[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, n));
+function truncateText(s, n) {
+  if (!s) return "";
+  return s.length > n ? `${s.slice(0, n - 1).trim()}…` : s;
 }
 
-function jsonResponse(body, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      // Cache for 5 minutes at the edge.
-      "cache-control": "public, max-age=300, s-maxage=300",
-    },
-  });
+function decodeHtml(s) {
+  return (s || "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .trim();
 }

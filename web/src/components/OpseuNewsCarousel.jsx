@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 // If not, set VITE_OPSEU_NEWS_ENDPOINT to something you control.
 const ENDPOINT = import.meta.env.VITE_OPSEU_NEWS_ENDPOINT || "/api/opseu-news";
 
+console.log("[OpseuNewsCarousel] mounted, ENDPOINT =", ENDPOINT);
+
 function safeText(v) {
   return typeof v === "string" ? v : "";
 }
