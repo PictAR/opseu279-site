@@ -7,9 +7,11 @@ export async function onRequestGet({ request }) {
     Math.max(1, Number(url.searchParams.get("limit") || 10)),
   );
 
-  // OPSEU is WordPress-y and typically exposes RSS.
-  // If you decide to use a different feed later, change this one line.
-  const FEED_URL = "https://opseu.org/sector/mental-health/feed/";
+  const FEEDS = [
+    "https://opseu.org/feed/",
+    "https://opseu.org/news/feed/",
+    "https://opseu.org/category/news/feed/",
+  ];
 
   const upstream = await fetch(FEED_URL, {
     headers: {
@@ -17,6 +19,36 @@ export async function onRequestGet({ request }) {
       accept: "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8",
     },
   });
+
+  let upstream = null;
+  let lastErr = "";
+
+  for (const FEED_URL of FEEDS) {
+    try {
+      upstream = await fetch(FEED_URL, {
+        headers: {
+          "user-agent": "opseu279-site/1.0 (+https://opseu279.com)",
+          accept:
+            "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8, */*;q=0.7",
+        },
+      });
+
+      if (upstream.ok) break;
+
+      lastErr = `${FEED_URL} -> ${upstream.status} ${upstream.statusText}`;
+      upstream = null;
+    } catch (e) {
+      lastErr = `${FEED_URL} -> ${e?.message || "fetch failed"}`;
+      upstream = null;
+    }
+  }
+
+  if (!upstream) {
+    return json(
+      { items: [], error: `All OPSEU feeds failed. Last error: ${lastErr}` },
+      502,
+    );
+  }
 
   if (!upstream.ok) {
     return json(
