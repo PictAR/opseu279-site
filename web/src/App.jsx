@@ -912,7 +912,10 @@ export default function App() {
           </div>
 
           <div className="navRight">
-            <TopbarAuth />
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+            <SignedOut>{null}</SignedOut>
           </div>
         </div>
       </header>
