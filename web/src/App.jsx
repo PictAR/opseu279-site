@@ -17,6 +17,9 @@ import PublicContact from "./pages/contactPublic.jsx";
 import NewsPost from "./pages/news-post.jsx";
 import NewsIndex from "./pages/news-index.jsx";
 import Local279 from "./pages/local279.jsx";
+import ParityPage from "./pages/ParityPage";
+
+<Route path="/parity" element={<ParityPage />} />;
 
 import OpseuNewsCarousel from "./components/OpseuNewsCarousel.jsx";
 import MemberHamburgerMenu from "./components/MemberHamburgerMenu.jsx";
