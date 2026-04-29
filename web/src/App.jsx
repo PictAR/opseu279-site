@@ -17,7 +17,7 @@ import PublicContact from "./pages/contactPublic.jsx";
 import NewsPost from "./pages/news-post.jsx";
 import NewsIndex from "./pages/news-index.jsx";
 import Local279 from "./pages/local279.jsx";
-import ParityPage from "./pages/ParityPage";
+import ParityPage from "./pages/ParityPage.jsx";
 
 <Route path="/parity" element={<ParityPage />} />;
 
