@@ -22,7 +22,7 @@ export default function ParityPage() {
         {/* HERO IMAGE */}
         <section className="card">
           <img
-            src="/images/parity-hero.jpg" // swap with your asset
+            src="web/src/assets/parity-hero.png"
             alt="Paramedics responding to emergency"
             style={{
               width: "100%",

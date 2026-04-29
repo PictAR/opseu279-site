@@ -33,6 +33,7 @@ const FORMSPREE_ENDPOINT = "https://formspree.io/f/xzddqyzn";
 /* =========================
    Small helpers
 ========================= */
+
 function formatDate(iso) {
   try {
     return new Date(iso).toLocaleDateString(undefined, {
@@ -68,6 +69,7 @@ function TopbarAuth() {
 /* =========================
    Public home bits
 ========================= */
+
 function OlderPostsCarousel({ posts }) {
   const rowRef = useRef(null);
   const items = Array.isArray(posts) ? posts.slice(0, 3) : [];
@@ -320,6 +322,7 @@ function Home() {
 /* =========================
    Members gate + pages
 ========================= */
+
 function MembersGate({ children }) {
   return (
     <>
@@ -427,6 +430,7 @@ function MembersTakeAction() {
 /* =========================
    Local discounts (single copy)
 ========================= */
+
 function pickDiscountArray(mod) {
   if (!mod) return [];
   if (Array.isArray(mod.LOCAL_DISCOUNTS)) return mod.LOCAL_DISCOUNTS;
@@ -762,9 +766,10 @@ function LocalDiscountsCarousel() {
   );
 }
 
-/* =========================
-   Local 279 pages (use existing local279.jsx)
-========================= */
+/* ===============
+   Local 279 pages
+================== */
+
 function MembersLocal279Page() {
   return (
     <MembersGate>
@@ -878,6 +883,7 @@ function MembersContactExec() {
 /* =========================
    App shell + routes
 ========================= */
+
 export default function App() {
   const { pathname } = useLocation();
   const inMembers = pathname.startsWith("/members");
@@ -960,6 +966,8 @@ export default function App() {
               element={<MembersLocal279Discounts />}
             />
             <Route path="/members/contact" element={<MembersContactExec />} />
+
+            <Route path="/parity" element={<ParityPage />} />
           </Routes>
         </div>
       </main>
